@@ -120,6 +120,7 @@ export default function PricingPage() {
                   <RazorpayCheckout
                     planId={plan.id}
                     planName={plan.name}
+                    annual={annual}
                     className={
                       plan.highlighted
                         ? "bg-gradient-to-r from-accent-purple to-accent-blue text-white hover:opacity-85"

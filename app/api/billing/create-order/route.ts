@@ -1,43 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { razorpay, getRazorpayPlanId } from "@/lib/razorpay";
+import { razorpay } from "@/lib/razorpay";
+import { getPlan } from "@/lib/plans";
 import type { PlanId } from "@/lib/plans";
 
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized." }, { status: 401 });
     }
 
-    const { plan } = await req.json() as { plan: PlanId };
+    const { plan, annual } = await req.json() as { plan: PlanId; annual?: boolean };
     if (!plan) {
       return NextResponse.json({ success: false, error: "Plan is required." }, { status: 400 });
     }
 
-    const planId = getRazorpayPlanId(plan);
+    const planData = getPlan(plan);
+    const price = annual ? planData.annualPrice : planData.price;
+    const amountPaise = price * 100;
 
-    const subscription = await razorpay.subscriptions.create({
-      plan_id: planId,
-      total_count: 12,
-      quantity: 1,
-      customer_notify: 1,
-      notes: { user_id: user.id, plan },
+    const order = await razorpay.orders.create({
+      amount: amountPaise,
+      currency: "INR",
+      receipt: `kunjara_${user.id.slice(0, 8)}_${Date.now()}`,
+      notes: { user_id: user.id, plan, annual: annual ? "true" : "false" },
     });
-
-    await supabase.from("user_subscriptions").upsert({
-      user_id: user.id,
-      razorpay_sub_id: subscription.id,
-      plan,
-      status: "created",
-      updated_at: new Date().toISOString(),
-    }, { onConflict: "user_id" });
 
     return NextResponse.json({
       success: true,
-      subscription_id: subscription.id,
+      order_id: order.id,
+      amount: amountPaise,
+      currency: "INR",
       key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     });
   } catch (error) {

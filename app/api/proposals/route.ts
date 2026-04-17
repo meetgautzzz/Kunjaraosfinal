@@ -34,6 +34,14 @@ export async function POST(req: NextRequest) {
 
     const usage = await checkAndIncrementUsage(user.id);
 
+    if (usage.overage) {
+      return NextResponse.json({
+        success: false,
+        error: "Plan limit reached. Upgrade to continue.",
+        limit_reached: true,
+      }, { status: 403 });
+    }
+
     let data;
     try {
       console.log("[proposals] Calling OpenAI for user:", user.id, "event:", eventType);

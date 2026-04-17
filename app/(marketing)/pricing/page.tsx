@@ -12,6 +12,21 @@ export default function PricingPage() {
     <main className="min-h-screen py-24">
       <Container size="lg">
 
+        {/* Test Plan Banner */}
+        <div className="mb-10 mx-auto max-w-sm rounded-2xl border border-accent-blue/30 bg-accent-blue/8 px-6 py-5 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-accent-blue">Testing Mode</p>
+          <p className="mt-2 text-2xl font-bold text-text-primary">Test Plan <span className="text-accent-blue">₹1</span></p>
+          <p className="mt-1 text-sm text-text-secondary">Includes 10 proposals</p>
+          <div className="mt-4">
+            <RazorpayCheckout
+              planId="test"
+              planName="Test Plan"
+              label="Pay ₹1 to Test"
+              className="bg-gradient-to-r from-accent-purple to-accent-blue text-white hover:opacity-85"
+            />
+          </div>
+        </div>
+
         {/* Header */}
         <div className="mb-16 text-center">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-text-secondary">
@@ -60,7 +75,7 @@ export default function PricingPage() {
                 plan.highlighted
                   ? "border-accent-blue/50 bg-gradient-to-b from-accent-blue/10 via-surface to-surface shadow-[0_0_40px_-12px_rgba(58,134,255,0.25)]"
                   : "border-white/8 bg-surface hover:border-white/15"
-              }`}
+              } ${plan.comingSoon ? "opacity-60" : ""}`}
             >
               {plan.highlighted && (
                 <div className="absolute -top-px left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-blue/60 to-transparent" />
@@ -68,6 +83,11 @@ export default function PricingPage() {
               {plan.highlighted && (
                 <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent-blue px-3 py-1 text-xs font-semibold text-white">
                   Most Popular
+                </span>
+              )}
+              {plan.comingSoon && (
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/15 bg-surface px-3 py-1 text-xs font-semibold text-text-secondary">
+                  Coming Soon
                 </span>
               )}
 
@@ -117,16 +137,25 @@ export default function PricingPage() {
 
                 {/* CTA */}
                 <div className="mt-auto">
-                  <RazorpayCheckout
-                    planId={plan.id}
-                    planName={plan.name}
-                    annual={annual}
-                    className={
-                      plan.highlighted
-                        ? "bg-gradient-to-r from-accent-purple to-accent-blue text-white hover:opacity-85"
-                        : "border border-white/10 bg-bg text-text-primary hover:border-white/20 hover:bg-card"
-                    }
-                  />
+                  {plan.comingSoon ? (
+                    <button
+                      disabled
+                      className="flex w-full cursor-not-allowed items-center justify-center rounded-xl border border-white/8 bg-white/5 py-2.5 text-sm font-semibold text-text-secondary opacity-60"
+                    >
+                      Coming Soon
+                    </button>
+                  ) : (
+                    <RazorpayCheckout
+                      planId={plan.id}
+                      planName={plan.name}
+                      annual={annual}
+                      className={
+                        plan.highlighted
+                          ? "bg-gradient-to-r from-accent-purple to-accent-blue text-white hover:opacity-85"
+                          : "border border-white/10 bg-bg text-text-primary hover:border-white/20 hover:bg-card"
+                      }
+                    />
+                  )}
                 </div>
               </div>
             </div>

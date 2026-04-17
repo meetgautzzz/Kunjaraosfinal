@@ -11,6 +11,7 @@ export interface Plan {
   leads?: number;
   overage: number;
   highlighted?: boolean;
+  comingSoon?: boolean;
   features: string[];
 }
 
@@ -20,27 +21,28 @@ export const PLANS: Plan[] = [
     name: "Basic",
     price: 1999,
     annualPrice: 1666,
-    events: 5,
+    events: 10,
     users: 1,
     storage: "5GB",
     overage: 199,
-    features: ["5 proposals/month", "1 user", "5GB storage", "PDF export", "Email support"],
+    features: ["10 proposals/month", "1 user", "5GB storage", "PDF export", "Email support"],
   },
   {
     id: "pro",
     name: "Pro",
     price: 3999,
     annualPrice: 3332,
-    events: 10,
+    events: 20,
     users: 1,
     storage: "10GB",
     overage: 199,
     highlighted: true,
-    features: ["10 proposals/month", "1 user", "10GB storage", "PDF export", "Priority support"],
+    features: ["20 proposals/month", "1 user", "10GB storage", "PDF export", "Priority support"],
   },
   {
     id: "expert",
     name: "Expert",
+    comingSoon: true,
     price: 11999,
     annualPrice: 9999,
     events: 20,
@@ -52,6 +54,7 @@ export const PLANS: Plan[] = [
   {
     id: "enterprise",
     name: "Enterprise",
+    comingSoon: true,
     price: 24999,
     annualPrice: 20832,
     events: 45,

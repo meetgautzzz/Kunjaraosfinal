@@ -99,11 +99,16 @@ export default function ProposalGenerator() {
         throw new Error(message);
       }
 
-      let json: { success: boolean; data?: ProposalOutput; error?: string; usage?: { events_used: number; limit: number; overage: boolean } };
+      let json: { success: boolean; data?: ProposalOutput; error?: string; limit_reached?: boolean; usage?: { events_used: number; limit: number; overage: boolean } };
       try {
         json = JSON.parse(text);
       } catch {
         throw new Error("Server returned invalid JSON.");
+      }
+
+      if (json.limit_reached) {
+        window.location.href = "/pricing";
+        return;
       }
 
       if (!json.success || !json.data) {

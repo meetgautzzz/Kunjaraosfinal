@@ -52,6 +52,7 @@ export default function RazorpayCheckout({
 
     const res = await fetch("/api/billing/create-order", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ plan: planId, annual }),
     });
@@ -100,6 +101,7 @@ export default function RazorpayCheckout({
       },
     };
 
+    console.log("Opening Razorpay");
     const rzp = new window.Razorpay(options);
     rzp.open();
     setLoading(false);

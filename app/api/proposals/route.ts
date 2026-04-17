@@ -5,6 +5,7 @@ import { checkAndIncrementUsage } from "@/lib/usage";
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("[proposals] KEY LENGTH:", process.env.OPENAI_API_KEY?.length);
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({ success: false, error: "OpenAI API key not configured." }, { status: 503 });
     }

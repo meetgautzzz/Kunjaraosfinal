@@ -59,7 +59,7 @@ export async function checkAndIncrementUsage(
     usage.events_used = 0;
   }
 
-  const overage = usage.events_used >= plan.events;
+  const overage = false; // limit temporarily disabled
 
   await supabase
     .from("user_usage")

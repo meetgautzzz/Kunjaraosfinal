@@ -30,6 +30,7 @@ export async function generateProposal(
   input: ProposalInput
 ): Promise<ProposalOutput> {
   const apiKey = process.env.OPENAI_API_KEY;
+  console.log("[generateProposal] OPENAI_API_KEY length:", apiKey?.length ?? 0);
   if (!apiKey) throw new Error("OPENAI_API_KEY is not set.");
 
   const client = new OpenAI({ apiKey });

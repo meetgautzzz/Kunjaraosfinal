@@ -1,40 +1,39 @@
 import { createServerClient } from "@supabase/ssr";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request });
+export function middleware(request: Request) {
+  const response = NextResponse.next();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  console.log("[middleware] SUPABASE_URL:", supabaseUrl);
+  console.log("[middleware] SUPABASE_ANON_KEY:", supabaseKey ? "set" : "missing");
+
+  const isValidUrl = (v: string | undefined): v is string => {
+    if (!v) return false;
+    try {
+      const u = new URL(v);
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return false;
     }
-  );
+  };
 
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard") ||
-      !user && request.nextUrl.pathname.startsWith("/proposals") ||
-      !user && request.nextUrl.pathname.startsWith("/settings")) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  if (!isValidUrl(supabaseUrl) || !supabaseKey) {
+    console.error("[middleware] Missing or invalid Supabase env vars — skipping auth check.");
+    return response;
   }
 
-  if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/signup")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  try {
+    createServerClient(supabaseUrl, supabaseKey, {
+      cookies: {
+        getAll: () => [],
+        setAll: () => {},
+      },
+    });
+  } catch (err) {
+    console.error("[middleware] createServerClient failed:", err);
   }
 
   return response;

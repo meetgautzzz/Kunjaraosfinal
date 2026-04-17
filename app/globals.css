@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-bg: #0E1116;
+  --color-surface: #161B22;
+  --color-card: #1C2128;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-text-primary: #E6EDF3;
+  --color-text-secondary: #9DA7B3;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-accent-purple: #6C5CE7;
+  --color-accent-blue: #3A86FF;
+  --color-accent-cyan: #4CC9F0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0E1116;
+  color: #E6EDF3;
+}
+
+@media print {
+  .no-print { display: none !important; }
+
+  aside, nav, header, form { display: none !important; }
+
+  body {
+    background: #ffffff !important;
+    color: #0a0a0a !important;
+  }
+
+  * {
+    border-color: #e5e7eb !important;
+    color: inherit;
+  }
+
+  .bg-surface, .bg-card, .bg-bg {
+    background: #f9fafb !important;
+  }
+
+  .text-text-primary { color: #0a0a0a !important; }
+  .text-text-secondary { color: #6b7280 !important; }
+
+  @page {
+    margin: 1.5cm;
+  }
 }

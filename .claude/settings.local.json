@@ -7,7 +7,8 @@
       "Bash(npx rimraf *)",
       "Bash(npm install *)",
       "mcp__claude_ai_Supabase__execute_sql",
-      "mcp__claude_ai_Supabase__apply_migration"
+      "mcp__claude_ai_Supabase__apply_migration",
+      "Bash(npm run *)"
     ]
   }
 }

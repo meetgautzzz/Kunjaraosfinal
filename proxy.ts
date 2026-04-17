@@ -1,14 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 
-export function middleware(request: Request) {
+export function proxy(request: Request) {
   const response = NextResponse.next();
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  console.log("[middleware] SUPABASE_URL:", supabaseUrl);
-  console.log("[middleware] SUPABASE_ANON_KEY:", supabaseKey ? "set" : "missing");
+  console.log("[proxy] SUPABASE_URL:", supabaseUrl);
+  console.log("[proxy] SUPABASE_ANON_KEY:", supabaseKey ? "set" : "missing");
 
   const isValidUrl = (v: string | undefined): v is string => {
     if (!v) return false;
@@ -21,7 +21,7 @@ export function middleware(request: Request) {
   };
 
   if (!isValidUrl(supabaseUrl) || !supabaseKey) {
-    console.error("[middleware] Missing or invalid Supabase env vars — skipping auth check.");
+    console.error("[proxy] Missing or invalid Supabase env vars — skipping auth check.");
     return response;
   }
 
@@ -33,7 +33,7 @@ export function middleware(request: Request) {
       },
     });
   } catch (err) {
-    console.error("[middleware] createServerClient failed:", err);
+    console.error("[proxy] createServerClient failed:", err);
   }
 
   return response;

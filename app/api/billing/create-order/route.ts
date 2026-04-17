@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
     const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
 
     const supabase = await createClient();
+    if (!supabase) {
+      return NextResponse.json({ success: false, error: "Service unavailable." }, { status: 503 });
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized." }, { status: 401 });

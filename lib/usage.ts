@@ -12,6 +12,7 @@ export interface UsageRecord {
 
 export async function getUsage(userId: string): Promise<UsageRecord | null> {
   const supabase = await createClient();
+  if (!supabase) return null;
   const { data } = await supabase
     .from("user_usage")
     .select("*")
@@ -24,6 +25,7 @@ export async function checkAndIncrementUsage(
   userId: string
 ): Promise<{ allowed: boolean; overage: boolean; events_used: number; limit: number }> {
   const supabase = await createClient();
+  if (!supabase) return { allowed: false, overage: false, events_used: 0, limit: 0 };
 
   let { data: usage } = await supabase
     .from("user_usage")

@@ -47,6 +47,7 @@ export default function ProposalGenerator() {
   useEffect(() => {
     async function loadUsage() {
       const supabase = createClient();
+      if (!supabase) return;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const { data } = await supabase

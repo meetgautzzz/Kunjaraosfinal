@@ -45,6 +45,7 @@ export default function Sidebar() {
   useEffect(() => {
     async function loadUsage() {
       const supabase = createClient();
+      if (!supabase) return;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const { data } = await supabase.from("user_usage").select("events_used, plan").eq("user_id", user.id).single();
@@ -58,6 +59,7 @@ export default function Sidebar() {
 
   async function handleLogout() {
     const supabase = createClient();
+    if (!supabase) return;
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();

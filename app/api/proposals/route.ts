@@ -6,6 +6,9 @@ import { checkAndIncrementUsage } from "@/lib/usage";
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
+    if (!supabase) {
+      return NextResponse.json({ success: false, error: "Service unavailable." }, { status: 503 });
+    }
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {

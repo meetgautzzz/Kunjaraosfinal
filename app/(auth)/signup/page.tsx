@@ -21,6 +21,7 @@ export default function SignupPage() {
     setError(null);
 
     const supabase = createClient();
+    if (!supabase) { setError("Service unavailable."); setLoading(false); return; }
     const { error } = await supabase.auth.signUp({
       email,
       password,

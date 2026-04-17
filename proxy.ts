@@ -1,39 +1,53 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export function proxy(request: Request) {
-  const response = NextResponse.next();
+const PROTECTED = ["/dashboard", "/proposals", "/settings"];
+const AUTH_ONLY = ["/login", "/signup"];
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-  console.log("[proxy] SUPABASE_URL:", supabaseUrl);
-  console.log("[proxy] SUPABASE_ANON_KEY:", supabaseKey ? "set" : "missing");
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const isValidUrl = (v: string | undefined): v is string => {
-    if (!v) return false;
-    try {
-      const u = new URL(v);
-      return u.protocol === "http:" || u.protocol === "https:";
-    } catch {
-      return false;
-    }
-  };
-
-  if (!isValidUrl(supabaseUrl) || !supabaseKey) {
-    console.error("[proxy] Missing or invalid Supabase env vars — skipping auth check.");
-    return response;
+  if (!url || !key) {
+    console.error("[proxy] Missing Supabase env vars — skipping auth check.");
+    return NextResponse.next();
   }
 
+  const response = NextResponse.next();
+
+  let sessionToken: string | undefined;
+
   try {
-    createServerClient(supabaseUrl, supabaseKey, {
+    const supabase = createServerClient(url, key, {
       cookies: {
-        getAll: () => [],
+        getAll: () => request.cookies.getAll(),
         setAll: () => {},
       },
     });
+
+    const authCookieName = `sb-${new URL(url).hostname.split(".")[0]}-auth-token`;
+    sessionToken = request.cookies.get(authCookieName)?.value;
+
+    void supabase;
   } catch (err) {
     console.error("[proxy] createServerClient failed:", err);
+    return response;
+  }
+
+  const isProtected = PROTECTED.some((p) => pathname.startsWith(p));
+  const isAuthRoute = AUTH_ONLY.some((p) => pathname.startsWith(p));
+
+  if (isProtected && !sessionToken) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (isAuthRoute && sessionToken) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return response;

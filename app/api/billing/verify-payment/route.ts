@@ -6,6 +6,9 @@ import type { PlanId } from "@/lib/plans";
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
+    if (!supabase) {
+      return NextResponse.json({ success: false, error: "Service unavailable." }, { status: 503 });
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized." }, { status: 401 });
@@ -19,8 +22,13 @@ export async function POST(req: NextRequest) {
         plan: PlanId;
       };
 
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keySecret) {
+      return NextResponse.json({ success: false, error: "Payment gateway not configured." }, { status: 503 });
+    }
+
     const expected = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .createHmac("sha256", keySecret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 

@@ -20,6 +20,7 @@ export default function LoginPage() {
     setError(null);
 
     const supabase = createClient();
+    if (!supabase) { setError("Service unavailable."); setLoading(false); return; }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {

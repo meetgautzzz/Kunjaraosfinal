@@ -7,8 +7,13 @@ export async function POST(req: NextRequest) {
     const body = await req.text();
     const signature = req.headers.get("x-razorpay-signature");
 
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      return NextResponse.json({ error: "Webhook not configured." }, { status: 503 });
+    }
+
     const expected = crypto
-      .createHmac("sha256", process.env.RAZORPAY_WEBHOOK_SECRET!)
+      .createHmac("sha256", webhookSecret)
       .update(body)
       .digest("hex");
 
@@ -18,6 +23,7 @@ export async function POST(req: NextRequest) {
 
     const event = JSON.parse(body);
     const supabase = await createClient();
+    if (!supabase) return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
 
     if (event.event === "order.paid") {
       const order = event.payload?.order?.entity;

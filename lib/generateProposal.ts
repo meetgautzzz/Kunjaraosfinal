@@ -36,13 +36,15 @@ export async function generateProposal(
 
   const { eventType, budget, location, audience, theme, clientName } = input;
 
-  const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.7,
-    messages: [
-      {
-        role: "system",
-        content: `You are a professional event director and luxury event planner with 15+ years of experience producing high-end corporate and private events globally.
+  let response;
+  try {
+    response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.7,
+      messages: [
+        {
+          role: "system",
+          content: `You are a professional event director and luxury event planner with 15+ years of experience producing high-end corporate and private events globally.
 
 Your task is to generate a premium, client-ready event proposal. Every word must reflect quality, clarity, and expertise. Avoid generic language — be specific, confident, and refined.
 
@@ -78,26 +80,39 @@ Rules:
 - Event flow must read as a professional run-of-show
 - Add-ons must be genuinely valuable, not padding
 - No markdown inside JSON values`,
-      },
-      {
-        role: "user",
-        content: `Generate a proposal for:
+        },
+        {
+          role: "user",
+          content: `Generate a proposal for:
 - Event Type: ${eventType}
 - Budget: ${budget}
 - Location: ${location}
 - Audience: ${audience}
 - Theme: ${theme}${clientName ? `\n- Client: ${clientName}` : ""}`,
-      },
-    ],
-    response_format: { type: "json_object" },
-  });
+        },
+      ],
+      response_format: { type: "json_object" },
+    });
+  } catch (err) {
+    console.error("[generateProposal] OpenAI API error:", err);
+    throw new Error(err instanceof Error ? err.message : "OpenAI request failed.");
+  }
 
-  if (!response || !response.choices || response.choices.length === 0) {
-    throw new Error("Invalid AI response");
+  if (!response.choices || response.choices.length === 0) {
+    console.error("[generateProposal] No choices in response:", response);
+    throw new Error("Invalid response from OpenAI — no choices returned.");
   }
 
   const content = response.choices[0].message.content;
-  if (!content) throw new Error("Empty response from OpenAI");
+  if (!content) {
+    console.error("[generateProposal] Empty content in response");
+    throw new Error("Empty response from OpenAI.");
+  }
 
-  return JSON.parse(content) as ProposalOutput;
+  try {
+    return JSON.parse(content) as ProposalOutput;
+  } catch (err) {
+    console.error("[generateProposal] Failed to parse JSON:", content, err);
+    throw new Error("OpenAI returned invalid JSON.");
+  }
 }

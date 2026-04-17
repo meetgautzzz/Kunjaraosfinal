@@ -1,18 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 
 export function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = "https://rosyqkstglgdylbcnbcb.supabase.co";
+  const supabaseKey = "sb_publishable_5QtK2tJo3sp5-xyMZ-9hmQ_3TDF3qTz";
 
-  if (!url) {
-    console.error("[supabase/client] Missing NEXT_PUBLIC_SUPABASE_URL");
-    return null;
-  }
-
-  if (!key) {
-    console.error("[supabase/client] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
-    return null;
-  }
-
-  return createBrowserClient(url, key);
+  return createBrowserClient(supabaseUrl, supabaseKey);
 }

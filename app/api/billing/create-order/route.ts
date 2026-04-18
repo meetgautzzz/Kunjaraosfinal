@@ -2,6 +2,7 @@ import Razorpay from "razorpay";
 import { getPlan } from "@/lib/plans";
 import type { PlanId } from "@/lib/plans";
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +13,17 @@ export async function POST(req: NextRequest) {
     }
 
     const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+
+    // Require an authenticated user so the webhook can credit the account
+    const supabase = await createClient();
+    if (!supabase) {
+      return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
+    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Sign in to subscribe." }, { status: 401 });
+    }
+    const userId = user.id;
 
     const { plan, annual } = await req.json() as { plan: PlanId | "test"; annual?: boolean };
 
@@ -28,7 +40,7 @@ export async function POST(req: NextRequest) {
       amount: amountPaise,
       currency: "INR",
       receipt: "order_" + Date.now(),
-      notes: { plan: plan ?? "basic" },
+      notes: { plan: plan ?? "basic", user_id: userId },
     });
 
     return NextResponse.json({

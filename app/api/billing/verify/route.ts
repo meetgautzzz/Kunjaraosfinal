@@ -1,25 +1,29 @@
+import Razorpay from "razorpay";
 import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@/lib/supabase/server";
-import type { PlanId } from "@/lib/plans";
+import { getPlan, type PlanId } from "@/lib/plans";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     console.log("[verify] Body received:", body);
 
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature, credits, plan } = body;
+    // Do NOT trust plan/credits from request body — fetch from Razorpay order
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = body;
 
     if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
       return Response.json({ error: "Missing required fields." }, { status: 400 });
     }
 
     const secret = process.env.RAZORPAY_KEY_SECRET;
+    const keyId = process.env.RAZORPAY_KEY_ID;
     console.log("[verify] Secret exists:", !!secret);
-    if (!secret) {
-      return Response.json({ error: "Missing Razorpay secret" }, { status: 500 });
+    if (!secret || !keyId) {
+      return Response.json({ error: "Missing Razorpay credentials" }, { status: 500 });
     }
 
+    // Verify signature first
     const generated_signature = crypto
       .createHmac("sha256", secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -29,36 +33,49 @@ export async function POST(req: NextRequest) {
     console.log("[verify] generated_signature:", generated_signature);
 
     if (generated_signature !== razorpay_signature) {
-      console.log("Verification failed", {
-        razorpay_order_id,
-        razorpay_payment_id,
-        razorpay_signature,
-        generated_signature,
-      });
+      console.log("[verify] Verification failed", { razorpay_order_id, razorpay_payment_id });
       return Response.json({ error: "Verification failed" }, { status: 400 });
     }
 
     console.log("[verify] Signature verified for:", razorpay_payment_id);
 
-    let creditsToAdd: number;
-    if (plan === "basic") creditsToAdd = 10;
-    else if (plan === "pro") creditsToAdd = 20;
-    else creditsToAdd = credits ?? 10;
-    const resolvedPlan: PlanId = (plan === "pro") ? "pro" : "basic";
+    // Fetch order from Razorpay to get authoritative plan and amount
+    const razorpay = new Razorpay({ key_id: keyId, key_secret: secret });
+    const order = await razorpay.orders.fetch(razorpay_order_id);
+    console.log("[verify] Order fetched:", { amount: order.amount, notes: order.notes });
+
+    // Determine plan and credits from server-side order data only
+    const orderNotes = order.notes as Record<string, string> | null;
+    const orderPlan = orderNotes?.plan ?? "basic";
+
+    const resolvedPlan: PlanId = (["basic", "pro", "expert", "enterprise"] as const).includes(orderPlan as PlanId)
+      ? (orderPlan as PlanId)
+      : "basic";
+    const creditsToAdd = getPlan(resolvedPlan).events;
 
     const supabase = await createClient();
     if (supabase) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Fetch existing credits to accumulate (not overwrite)
+        const { data: existing } = await supabase
+          .from("user_usage")
+          .select("credits_added")
+          .eq("user_id", user.id)
+          .single();
+
+        const existingCredits = (existing?.credits_added as number) ?? 0;
+        const totalCredits = existingCredits + creditsToAdd;
+
         await supabase.from("user_usage").upsert({
           user_id: user.id,
-          events_used: 0,
           plan: resolvedPlan,
-          credits_added: creditsToAdd,
+          credits_added: totalCredits,
           last_payment_id: razorpay_payment_id,
           updated_at: new Date().toISOString(),
         }, { onConflict: "user_id" });
-        console.log("[verify] Credits added for user:", user.id, "plan:", resolvedPlan, "credits:", creditsToAdd);
+
+        console.log("[verify] Credits added for user:", user.id, "plan:", resolvedPlan, "added:", creditsToAdd, "total:", totalCredits);
       }
     }
 

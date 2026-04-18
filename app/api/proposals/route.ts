@@ -1,7 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateProposal, ProposalInput } from "@/lib/generateProposal";
 import { createClient } from "@/lib/supabase/server";
-import { checkAndIncrementUsage } from "@/lib/usage";
+import { checkUsage, incrementUsage } from "@/lib/usage";
+
+// List proposals for the current user.
+// No persistence yet — returns an empty array so the UI renders its
+// empty state instead of throwing. Replace with a Supabase select once
+// proposals are stored.
+export async function GET() {
+  const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
+  }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  return NextResponse.json([]);
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,9 +48,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "All fields are required." }, { status: 400 });
     }
 
-    const usage = await checkAndIncrementUsage(user.id);
+    // Check usage WITHOUT incrementing — blocked users must not consume quota
+    const usageCheck = await checkUsage(user.id);
 
-    if (usage.overage) {
+    if (usageCheck.overage) {
       return NextResponse.json({
         success: false,
         error: "Plan limit reached. Upgrade to continue.",
@@ -53,14 +70,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: message }, { status: 502 });
     }
 
+    // Only increment AFTER successful generation
+    const newEventsUsed = await incrementUsage(user.id, usageCheck.events_used);
+    const nowOverage = newEventsUsed >= usageCheck.limit;
+
     return NextResponse.json({
       success: true,
       data,
       usage: {
-        events_used: usage.events_used,
-        limit: usage.limit,
-        overage: usage.overage,
-        overage_charge: usage.overage ? 199 : 0,
+        events_used: newEventsUsed,
+        limit: usageCheck.limit,
+        overage: nowOverage,
+        overage_charge: nowOverage ? 199 : 0,
       },
     });
   } catch (error) {

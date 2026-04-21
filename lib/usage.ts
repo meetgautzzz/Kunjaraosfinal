@@ -1,11 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
-import { getPlan, type PlanId } from "@/lib/plans";
+import { type PlanId } from "@/lib/plans";
+
+// New users get this many free credits to try the product before paying.
+const FREE_TRIAL_CREDITS = 2;
 
 export interface UsageRecord {
   user_id: string;
-  plan: PlanId;
+  plan: PlanId | null;
   annual: boolean;
   events_used: number;
+  credits_added: number;
   period_start: string;
   period_end: string;
 }
@@ -21,7 +25,7 @@ export async function getUsage(userId: string): Promise<UsageRecord | null> {
   return data ?? null;
 }
 
-export async function checkAndIncrementUsage(
+export async function checkUsage(
   userId: string
 ): Promise<{ allowed: boolean; overage: boolean; events_used: number; limit: number }> {
   const supabase = await createClient();
@@ -34,7 +38,9 @@ export async function checkAndIncrementUsage(
     .single();
 
   if (!usage) {
-    await supabase.from("user_usage").insert({ user_id: userId });
+    await supabase
+      .from("user_usage")
+      .insert({ user_id: userId, credits_added: FREE_TRIAL_CREDITS, events_used: 0 });
     ({ data: usage } = await supabase
       .from("user_usage")
       .select("*")
@@ -42,34 +48,37 @@ export async function checkAndIncrementUsage(
       .single());
   }
 
-  const plan = getPlan((usage.plan as PlanId) ?? "basic");
-  const now = new Date();
-  const periodEnd = new Date(usage.period_end);
-
-  if (now > periodEnd) {
-    await supabase
-      .from("user_usage")
-      .update({
-        events_used: 0,
-        period_start: new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1)).toISOString(),
-        period_end: new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 1)).toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", userId);
-    usage.events_used = 0;
-  }
-
-  const overage = usage.events_used >= plan.events;
-
-  await supabase
-    .from("user_usage")
-    .update({ events_used: usage.events_used + 1, updated_at: new Date().toISOString() })
-    .eq("user_id", userId);
+  const eventsUsed = (usage?.events_used as number) ?? 0;
+  const creditsAdded = (usage?.credits_added as number) ?? 0;
+  const overage = eventsUsed >= creditsAdded;
 
   return {
-    allowed: true,
+    allowed: !overage,
     overage,
-    events_used: usage.events_used + 1,
-    limit: plan.events,
+    events_used: eventsUsed,
+    limit: creditsAdded,
   };
+}
+
+export async function incrementUsage(userId: string, currentCount: number): Promise<number> {
+  const supabase = await createClient();
+  if (!supabase) return currentCount;
+  const newCount = currentCount + 1;
+  await supabase
+    .from("user_usage")
+    .update({ events_used: newCount, updated_at: new Date().toISOString() })
+    .eq("user_id", userId);
+  return newCount;
+}
+
+// Kept for any future callers — internally uses checkUsage + incrementUsage
+export async function checkAndIncrementUsage(
+  userId: string
+): Promise<{ allowed: boolean; overage: boolean; events_used: number; limit: number }> {
+  const check = await checkUsage(userId);
+  if (!check.overage) {
+    const newCount = await incrementUsage(userId, check.events_used);
+    return { ...check, events_used: newCount };
+  }
+  return check;
 }

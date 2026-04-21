@@ -40,7 +40,7 @@ export async function generateProposal(
   let response;
   try {
     response = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       temperature: 0.7,
       messages: [
         {
@@ -96,24 +96,24 @@ Rules:
     });
   } catch (err) {
     console.error("[generateProposal] OpenAI API error:", err);
-    throw new Error(err instanceof Error ? err.message : "OpenAI request failed.");
+    throw new Error(err instanceof Error ? err.message : "Kunjara Core request failed.");
   }
 
   if (!response.choices || response.choices.length === 0) {
     console.error("[generateProposal] No choices in response:", response);
-    throw new Error("Invalid response from OpenAI — no choices returned.");
+    throw new Error("Invalid response from Kunjara Core — no output returned.");
   }
 
   const content = response.choices[0].message.content;
   if (!content) {
     console.error("[generateProposal] Empty content in response");
-    throw new Error("Empty response from OpenAI.");
+    throw new Error("Empty response from Kunjara Core.");
   }
 
   try {
     return JSON.parse(content) as ProposalOutput;
   } catch (err) {
     console.error("[generateProposal] Failed to parse JSON:", content, err);
-    throw new Error("OpenAI returned invalid JSON.");
+    throw new Error("Kunjara Core returned invalid JSON.");
   }
 }

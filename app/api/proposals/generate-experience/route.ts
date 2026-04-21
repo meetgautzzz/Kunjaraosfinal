@@ -198,11 +198,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Increment usage only after successful generation
-    const newEventsUsed = await incrementUsage(user.id, usage.events_used);
+    await incrementUsage(user.id, usage.events_used);
 
     const now = new Date().toISOString();
+    const proposalId = body.proposalId ?? crypto.randomUUID();
     const proposal: ProposalData = {
-      id:           body.proposalId ?? crypto.randomUUID(),
+      id:           proposalId,
       title:        parsed.title ?? selectedIdea.title,
       eventType,
       location,
@@ -224,6 +225,18 @@ export async function POST(req: NextRequest) {
       decorPlan:          parsed.decorPlan,
       experienceElements: parsed.experienceElements,
     };
+
+    const { error: insertError } = await supabase.from("proposals").insert({
+      id:      proposalId,
+      user_id: user.id,
+      data:    proposal,
+    });
+
+    if (insertError) {
+      console.error("[generate-experience] Persist failed (returning in-memory):", insertError);
+    } else {
+      console.log("[generate-experience] Proposal saved:", proposalId);
+    }
 
     return NextResponse.json(proposal);
   } catch (err) {

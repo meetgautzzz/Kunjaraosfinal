@@ -3,10 +3,6 @@ import { generateProposal, ProposalInput } from "@/lib/generateProposal";
 import { createClient } from "@/lib/supabase/server";
 import { checkUsage, incrementUsage } from "@/lib/usage";
 
-// List proposals for the current user.
-// No persistence yet — returns an empty array so the UI renders its
-// empty state instead of throwing. Replace with a Supabase select once
-// proposals are stored.
 export async function GET() {
   const supabase = await createClient();
   if (!supabase) {
@@ -16,7 +12,23 @@ export async function GET() {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
-  return NextResponse.json([]);
+
+  const { data, error } = await supabase
+    .from("proposals")
+    .select("id, data, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[proposals GET] DB error:", error);
+    return NextResponse.json({ error: "Failed to load proposals." }, { status: 500 });
+  }
+
+  const proposals = (data ?? []).map((row) => ({
+    ...(row.data as Record<string, unknown>),
+    id: row.id,
+  }));
+  return NextResponse.json(proposals);
 }
 
 export async function POST(req: NextRequest) {

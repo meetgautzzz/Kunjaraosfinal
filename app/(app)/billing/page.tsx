@@ -117,7 +117,10 @@ export default function BillingPage() {
         });
         const result = await verifyRes.json();
         if (result.success) {
-          showToast("success", `Payment successful — ${plan.name} plan activated with ${result.credits} proposal credits.`);
+          const msg = result.credited
+            ? `Payment successful — ${plan.name} plan activated with ${result.credits} proposal credits.`
+            : `Payment received — ${result.credits} ${plan.name} credits applying in a few seconds.`;
+          showToast("success", msg);
           await refreshUsage();
         } else {
           showToast("error", result.error ?? "Payment verification failed. Contact support if charged.");

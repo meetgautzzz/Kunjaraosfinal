@@ -18,6 +18,15 @@ const BodySchema = z.object({
   razorpay_signature:  RZP_SIG,
 });
 
+// Webhook is the sole writer of credits (Razorpay's recommended pattern and
+// the only race-free option given non-atomic read-modify-write on user_usage).
+// Verify just proves the frontend response is signed by Razorpay for THIS
+// order, then briefly waits for the webhook to land so refreshUsage() on the
+// client sees fresh credits. If webhook is slow, returns `credited: false`
+// and the frontend falls back to a manual refresh.
+const WEBHOOK_POLL_TOTAL_MS    = 4000;
+const WEBHOOK_POLL_INTERVAL_MS = 400;
+
 export async function POST(req: NextRequest) {
   try {
     const rl = await limit(billingLimiter, `ip:${ipFromRequest(req)}`);
@@ -29,68 +38,60 @@ export async function POST(req: NextRequest) {
 
     const secret = process.env.RAZORPAY_KEY_SECRET;
     const keyId = process.env.RAZORPAY_KEY_ID;
-    console.log("[verify] Secret exists:", !!secret);
     if (!secret || !keyId) {
       return Response.json({ error: "Missing Razorpay credentials" }, { status: 500 });
     }
 
-    // Verify signature first
     const generated_signature = crypto
       .createHmac("sha256", secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
-    console.log("[verify] razorpay_signature :", razorpay_signature);
-    console.log("[verify] generated_signature:", generated_signature);
-
     if (generated_signature !== razorpay_signature) {
-      console.log("[verify] Verification failed", { razorpay_order_id, razorpay_payment_id });
+      console.warn("[verify] Signature mismatch", { razorpay_order_id });
       return Response.json({ error: "Verification failed" }, { status: 400 });
     }
 
-    console.log("[verify] Signature verified for:", razorpay_payment_id);
-
-    // Fetch order from Razorpay to get authoritative plan and amount
+    // Order fetch is how we know the plan without trusting the client body.
     const razorpay = new Razorpay({ key_id: keyId, key_secret: secret });
     const order = await razorpay.orders.fetch(razorpay_order_id);
-    console.log("[verify] Order fetched:", { amount: order.amount, notes: order.notes });
-
-    // Determine plan and credits from server-side order data only
     const orderNotes = order.notes as Record<string, string> | null;
     const orderPlan = orderNotes?.plan ?? "basic";
-
     const resolvedPlan: PlanId = (["basic", "pro", "expert", "enterprise", "test"] as const).includes(orderPlan as PlanId)
       ? (orderPlan as PlanId)
       : "basic";
     const creditsToAdd = getPlan(resolvedPlan).events;
 
+    // Brief poll so the frontend's refreshUsage() sees the webhook's write.
     const supabase = await createClient();
+    let credited = false;
     if (supabase) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Fetch existing credits to accumulate (not overwrite)
-        const { data: existing } = await supabase
-          .from("user_usage")
-          .select("credits_added")
-          .eq("user_id", user.id)
-          .single();
-
-        const existingCredits = (existing?.credits_added as number) ?? 0;
-        const totalCredits = existingCredits + creditsToAdd;
-
-        await supabase.from("user_usage").upsert({
-          user_id: user.id,
-          plan: resolvedPlan,
-          credits_added: totalCredits,
-          last_payment_id: razorpay_payment_id,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "user_id" });
-
-        console.log("[verify] Credits added for user:", user.id, "plan:", resolvedPlan, "added:", creditsToAdd, "total:", totalCredits);
+        const deadline = Date.now() + WEBHOOK_POLL_TOTAL_MS;
+        while (Date.now() < deadline) {
+          const { data: row } = await supabase
+            .from("user_usage")
+            .select("last_payment_id")
+            .eq("user_id", user.id)
+            .single();
+          if (row?.last_payment_id === razorpay_payment_id) {
+            credited = true;
+            break;
+          }
+          await new Promise((r) => setTimeout(r, WEBHOOK_POLL_INTERVAL_MS));
+        }
       }
     }
 
-    return Response.json({ success: true, credits: creditsToAdd, plan: resolvedPlan });
+    console.log("[verify] Verified", { razorpay_payment_id, resolvedPlan, credited });
+
+    return Response.json({
+      success:  true,
+      plan:     resolvedPlan,
+      credits:  creditsToAdd,
+      credited,
+    });
   } catch (error) {
     console.error("[verify] Unexpected error:", error);
     return Response.json({ error: "Unexpected error." }, { status: 500 });

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getPlan, type PlanId } from "@/lib/plans";
 import { parseJson } from "@/lib/validate";
+import { billingLimiter, limit, ipFromRequest } from "@/lib/ratelimit";
 
 // Razorpay IDs look like "pay_XXXX" / "order_XXXX" / hex. Tight length bounds
 // plus an allow-listed charset rejects obvious injection noise at the edge.
@@ -19,6 +20,9 @@ const BodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = await limit(billingLimiter, `ip:${ipFromRequest(req)}`);
+    if (rl) return rl;
+
     const bodyResult = await parseJson(req, BodySchema);
     if (bodyResult.error) return bodyResult.error;
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = bodyResult.data;

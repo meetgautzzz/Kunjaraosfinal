@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { parseJson } from "@/lib/validate";
+import { aiLimiter, limit } from "@/lib/ratelimit";
 import type { EventIdea } from "@/lib/proposals";
 import { randomUUID } from "crypto";
 
@@ -66,6 +67,9 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
+
+    const rl = await limit(aiLimiter, `user:${user.id}`);
+    if (rl) return rl;
 
     const bodyResult = await parseJson(req, BodySchema);
     if (bodyResult.error) return bodyResult.error;

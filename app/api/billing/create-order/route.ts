@@ -4,6 +4,7 @@ import { getPlan } from "@/lib/plans";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { parseJson } from "@/lib/validate";
+import { billingLimiter, limit, ipFromRequest } from "@/lib/ratelimit";
 
 const BodySchema = z.object({
   plan:   z.enum(["basic", "pro", "expert", "enterprise", "test"]),
@@ -12,6 +13,9 @@ const BodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = await limit(billingLimiter, `ip:${ipFromRequest(req)}`);
+    if (rl) return rl;
+
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     if (!keyId || !keySecret || keyId.startsWith("your_") || keySecret.startsWith("your_")) {

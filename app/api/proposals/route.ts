@@ -3,6 +3,7 @@ import { z } from "zod";
 import { generateProposal } from "@/lib/generateProposal";
 import { createClient } from "@/lib/supabase/server";
 import { parseJson } from "@/lib/validate";
+import { aiLimiter, apiLimiter, limit } from "@/lib/ratelimit";
 import { checkUsage, incrementUsage } from "@/lib/usage";
 
 const BodySchema = z.object({
@@ -23,6 +24,9 @@ export async function GET() {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
+
+  const rl = await limit(apiLimiter, `user:${user.id}`);
+  if (rl) return rl;
 
   const { data, error } = await supabase
     .from("proposals")
@@ -58,6 +62,9 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized." }, { status: 401 });
     }
+
+    const rl = await limit(aiLimiter, `user:${user.id}`);
+    if (rl) return rl;
 
     const bodyResult = await parseJson(req, BodySchema);
     if (bodyResult.error) return bodyResult.error;

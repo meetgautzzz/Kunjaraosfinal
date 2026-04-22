@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Kunjara OS — Launch Status Report</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: #1a1a1a;
+    background: #fff;
+  }
+  .cover {
+    page-break-after: always;
+    padding: 70mm 0 0;
+    text-align: center;
+  }
+  .cover .eyebrow {
+    font-size: 9pt; letter-spacing: 0.22em; text-transform: uppercase;
+    color: #b08d57; font-weight: 600; margin-bottom: 14mm;
+  }
+  .cover h1 {
+    font-size: 34pt; font-weight: 900; line-height: 1.05; margin: 0;
+    color: #b08d57; letter-spacing: -0.02em;
+  }
+  .cover .sub {
+    margin-top: 10mm; font-size: 12pt; color: #444; font-weight: 500;
+  }
+  .cover .meta {
+    margin-top: 22mm; font-size: 9pt; color: #666; letter-spacing: 0.05em;
+  }
+  .cover .meta strong { color: #1a1a1a; font-weight: 600; }
+  .cover hr {
+    width: 40mm; margin: 22mm auto 0; border: 0;
+    border-top: 1px solid #b08d57;
+  }
+
+  h2 {
+    font-size: 15pt; font-weight: 700; color: #000;
+    margin: 0 0 5mm; padding-bottom: 2mm;
+    border-bottom: 1.5pt solid #b08d57;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: 11.5pt; font-weight: 700; color: #000;
+    margin: 6mm 0 2mm; letter-spacing: -0.01em;
+  }
+  p { margin: 0 0 3mm; }
+  ul { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1mm; }
+  code, .mono {
+    font-family: "SFMono-Regular", "Consolas", monospace;
+    font-size: 9pt;
+    background: #f4efe6;
+    padding: 0.5mm 1.5mm;
+    border-radius: 1mm;
+    color: #5a4a2e;
+  }
+
+  .section { page-break-inside: avoid; margin-bottom: 8mm; }
+  .two-col { display: flex; gap: 6mm; }
+  .two-col > div { flex: 1; }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 9.5pt; margin: 2mm 0 4mm;
+  }
+  thead th {
+    background: #000; color: #b08d57;
+    text-align: left; padding: 2mm 3mm;
+    font-weight: 600; font-size: 9pt;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  tbody td {
+    padding: 2mm 3mm;
+    border-bottom: 0.3pt solid #e5e5e5;
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: #fafaf8; }
+
+  .status {
+    display: inline-block; padding: 0.3mm 2mm;
+    border-radius: 1mm; font-size: 8.5pt;
+    font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .s-done { background: #d4edda; color: #155724; }
+  .s-partial { background: #fff3cd; color: #856404; }
+  .s-todo { background: #f8d7da; color: #721c24; }
+  .s-gap  { background: #e2e3e5; color: #383d41; }
+
+  .commit-row {
+    display: flex; gap: 3mm; align-items: baseline;
+    padding: 2mm 0; border-bottom: 0.3pt solid #e5e5e5;
+  }
+  .commit-row:last-child { border-bottom: 0; }
+  .commit-hash {
+    font-family: "Consolas", monospace;
+    font-size: 9pt; color: #b08d57; font-weight: 700;
+    min-width: 18mm;
+  }
+  .commit-msg { flex: 1; }
+
+  .callout {
+    border-left: 3pt solid #b08d57;
+    background: #faf6ed;
+    padding: 3mm 4mm;
+    margin: 3mm 0;
+    font-size: 9.5pt;
+  }
+  .callout.warn {
+    border-left-color: #c0392b;
+    background: #fef5f3;
+  }
+  .callout strong { color: #000; }
+
+  .checklist li {
+    list-style: none; padding-left: 6mm; position: relative;
+    margin-bottom: 1.5mm;
+  }
+  .checklist li::before {
+    position: absolute; left: 0; top: 0;
+    font-weight: 700;
+  }
+  .checklist li.done::before { content: "✓"; color: #155724; }
+  .checklist li.todo::before { content: "○"; color: #856404; }
+  .checklist li.miss::before { content: "✗"; color: #721c24; }
+
+  .footer-note {
+    margin-top: 8mm;
+    font-size: 8.5pt; color: #666;
+    text-align: center; letter-spacing: 0.05em;
+    padding-top: 3mm; border-top: 0.5pt solid #e5e5e5;
+  }
+
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ COVER ══════════════════════ -->
+<div class="cover">
+  <p class="eyebrow">Kunjara OS™ · a product of Indigo Events</p>
+  <h1>Launch Status Report</h1>
+  <p class="sub">The AI-Powered Event Operating System for India</p>
+  <hr/>
+  <p class="meta">
+    Prepared for <strong>Gautam Shah</strong> · Founder<br/>
+    Session close · <strong>18 April 2026</strong><br/>
+    Resuming · <strong>Monday, 20 April 2026</strong>
+  </p>
+</div>
+
+<!-- ══════════════════════ EXECUTIVE SUMMARY ══════════════════════ -->
+<div class="section">
+  <h2>1. Executive Summary</h2>
+  <p>
+    The original target was "launch today" (18 April 2026). That did not land. What did land is
+    the <strong>critical revenue path</strong> and the <strong>hero AI feature</strong>, wired end-to-end
+    through Razorpay and OpenAI. What remains before a real customer can pay and use the product
+    is mostly <em>validation</em> rather than new code: the code paths compile clean and pass
+    unauthenticated smoke tests, but no one has clicked through them with a real signed-in session.
+  </p>
+  <p>
+    Three commits shipped on the <span class="mono">main</span> branch:
+  </p>
+  <div class="commit-row">
+    <span class="commit-hash">7a5676c</span>
+    <span class="commit-msg"><strong>feat(proposals)</strong>: wire AI proposal flow end-to-end · +433 lines, 4 files</span>
+  </div>
+  <div class="commit-row">
+    <span class="commit-hash">9a1f54f</span>
+    <span class="commit-msg"><strong>fix(billing)</strong>: make the pay flow actually work end-to-end · +591/−331, 8 files</span>
+  </div>
+  <div class="commit-row">
+    <span class="commit-hash">77cba33</span>
+    <span class="commit-msg"><strong>fix</strong>: resolve <span class="mono">/</span> route conflict and serve marketing site · +7/−319, 6 files</span>
+  </div>
+</div>
+
+<!-- ══════════════════════ WHAT'S FINISHED ══════════════════════ -->
+<div class="section">
+  <h2>2. What's Finished</h2>
+  <p>These paths are coded, type-check clean, production-build clean, and smoke-tested without auth.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:42%">Capability</th><th>Status</th><th>How it works today</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Homepage at <span class="mono">/</span></td>
+        <td><span class="status s-done">Done</span></td>
+        <td>Redirects to <span class="mono">public/site/index.html</span> (921-line marketing site matching the blueprint: hero, pillars, ₹1,999–₹24,999 pricing, privacy promise, India flag footer).</td>
+      </tr>
+      <tr>
+        <td>Route conflict resolution</td>
+        <td><span class="status s-done">Done</span></td>
+        <td>Deleted duplicate <span class="mono">app/(marketing)/</span> route group. Added <span class="mono">/waitlist</span> rewrite so pricing CTAs resolve.</td>
+      </tr>
+      <tr>
+        <td>Signup and login</td>
+        <td><span class="status s-done">Done</span></td>
+        <td>Supabase email-password auth. Signup sends confirmation email. Login redirects to <span class="mono">/dashboard</span>.</td>
+      </tr>
+      <tr>
+        <td>Auth gate on 10 app routes</td>
+        <td><span class="status s-done">Done</span></td>
+        <td><span class="mono">proxy.ts</span> (Next.js 16 middleware) gates <span class="mono">/dashboard</span>, <span class="mono">/proposals</span>, <span class="mono">/budget</span>, <span class="mono">/compliance</span>, <span class="mono">/events</span>, <span class="mono">/vendors</span>, <span class="mono">/ai</span>, <span class="mono">/billing</span>, <span class="mono">/settings</span>, plus auth-only <span class="mono">/login</span>, <span class="mono">/signup</span>.</td>
+      </tr>
+      <tr>
+        <td><span class="mono">/billing</span> revenue path</td>
+        <td><span class="status s-done">Done</span></td>
+        <td>Four canonical plans (<span class="mono">basic</span> ₹1,999 · <span class="mono">pro</span> ₹3,999 · <span class="mono">expert</span> ₹11,999 · <span class="mono">enterprise</span> ₹24,999). Monthly/annual toggle. Live Supabase usage fetch. Real <span class="mono">create-order → Razorpay Checkout → verify</span> flow. UPI-first.</td>
+      </tr>
+      <tr>
+        <td>Razorpay backend routes</td>
+        <td><span class="status s-done">Done</span></td>
+        <td><span class="mono">POST /api/billing/create-order</span> (auth-gated, attaches user_id to order notes), <span class="mono">POST /api/billing/verify</span> (HMAC signature check, server-side plan resolution), <span class="mono">POST /api/billing/webhook</span> (idempotent, service-role, handles all 4 plans).</td>
+      </tr>
+      <tr>
+        <td>Security hardening</td>
+        <td><span class="status s-done">Done</span></td>
+        <td>Deleted 3 orphan insecure endpoints: <span class="mono">/api/user/add-credits</span> (self-grant credits), <span class="mono">/api/billing/verify-payment</span> (client-specified plan), <span class="mono">/api/billing/capture-payment</span> (no auth).</td>
+      </tr>
+      <tr>
+        <td>AI Proposal Builder — 3-step flow</td>
+        <td><span class="status s-done">Done</span></td>
+        <td><span class="mono">POST /api/proposals/generate-ideas</span> (GPT-4o, returns 3 scored concepts, no credit burn). <span class="mono">POST /api/proposals/generate-experience</span> (expands chosen concept to full 7-section <span class="mono">ProposalData</span>, burns 1 credit).</td>
+      </tr>
+      <tr>
+        <td>Proposal list empty state</td>
+        <td><span class="status s-done">Done</span></td>
+        <td><span class="mono">GET /api/proposals</span> returns <span class="mono">[]</span> so sidebar click renders "No proposals yet" with CTA to <span class="mono">/proposals/new</span>.</td>
+      </tr>
+      <tr>
+        <td>Plan system consolidation</td>
+        <td><span class="status s-done">Done</span></td>
+        <td>Removed the mock <span class="mono">lib/billing.ts</span> with a second, incompatible plan taxonomy (<span class="mono">FREE/STARTER/PRO/ENTERPRISE</span>). Canonical plans now live in <span class="mono">lib/plans.ts</span> and match the blueprint.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════ MONDAY VALIDATION ══════════════════════ -->
+<div class="section">
+  <h2>3. First Thing Monday — Validate Live</h2>
+  <p>
+    These paths compile and route correctly but have <strong>not</strong> been click-tested with
+    a real signed-in user. The risk is that the OpenAI JSON shape or Razorpay credit flow
+    behaves differently in reality than expected.
+  </p>
+  <ul class="checklist">
+    <li class="todo"><strong>Sign up a test account</strong>. Confirm email. Land on <span class="mono">/dashboard</span>.</li>
+    <li class="todo"><strong>Walk <span class="mono">/proposals/new</span></strong> end-to-end. Fill the form, generate 3 ideas, pick one, generate full plan. Verify the 7 rich sections render without errors. If <span class="mono">ProposalOutput.tsx</span> throws on a missing field, iterate the prompt in <span class="mono">app/api/proposals/generate-experience/route.ts</span>.</li>
+    <li class="todo"><strong>Walk <span class="mono">/billing</span></strong> with a real ₹1 test payment. Watch the Razorpay dashboard: order has <span class="mono">user_id</span> in notes, webhook fires, <span class="mono">user_usage</span> row shows correct <span class="mono">credits_added</span>.</li>
+    <li class="todo"><strong>Check Supabase schema</strong>. Confirm <span class="mono">user_usage</span> table exists with columns <span class="mono">user_id, plan, events_used, credits_added, last_payment_id, period_start, period_end, updated_at</span>. If missing, billing silently fails.</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════ ENV / CONFIG BLOCKERS ══════════════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <h2>4. Environment &amp; Config Blockers</h2>
+  <p>Two <span class="mono">.env.local</span> items must be corrected before real customers pay.</p>
+
+  <div class="callout warn">
+    <strong>Blocker 4.1 · Webhook secret is a placeholder.</strong><br/>
+    <span class="mono">RAZORPAY_WEBHOOK_SECRET=your_razorpay_webhook_secret</span> — the webhook will
+    return 503 until this is set. Without it, credits only apply via the client-side verify step.
+    If the user closes their browser before verify runs, the payment is captured but credits are
+    not granted — they've paid you with nothing to show.<br/><br/>
+    <strong>Fix:</strong> Razorpay dashboard → Settings → Webhooks → create webhook pointing to
+    <span class="mono">https://kunjaraos.com/api/billing/webhook</span> with event
+    <span class="mono">payment.captured</span>. Copy the generated secret into
+    <span class="mono">.env.local</span> and into Vercel's env vars.
+  </div>
+
+  <div class="callout warn">
+    <strong>Blocker 4.2 · Razorpay keys are LIVE, not test.</strong><br/>
+    <span class="mono">RAZORPAY_KEY_ID=rzp_live_SeeYZWNmVe55zF</span>. Every dev test charges
+    real money. Smoke tests today created a real live order for ₹1,999 (it auto-cancels
+    unpaid so no harm done, but the risk is real).<br/><br/>
+    <strong>Fix:</strong> Generate test keys in Razorpay dashboard. Use <span class="mono">rzp_test_…</span>
+    in local dev and staging; keep <span class="mono">rzp_live_…</span> only in the production Vercel env.
+  </div>
+</div>
+
+<!-- ══════════════════════ WHAT'S LEFT — ORDERED BACKLOG ══════════════════════ -->
+<div class="section">
+  <h2>5. What's Left — Prioritised Backlog</h2>
+  <p>
+    Each item is its own scoped piece of work. The rule is <strong>one plan at a time, no
+    bundling</strong>. The numbers reflect priority for a launch, not time estimates.
+  </p>
+
+  <h3>5.1 · Data correctness (P0 — block launch)</h3>
+  <table>
+    <thead>
+      <tr><th style="width:38%">Item</th><th>Status</th><th>What to do</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Usage model mismatch</td>
+        <td><span class="status s-todo">To do</span></td>
+        <td><span class="mono">checkUsage()</span> in <span class="mono">lib/usage.ts</span> gates on <span class="mono">events_used &gt;= plan.events</span>, but billing writes to <span class="mono">credits_added</span>. Paid credits are stored and never spent; new users get 10 free proposals because <span class="mono">checkUsage</span> auto-inserts a row defaulting to plan "basic". Rewrite <span class="mono">checkUsage</span> to read <span class="mono">credits_added</span> as authoritative. New user default: 0 credits (or 1 free trial credit).</td>
+      </tr>
+      <tr>
+        <td>Proposal persistence</td>
+        <td><span class="status s-todo">To do</span></td>
+        <td>Generated proposals are shown then lost on refresh. <span class="mono">/proposals/[id]</span> inaccessible. <span class="mono">GET /api/proposals</span> returns <span class="mono">[]</span>. Create a <span class="mono">proposals</span> table in Supabase (JSONB blob for the full <span class="mono">ProposalData</span>). Save after <span class="mono">generate-experience</span>. Implement <span class="mono">GET /api/proposals</span> + <span class="mono">GET /api/proposals/[id]</span>.</td>
+      </tr>
+      <tr>
+        <td>Supabase schema verification</td>
+        <td><span class="status s-todo">To do</span></td>
+        <td>The <span class="mono">user_usage</span> table schema is unverified. Code expects columns: <span class="mono">user_id, plan, events_used, credits_added, last_payment_id, period_start, period_end, updated_at</span>. If any column is missing, billing verify/webhook silently fail. Run a dry-run <span class="mono">SELECT</span> in Supabase SQL editor; add migrations for any missing columns.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>5.2 · Features with UI but no backend (P1)</h3>
+  <p>
+    These pages render mock/sample data today. Anyone who clicks a button triggers a request
+    to an endpoint that doesn't exist. <span class="mono">lib/api.ts</span> references roughly
+    15 endpoints that aren't implemented.
+  </p>
+  <table>
+    <thead>
+      <tr><th style="width:22%">Page</th><th style="width:18%">UI</th><th>What's missing</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="mono">/dashboard</span></td><td><span class="status s-partial">Mock only</span></td><td>Shows hardcoded event list. Needs: real event/vendor/compliance stats pulled from DB.</td></tr>
+      <tr><td><span class="mono">/events</span></td><td><span class="status s-partial">Mock only</span></td><td><span class="mono">GET /api/events</span> and <span class="mono">GET /api/events/[id]</span> missing. No events table.</td></tr>
+      <tr><td><span class="mono">/vendors</span></td><td><span class="status s-partial">Mock only</span></td><td><span class="mono">GET/POST /api/vendors</span> and <span class="mono">PATCH/DELETE /api/vendors/[id]</span> missing.</td></tr>
+      <tr><td><span class="mono">/compliance</span></td><td><span class="status s-partial">Catalogue done, state mocked</span></td><td>11 licence templates already in <span class="mono">lib/compliance.ts</span>. Need per-event persistence (upload docs, track status, deadline alerts).</td></tr>
+      <tr><td><span class="mono">/budget</span></td><td><span class="status s-partial">Client-side only</span></td><td>Budget waterfall works in memory. No save/load. Needs a <span class="mono">budgets</span> table and <span class="mono">/api/budgets</span> CRUD.</td></tr>
+      <tr><td><span class="mono">/ai</span></td><td><span class="status s-partial">Shell only</span></td><td>UI exists, backend endpoints <span class="mono">/api/ai/event-plan</span>, <span class="mono">/api/ai/vendor-suggestions</span>, <span class="mono">/api/ai/compliance-risk</span> exist but behaviour unverified.</td></tr>
+      <tr><td><span class="mono">/events/[id]/room</span></td><td><span class="status s-partial">Mock <span class="mono">MOCK_ROOM</span></span></td><td>Event Room shell has 8 sub-components (Proposal, Budget, Timeline, Vendors, Tasks, Payments, Approvals). Needs real <span class="mono">event_rooms</span> table + client-facing branded URL.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.3 · Blueprint features not started (P2)</h3>
+  <ul class="checklist">
+    <li class="miss"><strong>Bilingual English/Hindi toggle</strong> — blueprint requires Noto Sans Devanagari + Google Translate API across site and app.</li>
+    <li class="miss"><strong>Proposal Intelligence</strong> — track opens, view count, time spent; AI "high intent" signal.</li>
+    <li class="miss"><strong>Event microsite builder</strong> — one-click AI-generated event website with agenda, Google Maps, RSVP, auto-expire after event date.</li>
+    <li class="miss"><strong>Social Media AI</strong> — caption generation for IG, LinkedIn, FB, YouTube; multi-platform publisher.</li>
+    <li class="miss"><strong>Presentation Engine</strong> — 5 deck templates (Concept, Budget, Post-event, Sponsorship, Vendor brief) auto-populated from event data.</li>
+    <li class="miss"><strong>Gmail / Drive / WhatsApp integrations</strong> — OAuth flows for sending proposals, file sync, attendee notifications.</li>
+    <li class="miss"><strong>CRM pipeline</strong> — leads, stages, follow-up reminders.</li>
+    <li class="miss"><strong>Kunjara OS logo</strong> — minimal geometric elephant outline; not yet designed or inserted.</li>
+    <li class="miss"><strong>DPDP 90-day deletion</strong> — per blueprint compliance promise. No deletion job exists.</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════ HOW TO DO IT — PLAYBOOK ══════════════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <h2>6. How to Execute — The Playbook</h2>
+
+  <h3>6.1 · Rules we learned this sprint</h3>
+  <ul>
+    <li><strong>One plan at a time.</strong> The codebase already shows what happens when UI ships ahead of backend — <span class="mono">lib/api.ts</span> accumulated 15+ endpoint references to nothing. Build backend first, UI second.</li>
+    <li><strong>Verify schemas before writing persistence.</strong> The <span class="mono">credits_added</span> vs <span class="mono">events_used</span> model mismatch happened because two developers wrote to the same table with different assumptions. Check Supabase dashboard first.</li>
+    <li><strong>Delete orphan endpoints aggressively.</strong> Three insecure routes (<span class="mono">add-credits</span>, <span class="mono">verify-payment</span>, <span class="mono">capture-payment</span>) survived because nothing called them. Any unused endpoint is a liability.</li>
+    <li><strong>Hardcode Supabase creds in the client lib, not env vars.</strong> The repeated "fix supabase env crash" commits in git history prove <span class="mono">process.env</span> reads at module-load break on Vercel cold starts. String literals in <span class="mono">lib/supabase/client.ts</span> + <span class="mono">server.ts</span> side-step this.</li>
+  </ul>
+
+  <h3>6.2 · Monday morning (2 hours)</h3>
+  <ol>
+    <li>Set <span class="mono">RAZORPAY_WEBHOOK_SECRET</span> in <span class="mono">.env.local</span> and in Vercel production env. Swap live keys for test keys in local dev.</li>
+    <li>Open Supabase dashboard → SQL editor → <span class="mono">SELECT * FROM user_usage LIMIT 1;</span>. Confirm all 8 columns. If missing, add them.</li>
+    <li>Sign up a test user through the live site. Walk <span class="mono">/proposals/new</span> end-to-end. Screenshot the full proposal output.</li>
+    <li>If the output looks good, make a real ₹1 Razorpay test payment through <span class="mono">/billing</span>. Confirm <span class="mono">user_usage</span> row updates, Razorpay dashboard shows webhook fired, and subsequent proposal generation deducts a credit.</li>
+  </ol>
+
+  <h3>6.3 · Monday afternoon — pick one of these</h3>
+  <p>Don't pick more than one; this week is the "go slow" week. Each of these is a full day of focused work.</p>
+  <ol>
+    <li><strong>Fix the usage model</strong> — rewrite <span class="mono">checkUsage</span> to use <span class="mono">credits_added</span> as source of truth. This closes the "10 free proposals for free users" loophole. Highest leverage for revenue.</li>
+    <li><strong>Add proposal persistence</strong> — create <span class="mono">proposals</span> table, save after generate-experience, wire <span class="mono">GET /api/proposals</span> and <span class="mono">GET /api/proposals/[id]</span>. Unblocks the list view and lets users revisit work.</li>
+    <li><strong>Event Room v1 with real data</strong> — create <span class="mono">event_rooms</span> table, wire the 8 sub-components. This is the blueprint's flagship differentiator.</li>
+  </ol>
+
+  <h3>6.4 · How to work with Claude</h3>
+  <ul>
+    <li><strong>One task, not a dump.</strong> "Fix the usage model" gets better output than "build everything in the roadmap".</li>
+    <li><strong>Ask for plan first when the task touches 3+ files.</strong> Plan mode catches the kind of mismatch that caused the billing/usage schema drift.</li>
+    <li><strong>Launch a test user to click through after each Claude session.</strong> Unauth smoke tests caught the ones this sprint didn't catch.</li>
+    <li><strong>Commit in small scopes.</strong> Three commits today, each with a focused message and a concrete Before/After. Makes rollback trivial.</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════ FILES TOUCHED ══════════════════════ -->
+<div class="section">
+  <h2>7. Files Touched This Sprint</h2>
+  <table>
+    <thead>
+      <tr><th style="width:52%">Path</th><th>Change</th><th>Commit</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="mono">app/page.tsx</span></td><td>Modified · redirect target</td><td>77cba33</td></tr>
+      <tr><td><span class="mono">app/(marketing)/*</span></td><td>Deleted · duplicate route group</td><td>77cba33</td></tr>
+      <tr><td><span class="mono">next.config.ts</span></td><td>Modified · <span class="mono">/waitlist</span> rewrite</td><td>77cba33</td></tr>
+      <tr><td><span class="mono">app/(app)/billing/page.tsx</span></td><td>Added · rewritten from mock to real flow</td><td>9a1f54f</td></tr>
+      <tr><td><span class="mono">app/api/billing/create-order/route.ts</span></td><td>Modified · require auth, embed user_id</td><td>9a1f54f</td></tr>
+      <tr><td><span class="mono">app/api/billing/verify/route.ts</span></td><td>Modified · all 4 plans</td><td>9a1f54f</td></tr>
+      <tr><td><span class="mono">app/api/billing/webhook/route.ts</span></td><td>Modified · all 4 plans</td><td>9a1f54f</td></tr>
+      <tr><td><span class="mono">app/api/billing/capture-payment/</span></td><td>Deleted · orphan, no auth</td><td>9a1f54f</td></tr>
+      <tr><td><span class="mono">app/api/billing/verify-payment/</span></td><td>Deleted · orphan, client-trusted plan</td><td>9a1f54f</td></tr>
+      <tr><td><span class="mono">app/api/user/add-credits/</span></td><td>Deleted · orphan, self-grant credits</td><td>9a1f54f</td></tr>
+      <tr><td><span class="mono">components/ui/RazorpayCheckout.tsx</span></td><td>Deleted · orphan, never imported</td><td>9a1f54f</td></tr>
+      <tr><td><span class="mono">lib/billing.ts</span></td><td>Deleted · orphan second plan system</td><td>9a1f54f</td></tr>
+      <tr><td><span class="mono">app/api/proposals/generate-ideas/route.ts</span></td><td>Added · 3 scored concepts</td><td>7a5676c</td></tr>
+      <tr><td><span class="mono">app/api/proposals/generate-experience/route.ts</span></td><td>Added · full ProposalData</td><td>7a5676c</td></tr>
+      <tr><td><span class="mono">app/api/proposals/route.ts</span></td><td>Modified · added GET returning []</td><td>7a5676c</td></tr>
+      <tr><td><span class="mono">proxy.ts</span></td><td>Modified · widen gate from 3 to 10 routes</td><td>7a5676c</td></tr>
+    </tbody>
+  </table>
+  <p class="footer-note">
+    <em>All three commits are on <span class="mono">main</span>. No force-pushes. No destructive git operations. The pre-existing in-flight work (dashboard, proposals UI, compliance, budget components, etc.) is untouched and uncommitted — ready for separate focused commits when you're ready.</em>
+  </p>
+</div>
+
+<div class="footer-note">
+  Kunjara OS™ · Indigo Events &amp; Promotions · Mumbai · 🇮🇳<br/>
+  Confidential · Prepared 18 April 2026 · Resume 20 April 2026
+</div>
+
+</body>
+</html>

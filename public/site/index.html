@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunjara OS™ — The AI-Powered Event Operating System for India</title>
+<meta name="description" content="India's first complete AI-powered event operating system. Replace WhatsApp, Excel and scattered tools with one unified, intelligent, India-first platform.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<script type="text/javascript">function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:'en',includedLanguages:'hi,en',layout:google.translate.TranslateElement.InlineLayout.SIMPLE,autoDisplay:false},'gte');}</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<style>
+:root{
+  /* ── Prometheus Vintage Palette ── */
+  --cream:#FBE9D0;--cream-d:#F2D8B4;--cream-m:#E8C99A;
+  --saffron:#E64833;--saffron-p:#FAEAE7;
+  --rose:#E64833;--rose-p:#FAEAE7;
+  --marigold:#874F41;--marigold-p:#F2E8E5;
+  --peacock:#90AEAD;--peacock-p:#E8F0F0;
+  --lotus:#874F41;--lotus-p:#F2E8E5;
+  --sage:#244855;--sage-p:#E2ECED;
+  --indigo:#244855;--indigo-p:#E2ECED;
+  --kblue:#244855;--kblue-p:#E2ECED;
+  --kgold:#874F41;
+  --ink:#1A0F0A;--body:#2C1A12;--muted:#7A6355;--light:#A89080;
+  --white:#FBE9D0;--border:rgba(36,72,85,.14);--border-s:rgba(36,72,85,.07);
+  --accent:#E64833;--teal:#90AEAD;--brown:#874F41;--deep:#244855;
+  --fd:'Fraunces',Georgia,serif;--fb:'DM Sans',sans-serif;--fh:'Noto Sans Devanagari',sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:17px}
+body{background:var(--cream);color:var(--body);font-family:var(--fb);font-weight:400;line-height:1.6;overflow-x:hidden;cursor:none}
+#cur{width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transition:transform .12s var(--ease),background .2s;mix-blend-mode:multiply}
+#cur-r{width:30px;height:30px;border:1.5px solid var(--deep);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transition:transform .35s var(--ease);opacity:.45}
+body.ch #cur{transform:scale(3);background:var(--deep);mix-blend-mode:normal}
+body.ch #cur-r{opacity:0}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--cream)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+.c{max-width:1220px;margin:0 auto;padding:0 36px}
+.sp{padding:108px 0}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .85s var(--ease),transform .85s var(--ease)}
+.reveal.v{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+h1,h2,h3,h4{font-family:var(--fd);line-height:1.07}
+.slabel{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.slabel::before{content:'';display:inline-block;width:18px;height:2px;background:var(--accent);border-radius:1px}
+.sh2{font-size:clamp(28px,3.6vw,50px);font-weight:700;letter-spacing:-1.2px;color:var(--ink)}
+.ssub{font-size:17px;color:var(--muted);line-height:1.72;max-width:540px;margin-top:16px;font-weight:300}
+/* Apple-style icons */
+.ai{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:14px;flex-shrink:0}
+.ai svg{width:26px;height:26px;stroke-width:1.7}
+.ai-sm{width:40px;height:40px;border-radius:11px}
+.ai-sm svg{width:20px;height:20px}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;font-size:15px;font-weight:600;font-family:var(--fb);cursor:none;text-decoration:none;border:none;transition:all .22s var(--ease);border-radius:50px;letter-spacing:-.2px}
+.btn-dark{background:var(--deep);color:var(--cream)}.btn-dark:hover{background:#1a3540;transform:translateY(-2px);box-shadow:0 12px 28px rgba(36,72,85,.22)}
+.btn-ghost{background:transparent;color:var(--body);border:1.5px solid var(--border)}.btn-ghost:hover{border-color:rgba(36,72,85,.25);color:var(--ink)}
+.btn-blue{background:var(--accent);color:#fff}.btn-blue:hover{background:#cc3020;transform:translateY(-2px);box-shadow:0 12px 28px rgba(230,72,51,.28)}
+.btn-outline-w{background:rgba(251,233,208,.12);border:1.5px solid rgba(251,233,208,.28);color:var(--cream);backdrop-filter:blur(8px)}.btn-outline-w:hover{background:rgba(251,233,208,.22)}
+.btn-coming{background:var(--marigold-p);color:var(--brown);border:1.5px solid rgba(135,79,65,.22);cursor:default}.btn-coming:hover{transform:none;box-shadow:none}
+/* Google Translate hidden */
+#gte{display:none}
+.skiptranslate{display:none!important}
+body{top:0!important}
+/* === NAV === */
+#nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 0;transition:all .4s var(--ease)}
+#nav.sc{padding:12px 0;background:rgba(251,233,208,.94);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--border);box-shadow:0 1px 0 var(--border-s)}
+.ni{display:flex;align-items:center;justify-content:space-between;max-width:1220px;margin:0 auto;padding:0 36px}
+.nlogo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nwm{font-family:var(--fd);font-weight:700;font-size:19px;color:var(--ink);letter-spacing:-.5px}
+.nwm em{font-style:normal;color:var(--accent)}
+.nlinks{display:flex;align-items:center;gap:30px;list-style:none}
+.nlinks a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nlinks a:hover{color:var(--ink)}
+.nright{display:flex;align-items:center;gap:8px}
+.nlang{display:flex;align-items:center;gap:6px;background:var(--white);border:1.5px solid var(--border);padding:7px 13px;border-radius:50px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);transition:all .2s}
+.nlang:hover{border-color:var(--accent);color:var(--ink)}
+.nlogin{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;padding:9px 17px;border-radius:50px;transition:all .2s}
+.nlogin:hover{color:var(--ink);background:var(--cream-d)}
+.nsignup{background:var(--deep);color:var(--cream)!important;text-decoration:none;font-size:14px;font-weight:600;padding:9px 20px;border-radius:50px;cursor:none;transition:all .22s;display:inline-block}
+.nsignup:hover{background:#1a3540;transform:translateY(-1px);box-shadow:0 8px 18px rgba(36,72,85,.22)}
+/* === HERO === */
+#hero{min-height:100vh;padding-top:88px;display:flex;align-items:center;position:relative;overflow:hidden}
+#hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 620px 420px at 78% 32%,rgba(230,72,51,.09) 0%,transparent 60%),radial-gradient(ellipse 520px 520px at 18% 72%,rgba(144,174,173,.10) 0%,transparent 60%),radial-gradient(ellipse 400px 300px at 58% 82%,rgba(36,72,85,.07) 0%,transparent 60%);pointer-events:none}
+#hero::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(36,72,85,.06) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
+.hi{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1}
+.hpill{display:inline-flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);padding:7px 16px;border-radius:50px;margin-bottom:26px;font-size:12.5px;font-weight:600;color:var(--accent);letter-spacing:.4px;box-shadow:0 2px 8px rgba(36,72,85,.06)}
+.hdot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pdot 2s infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.6)}}
+.hh1{font-size:clamp(42px,5.6vw,80px);font-weight:900;letter-spacing:-3px;color:var(--ink);margin-bottom:22px}
+.hh1 .bi{font-style:italic;color:var(--deep);display:block}
+.hsub{font-size:18px;color:var(--muted);line-height:1.72;max-width:460px;margin-bottom:38px;font-weight:300}
+.hact{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.hstats{display:flex;gap:34px;margin-top:50px;padding-top:34px;border-top:1px solid var(--border)}
+.hsv{font-family:var(--fd);font-size:30px;font-weight:700;color:var(--ink);line-height:1}
+.hsl{font-size:12px;color:var(--light);font-weight:500;margin-top:4px}
+/* Hero visual */
+.hvis{position:relative;height:560px}
+.hglow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:340px;height:340px;background:radial-gradient(circle,rgba(144,174,173,.15) 0%,transparent 70%);border-radius:50%;animation:breathe 5s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}}
+.hsvg{width:300px;height:300px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:fl 7s ease-in-out infinite;z-index:2}
+@keyframes fl{0%,100%{margin-top:0}50%{margin-top:-16px}}
+.fc{position:absolute;background:var(--cream);border:1px solid var(--border);border-radius:16px;padding:13px 17px;box-shadow:0 8px 24px rgba(36,72,85,.11);z-index:3;animation:cfl 4s ease-in-out infinite;font-size:13px}
+.fc1{top:58px;right:0;animation-delay:0s}.fc2{top:195px;right:-18px;animation-delay:1s}.fc3{bottom:118px;right:18px;animation-delay:2s}.fc4{bottom:68px;left:18px;animation-delay:1.5s}.fc5{top:88px;left:-8px;animation-delay:.5s}
+@keyframes cfl{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.fct{font-weight:600;color:var(--ink);font-size:13px}
+.fcs{font-size:11.5px;color:var(--muted);margin-top:2px}
+.fcb{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;margin-top:6px;padding:3px 8px;border-radius:20px}
+/* === MARQUEE === */
+.tb{background:var(--ink);overflow:hidden;padding:17px 0}
+.mw{display:flex;width:max-content;animation:mq 28s linear infinite}
+.mw:hover{animation-play-state:paused}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mi{display:flex;align-items:center;gap:9px;padding:0 32px;font-size:12.5px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap;letter-spacing:.8px;text-transform:uppercase}
+.md{width:4px;height:4px;background:var(--accent);border-radius:50%;flex-shrink:0}
+/* === PILLARS === */
+#features{background:var(--white)}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:62px}
+.pc{background:var(--cream);border:1px solid var(--border);border-radius:24px;padding:34px 30px;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.pc:hover{transform:translateY(-5px);box-shadow:0 18px 44px rgba(36,72,85,.10)}
+.pnum{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--light);margin-bottom:14px;text-transform:uppercase}
+.ph3{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:9px;letter-spacing:-.3px;margin-top:16px}
+.pd{font-size:14px;color:var(--muted);line-height:1.65}
+.ptags{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+.ptag{font-size:12px;font-weight:500;padding:4px 11px;border-radius:20px;background:var(--cream-d);border:1px solid var(--border);color:var(--muted)}
+.p1 .ai{background:var(--saffron-p)}.p1 .ai svg{color:var(--accent)}
+.p2 .ai{background:var(--peacock-p)}.p2 .ai svg{color:var(--deep)}
+.p3 .ai{background:var(--rose-p)}.p3 .ai svg{color:var(--accent)}
+.p4 .ai{background:var(--lotus-p)}.p4 .ai svg{color:var(--brown)}
+.p5 .ai{background:var(--sage-p)}.p5 .ai svg{color:var(--deep)}
+.p6 .ai{background:var(--indigo-p)}.p6 .ai svg{color:var(--deep)}
+/* === AI SECTION === */
+#ais{background:linear-gradient(145deg,#1A0F0A 0%,#0D2130 100%);position:relative;overflow:hidden}
+#ais::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 500px 400px at 18% 50%,rgba(230,72,51,.10) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at 80% 28%,rgba(144,174,173,.12) 0%,transparent 60%);pointer-events:none}
+.ain{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1}
+.amock{background:rgba(251,233,208,.04);border:1px solid rgba(251,233,208,.09);border-radius:20px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.38)}
+.atb{background:rgba(251,233,208,.05);border-bottom:1px solid rgba(251,233,208,.07);padding:13px 20px;display:flex;align-items:center;gap:8px}
+.tbd{width:11px;height:11px;border-radius:50%}
+.ab{padding:26px}
+.mkl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(251,233,208,.38);margin-bottom:5px}
+.mki{background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.09);border-radius:10px;padding:10px 13px;font-size:13.5px;color:rgba(251,233,208,.7);width:100%;margin-bottom:13px;font-family:var(--fb)}
+.mkbtn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;font-family:var(--fb);display:flex;align-items:center;justify-content:center;gap:8px;cursor:default}
+.mko{margin-top:22px;padding-top:22px;border-top:1px solid rgba(251,233,208,.07)}
+.mkoh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.lbadge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#22c55e;background:rgba(34,197,94,.12);padding:4px 10px;border-radius:20px}
+.ldot{width:5px;height:5px;background:#22c55e;border-radius:50%;animation:pdot 1.5s infinite}
+.mkls{display:flex;flex-direction:column;gap:7px}
+.mkl2{height:9px;border-radius:4px;background:rgba(251,233,208,.08);animation:sh 2s infinite}
+.mkl2:nth-child(2){width:83%;animation-delay:.3s}.mkl2:nth-child(3){width:67%;animation-delay:.6s}.mkl2:nth-child(4){width:88%;animation-delay:.9s}.mkl2:nth-child(5){width:54%;animation-delay:1.2s}
+@keyframes sh{0%,100%{opacity:.22}50%{opacity:.58}}
+.ac .slabel{color:var(--accent)}.ac .sh2{color:var(--cream)}.ac .ssub{color:rgba(251,233,208,.52)}
+.atpill{display:inline-flex;align-items:center;gap:8px;background:rgba(34,197,94,.11);border:1px solid rgba(34,197,94,.2);padding:7px 15px;border-radius:50px;margin-bottom:26px;font-size:12.5px;font-weight:600;color:#22c55e}
+.afs{display:flex;flex-direction:column;gap:18px;margin-top:30px}
+.afi{display:flex;gap:16px;align-items:flex-start}
+.afic{background:rgba(251,233,208,.06);border:1px solid rgba(251,233,208,.09)}
+.aft{font-size:15px;font-weight:600;color:var(--cream);margin-bottom:3px}
+.afd{font-size:13.5px;color:rgba(251,233,208,.48);line-height:1.6;font-weight:300}
+/* === COMPARE === */
+#cmp{background:var(--cream-d)}
+.ctbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:16px;overflow:hidden;border:1px solid var(--border);min-width:760px}
+.ctbl th{padding:13px 20px;font-size:11.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;text-align:left;background:var(--cream-m);color:var(--muted);border-bottom:1px solid var(--border)}
+.ctbl th.k{background:var(--deep);color:var(--cream)}
+.ctbl td{padding:13px 20px;font-size:13.5px;border-bottom:1px solid var(--border-s);color:var(--muted);background:var(--white)}
+.ctbl td.k{background:rgba(36,72,85,.05);color:var(--ink);font-weight:500}
+.ctbl tr:last-child td{border-bottom:none}
+.ctbl tr:hover td{background:var(--cream)}.ctbl tr:hover td.k{background:rgba(36,72,85,.08)}
+.chk{color:var(--deep)}.crs{color:var(--light)}.fl{color:var(--light)!important;font-size:13px!important}
+/* === PRINCIPLE === */
+#pr{background:linear-gradient(135deg,#F2E8D8 0%,#FBE9D0 40%,#F0E4D4 100%);text-align:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.pq{font-family:var(--fd);font-size:clamp(19px,2.6vw,36px);font-style:italic;font-weight:400;color:var(--ink);line-height:1.45;max-width:820px;margin:0 auto}
+.pc2{margin-top:26px;font-size:12.5px;font-weight:600;color:var(--accent);letter-spacing:1px;text-transform:uppercase}
+/* === PRICING === */
+#prx{background:var(--white)}
+.btog{display:flex;align-items:center;gap:12px;background:var(--cream);border:1px solid var(--border);border-radius:50px;padding:5px;margin:38px auto 0;width:fit-content}
+.bopt{padding:8px 20px;border-radius:50px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--muted);transition:all .2s}
+.bopt.act{background:var(--white);color:var(--ink);box-shadow:0 2px 8px rgba(36,72,85,.09)}
+.bsave{font-size:11px;font-weight:700;color:var(--deep);background:var(--sage-p);padding:3px 7px;border-radius:20px;margin-left:2px}
+.prgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px}
+.prc{border-radius:22px;padding:30px 24px;border:1.5px solid var(--border);background:var(--cream);position:relative;overflow:hidden;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.prc:hover{transform:translateY(-5px);box-shadow:0 22px 48px rgba(36,72,85,.10)}
+.prc.feat{background:var(--deep);border-color:var(--deep);color:#fff}
+.ppop{position:absolute;top:0;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:5px 18px;border-radius:0 0 10px 10px}
+.csb{position:absolute;top:13px;right:13px;background:var(--marigold-p);border:1px solid rgba(135,79,65,.22);color:var(--brown);font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.pname{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--light);margin-bottom:18px;margin-top:10px}
+.feat .pname{color:rgba(251,233,208,.45)}
+.pamnt{font-family:var(--fd);font-size:44px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px}
+.feat .pamnt{color:var(--cream)}
+.pamnt sub{font-size:19px;font-weight:500;vertical-align:.15em;font-family:var(--fb)}
+.pper{font-size:13px;color:var(--light);margin-bottom:4px}
+.feat .pper{color:rgba(251,233,208,.38)}
+.pann{font-size:12.5px;color:var(--deep);font-weight:600;margin-bottom:22px}
+.feat .pann{color:var(--teal)}
+.pdiv{height:1px;background:var(--border);margin-bottom:20px}
+.feat .pdiv{background:rgba(251,233,208,.10)}
+.pfl{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:26px}
+.pfl li{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.feat .pfl li{color:rgba(251,233,208,.58)}
+.pbw .btn{width:100%;justify-content:center;padding:12px;border-radius:13px;font-size:14px}
+.btn-dk{background:var(--ink);color:var(--cream)}.btn-dk:hover{background:#0D0704}
+.btn-wh{background:var(--cream);color:var(--ink)}.btn-wh:hover{background:var(--cream-d)}
+.btn-ol{background:transparent;color:var(--muted);border:1.5px solid var(--border)}.btn-ol:hover{border-color:rgba(36,72,85,.25);color:var(--ink)}
+/* === TESTIMONIALS === */
+#tst{background:var(--cream-d)}
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:52px}
+.tc{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:30px 26px}
+.tstars{margin-bottom:16px;display:flex;gap:3px}
+.st{width:15px;height:15px}
+.tq{font-family:var(--fd);font-size:16.5px;font-style:italic;color:var(--ink);line-height:1.55;margin-bottom:20px}
+.ta{display:flex;align-items:center;gap:11px}
+.tav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.tname{font-size:13px;font-weight:600;color:var(--ink)}.trole{font-size:12px;color:var(--muted);margin-top:2px}
+/* === PRIVACY === */
+#pvx{background:var(--white)}
+.prvg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.prvc{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:26px 22px}
+.prvi{font-size:26px;margin-bottom:12px}
+.prvt{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px}
+.prvd{font-size:13px;color:var(--muted);line-height:1.6}
+/* === DEMO SECTION === */
+#demo{background:linear-gradient(160deg,#1A0F0A 0%,#0D2130 60%,#1A0F0A 100%);position:relative;overflow:hidden}
+#demo::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 700px 500px at 50% 0%,rgba(144,174,173,.10) 0%,transparent 55%),radial-gradient(ellipse 400px 300px at 10% 80%,rgba(230,72,51,.09) 0%,transparent 55%);pointer-events:none}
+.demo-inner{position:relative;z-index:1}
+.demo-tabs{display:flex;gap:4px;background:rgba(251,233,208,.07);border:1px solid rgba(251,233,208,.12);border-radius:50px;padding:5px;width:fit-content;margin:40px auto 0}
+.demo-tab{padding:9px 22px;border-radius:50px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(251,233,208,.45);transition:all .22s;border:none;background:transparent;font-family:var(--fb)}
+.demo-tab.act{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(230,72,51,.35)}
+/* Video placeholder */
+.video-wrap{margin:40px 0;position:relative;border-radius:20px;overflow:hidden;border:1px solid rgba(251,233,208,.12);background:rgba(251,233,208,.04);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
+.video-placeholder{text-align:center}
+.vp-icon{width:80px;height:80px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;cursor:pointer;transition:transform .22s var(--ease),box-shadow .22s;box-shadow:0 0 0 0 rgba(230,72,51,.4)}
+.vp-icon:hover{transform:scale(1.08);box-shadow:0 0 0 12px rgba(230,72,51,.15)}
+.vp-icon svg{width:30px;height:30px;margin-left:4px}
+.vp-title{font-family:var(--fd);font-size:22px;font-weight:700;color:var(--cream);margin-bottom:8px}
+.vp-sub{font-size:14px;color:rgba(251,233,208,.45);font-weight:300}
+.vp-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(251,233,208,.08);border:1px solid rgba(251,233,208,.15);padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;color:rgba(251,233,208,.55);margin-top:14px}
+/* How-to steps */
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px}
+.step-card{background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.10);border-radius:18px;padding:28px 22px;text-align:center;position:relative;transition:background .3s}
+.step-card:hover{background:rgba(251,233,208,.09)}
+.step-num{width:40px;height:40px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:17px;font-weight:700;color:#fff;margin:0 auto 18px}
+.step-icon-wrap{font-size:28px;margin-bottom:14px}
+.step-title{font-size:15px;font-weight:700;color:var(--cream);margin-bottom:8px;font-family:var(--fd)}
+.step-desc{font-size:13px;color:rgba(251,233,208,.45);line-height:1.6;font-weight:300}
+.step-connector{position:absolute;top:44px;right:-8px;width:16px;height:2px;background:rgba(251,233,208,.15);z-index:1}
+/* Interactive demo */
+.interactive-demo{background:rgba(251,233,208,.04);border:1px solid rgba(251,233,208,.10);border-radius:20px;padding:32px;margin-top:40px}
+.idemo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.idemo-title{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--cream)}
+.idemo-live{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#22c55e;background:rgba(34,197,94,.12);padding:5px 12px;border-radius:20px}
+.idemo-live-dot{width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pdot 1.5s infinite}
+.demo-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.df-field{display:flex;flex-direction:column;gap:6px}
+.df-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(251,233,208,.38)}
+.df-select,.df-input{background:rgba(251,233,208,.07);border:1px solid rgba(251,233,208,.14);border-radius:10px;padding:11px 14px;font-size:14px;color:rgba(251,233,208,.8);font-family:var(--fb);outline:none;transition:border-color .2s;width:100%}
+.df-select:focus,.df-input:focus{border-color:var(--accent);outline:none}
+.df-select option{background:#1A0F0A;color:rgba(251,233,208,.9)}
+.demo-gen-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;font-family:var(--fd);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .22s;letter-spacing:.2px}
+.demo-gen-btn:hover{background:#cc3020;transform:translateY(-2px);box-shadow:0 10px 28px rgba(230,72,51,.35)}
+.demo-output{margin-top:24px;padding:22px;background:rgba(251,233,208,.04);border:1px solid rgba(251,233,208,.08);border-radius:14px;display:none}
+.demo-output.show{display:block}
+.do-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.do-title{font-size:15px;font-weight:700;color:var(--cream);font-family:var(--fd)}
+.do-badge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--teal);background:rgba(144,174,173,.14);padding:4px 10px;border-radius:20px}
+.do-sections{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.do-section{background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.08);border-radius:10px;padding:14px 16px}
+.do-sec-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(251,233,208,.35);margin-bottom:6px}
+.do-sec-val{font-size:13.5px;color:rgba(251,233,208,.8);font-weight:500;line-height:1.5}
+.do-lines{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.do-line{height:8px;border-radius:3px;background:rgba(251,233,208,.12)}
+.do-line-s{width:72%}.do-line-m{width:88%}.do-line-l{width:60%}
+/* === CTA === */
+#cta{background:linear-gradient(150deg,#1A0F0A 0%,#0D2130 100%);text-align:center;overflow:hidden;position:relative}
+#cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 50% 100%,rgba(230,72,51,.11) 0%,transparent 60%),radial-gradient(ellipse 500px 300px at 20% 0%,rgba(144,174,173,.09) 0%,transparent 60%);pointer-events:none}
+.ci{position:relative;z-index:1}
+.ch2{font-size:clamp(32px,4.8vw,64px);font-weight:900;letter-spacing:-2.5px;color:var(--cream);line-height:1.04;max-width:740px;margin:0 auto 20px}
+.ch2 em{font-style:italic;color:var(--accent)}
+.csub{font-size:17px;color:rgba(251,233,208,.48);max-width:460px;margin:0 auto 38px;font-weight:300;line-height:1.7}
+.cact{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.cind{margin-top:34px;font-size:12px;color:rgba(251,233,208,.18);letter-spacing:1.5px;text-transform:uppercase}
+/* === FOOTER === */
+footer{background:#0D0804;border-top:1px solid rgba(251,233,208,.07);padding:62px 0 34px}
+.fg{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:52px;padding-bottom:46px;border-bottom:1px solid rgba(251,233,208,.07);margin-bottom:30px}
+.flt{font-family:var(--fd);font-size:18px;font-weight:700;color:var(--cream);letter-spacing:-.5px}
+.flt em{font-style:normal;color:var(--teal)}
+.ftag{font-size:13px;color:rgba(251,233,208,.33);line-height:1.65;margin:14px 0 18px;font-weight:300}
+.fib{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(251,233,208,.22);border:1px solid rgba(251,233,208,.10);padding:5px 11px;border-radius:20px}
+.fct{font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:rgba(251,233,208,.32);margin-bottom:16px}
+.flinks{list-style:none;display:flex;flex-direction:column;gap:9px}
+.flinks a{font-size:13px;color:rgba(251,233,208,.32);text-decoration:none;transition:color .2s}
+.flinks a:hover{color:rgba(251,233,208,.72)}
+.fb2{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.fcopy{font-size:12px;color:rgba(251,233,208,.16)}
+.fleg{display:flex;gap:16px}
+.fleg a{font-size:12px;color:rgba(251,233,208,.16);text-decoration:none;transition:color .2s}
+.fleg a:hover{color:rgba(251,233,208,.38)}
+@media(max-width:1024px){.hi,.ain{grid-template-columns:1fr;gap:44px}.hvis{height:400px}.pg{grid-template-columns:1fr 1fr}.prgrid{grid-template-columns:1fr 1fr}.fg{grid-template-columns:1fr 1fr;gap:32px}.nlinks{display:none}.tg{grid-template-columns:1fr 1fr}.steps-grid{grid-template-columns:1fr 1fr}.demo-form{grid-template-columns:1fr}.do-sections{grid-template-columns:1fr}}
+@media(max-width:640px){.c{padding:0 20px}.sp{padding:78px 0}.pg,.prgrid,.tg,.prvg{grid-template-columns:1fr}.fg{grid-template-columns:1fr;gap:24px}.hstats{gap:18px;flex-wrap:wrap}body{cursor:auto}#cur,#cur-r{display:none}.fc4,.fc5{display:none}.steps-grid{grid-template-columns:1fr}.step-connector{display:none}}
+</style>
+</head>
+<body>
+<div id="gte"></div>
+<div id="cur"></div>
+<div id="cur-r"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="ni">
+    <a href="#" class="nlogo">
+      <svg width="38" height="38" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="38" fill="#E2ECED" stroke="#244855" stroke-width="1.5" stroke-opacity=".45"/>
+        <ellipse cx="36" cy="50" rx="20" ry="17" fill="#90AEAD" fill-opacity=".22" stroke="#244855" stroke-width="1.3"/>
+        <ellipse cx="52" cy="34" rx="14" ry="13" fill="#90AEAD" fill-opacity=".22" stroke="#244855" stroke-width="1.3"/>
+        <ellipse cx="42" cy="30" rx="8" ry="10" fill="#E8F0F0" stroke="#244855" stroke-width="1.1"/>
+        <ellipse cx="42" cy="32" rx="5" ry="7" fill="#C8D8D8" fill-opacity=".6"/>
+        <circle cx="56" cy="30" r="2.8" fill="#244855"/>
+        <circle cx="57" cy="29" r=".9" fill="#E2ECED"/>
+        <path d="M61 40 Q70 47 67 58 Q64 65 58 63" stroke="#244855" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+        <path d="M57 42 L66 50" stroke="#874F41" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="66" cy="50" r="2.2" fill="#874F41"/>
+        <path d="M51 15 L57 9 L63 15" stroke="#874F41" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="57" y1="9" x2="57" y2="22" stroke="#874F41" stroke-width="2.2" stroke-linecap="round"/>
+        <rect x="20" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".48"/>
+        <rect x="30" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".38"/>
+        <rect x="40" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".3"/>
+        <rect x="50" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".24"/>
+      </svg>
+      <span class="nwm">Kunjara <em>OS</em>™</span>
+    </a>
+    <ul class="nlinks">
+      <li><a href="#features">Platform</a></li>
+      <li><a href="#ais">AI Engine</a></li>
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#cmp">Compare</a></li>
+      <li><a href="#prx">Pricing</a></li>
+    </ul>
+    <div class="nright">
+      <button class="nlang" onclick="trigLang()" title="Translate page">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <span id="ll">हिंदी</span>
+      </button>
+      <a href="/login" class="nlogin">Log in</a>
+      <a href="/signup" class="nsignup">Sign up free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="c">
+    <div class="hi">
+      <div>
+        <div class="hpill reveal"><span class="hdot"></span>India's First AI Event Operating System</div>
+        <h1 class="hh1 reveal d1">Events run<span class="bi">intelligently.</span></h1>
+        <p class="hsub reveal d2">Kunjara OS™ replaces WhatsApp, Excel and 6 scattered tools with one unified, AI-powered platform — built by a planner with 20+ years on the ground.</p>
+        <div class="hact reveal d3">
+          <a href="/signup" class="btn btn-dark">Start for free <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a href="#features" class="btn btn-ghost">See all features</a>
+        </div>
+        <div class="hstats reveal d4">
+          <div><div class="hsv">6</div><div class="hsl">OS Pillars</div></div>
+          <div><div class="hsv">40+</div><div class="hsl">Modules</div></div>
+          <div><div class="hsv">₹1,999</div><div class="hsl">Starting / mo</div></div>
+          <div><div class="hsv">20+</div><div class="hsl">Yrs experience</div></div>
+        </div>
+      </div>
+      <div class="hvis reveal d2">
+        <div class="hglow"></div>
+        <!-- Hero elephant SVG -->
+        <svg class="hsvg" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="g1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#90AEAD" stop-opacity=".16"/><stop offset="100%" stop-color="#90AEAD" stop-opacity="0"/></radialGradient>
+            <radialGradient id="g2" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#E8F0F0" stop-opacity=".85"/><stop offset="100%" stop-color="#C8D8D8" stop-opacity=".3"/></radialGradient>
+          </defs>
+          <circle cx="160" cy="160" r="150" fill="url(#g1)"/>
+          <ellipse cx="160" cy="282" rx="68" ry="11" fill="rgba(144,174,173,.07)"/>
+          <ellipse cx="148" cy="196" rx="78" ry="68" fill="url(#g2)" stroke="#90AEAD" stroke-width="1.4" stroke-opacity=".45"/>
+          <ellipse cx="212" cy="134" rx="56" ry="52" fill="url(#g2)" stroke="#90AEAD" stroke-width="1.4" stroke-opacity=".45"/>
+          <ellipse cx="174" cy="120" rx="32" ry="38" fill="white" fill-opacity=".55" stroke="#90AEAD" stroke-width="1.1" stroke-opacity=".35"/>
+          <ellipse cx="174" cy="122" rx="20" ry="26" fill="#E8F0F0" fill-opacity=".55" stroke="#90AEAD" stroke-width=".7" stroke-opacity=".28"/>
+          <circle cx="225" cy="118" r="8" fill="#244855" fill-opacity=".88"/>
+          <circle cx="225" cy="118" r="4" fill="white"/>
+          <circle cx="226.5" cy="116.5" r="1.5" fill="#244855"/>
+          <path d="M236 158 Q278 178 270 218 Q264 248 244 245" stroke="#90AEAD" stroke-width="9" stroke-linecap="round" fill="none" stroke-opacity=".45"/>
+          <path d="M236 158 Q278 178 270 218 Q264 248 244 245" stroke="#E8F0F0" stroke-width="6" stroke-linecap="round" fill="none" stroke-opacity=".8"/>
+          <path d="M236 158 Q278 178 270 218 Q264 248 244 245" stroke="#90AEAD" stroke-width="1.6" stroke-linecap="round" fill="none" stroke-opacity=".55"/>
+          <path d="M228 162 L264 192" stroke="#874F41" stroke-width="4.2" stroke-linecap="round"/>
+          <circle cx="264" cy="192" r="3" fill="#874F41"/>
+          <rect x="82" y="250" width="30" height="44" rx="8" fill="#244855" fill-opacity=".22" stroke="#244855" stroke-width=".9" stroke-opacity=".38"/>
+          <rect x="118" y="254" width="30" height="40" rx="8" fill="#244855" fill-opacity=".18" stroke="#244855" stroke-width=".9" stroke-opacity=".32"/>
+          <rect x="156" y="254" width="30" height="40" rx="8" fill="#244855" fill-opacity=".15" stroke="#244855" stroke-width=".9" stroke-opacity=".26"/>
+          <rect x="192" y="250" width="30" height="44" rx="8" fill="#244855" fill-opacity=".13" stroke="#244855" stroke-width=".9" stroke-opacity=".22"/>
+          <path d="M76 200 Q58 208 62 225 Q66 238 78 234" stroke="#90AEAD" stroke-width="2.8" stroke-linecap="round" fill="none" stroke-opacity=".38"/>
+          <path d="M210 64 L226 46 L242 64" stroke="#874F41" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="226" y1="46" x2="226" y2="86" stroke="#874F41" stroke-width="3.2" stroke-linecap="round"/>
+          <circle cx="66" cy="80" r="3" fill="#E64833" fill-opacity=".48"/>
+          <circle cx="280" cy="100" r="2" fill="#90AEAD" fill-opacity=".48"/>
+          <circle cx="78" cy="162" r="2.5" fill="#874F41" fill-opacity=".4"/>
+          <circle cx="290" cy="200" r="2" fill="#E64833" fill-opacity=".48"/>
+        </svg>
+        <!-- Float cards -->
+        <div class="fc fc1">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;background:var(--peacock-p);border-radius:8px;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#244855" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg></div>
+            <div><div class="fct">AI Proposal</div><div class="fcs">Generating…</div></div>
+          </div>
+          <div class="fcb" style="background:var(--sage-p);color:var(--deep);">⏱ 7 min left</div>
+        </div>
+        <div class="fc fc2">
+          <div style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pdot 1.5s infinite;display:inline-block;"></span><div class="fct">Event Day Live</div></div>
+          <div class="fcs" style="margin-top:4px;">247 guests checked in</div>
+        </div>
+        <div class="fc fc3">
+          <div class="fct">₹4,72,000</div><div class="fcs">GST auto-calculated</div>
+          <div class="fcb" style="background:var(--sage-p);color:var(--deep);margin-top:6px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg> 18% GST applied</div>
+        </div>
+        <div class="fc fc4">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;background:var(--marigold-p);border-radius:8px;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#874F41" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></div>
+            <div><div class="fct">347 RSVPs</div><div class="fcs">QR check-in ready</div></div>
+          </div>
+        </div>
+        <div class="fc fc5"><div class="fct">Proposal Opened 🔥</div><div class="fcs">3× · High intent</div><div class="fcb" style="background:var(--saffron-p);color:var(--accent);margin-top:6px;">Call now</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="tb"><div class="mw" id="mq">
+  <span class="mi"><span class="md"></span>AI Proposal Builder</span><span class="mi"><span class="md"></span>GST Auto-Calculation</span><span class="mi"><span class="md"></span>Run-of-Show AI</span><span class="mi"><span class="md"></span>WhatsApp Business API</span><span class="mi"><span class="md"></span>Razorpay + UPI Native</span><span class="mi"><span class="md"></span>DPDP Act 2023 Compliant</span><span class="mi"><span class="md"></span>QR Guest Check-in</span><span class="mi"><span class="md"></span>Hindi + English Toggle</span><span class="mi"><span class="md"></span>Event Room — Branded URL</span><span class="mi"><span class="md"></span>Made in Bharat 🇮🇳</span>
+  <span class="mi"><span class="md"></span>AI Proposal Builder</span><span class="mi"><span class="md"></span>GST Auto-Calculation</span><span class="mi"><span class="md"></span>Run-of-Show AI</span><span class="mi"><span class="md"></span>WhatsApp Business API</span><span class="mi"><span class="md"></span>Razorpay + UPI Native</span><span class="mi"><span class="md"></span>DPDP Act 2023 Compliant</span><span class="mi"><span class="md"></span>QR Guest Check-in</span><span class="mi"><span class="md"></span>Hindi + English Toggle</span><span class="mi"><span class="md"></span>Event Room — Branded URL</span><span class="mi"><span class="md"></span>Made in Bharat 🇮🇳</span>
+</div></div>
+
+<!-- PILLARS -->
+<section id="features" class="sp">
+  <div class="c">
+    <div class="slabel reveal">Complete OS Architecture</div>
+    <h2 class="sh2 reveal d1">Six pillars. Every event need.</h2>
+    <p class="ssub reveal d2">Every module built, owned and operated exclusively on Kunjara OS infrastructure. No competitor can see any subscriber's data.</p>
+    <div class="pg">
+      <div class="pc p1 reveal"><div class="pnum">01 — Plan</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9.5 13.5l.5-1.5 1.5-.5-1.5-.5-.5-1.5-.5 1.5-1.5.5 1.5.5z"/></svg></div><h3 class="ph3">Plan</h3><p class="pd">From zero to complete proposal in minutes. AI generates your entire event plan — concept, budget, timeline and vendors.</p><div class="ptags"><span class="ptag">AI Proposal Builder</span><span class="ptag">Budget + GST</span><span class="ptag">Run-of-Show AI</span><span class="ptag">Vendor Mgmt</span></div></div>
+      <div class="pc p2 reveal d1"><div class="pnum">02 — Execute</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg></div><h3 class="ph3">Execute</h3><p class="pd">Real-time event day operations on mobile. Every task, every guest, every check-in — tracked live from your pocket.</p><div class="ptags"><span class="ptag">Client Portal</span><span class="ptag">RSVP + Reg</span><span class="ptag">QR Check-in</span><span class="ptag">Event Day Live</span></div></div>
+      <div class="pc p3 reveal d2"><div class="pnum">03 — Market</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h3 class="ph3">Market</h3><p class="pd">AI-generated captions for every platform, one-click publishing, event microsites and sponsorship management.</p><div class="ptags"><span class="ptag">Social Media AI</span><span class="ptag">Microsite</span><span class="ptag">5 Deck Templates</span><span class="ptag">Sponsorship</span></div></div>
+      <div class="pc p4 reveal"><div class="pnum">04 — Communicate</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="12" y2="13"/></svg></div><h3 class="ph3">Communicate</h3><p class="pd">Bulk WhatsApp and email. Post-event surveys auto-sent. Branded reports generated the moment the event ends.</p><div class="ptags"><span class="ptag">WhatsApp Bulk</span><span class="ptag">Email</span><span class="ptag">Post-Event Survey</span><span class="ptag">Auto Reports</span></div></div>
+      <div class="pc p5 reveal d1"><div class="pnum">05 — Grow</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><h3 class="ph3">Grow</h3><p class="pd">Full CRM pipeline from prospect to won. Enterprise clients receive 3 qualified corporate leads every single month.</p><div class="ptags"><span class="ptag">CRM + Pipeline</span><span class="ptag">Lead Mgmt</span><span class="ptag">Referral Tracking</span><span class="ptag">3 Leads/mo</span></div></div>
+      <div class="pc p6 reveal d2"><div class="pnum">06 — Connect</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div><h3 class="ph3">Connect</h3><p class="pd">Gmail, Google Drive, Razorpay, WhatsApp Business — everything you already use, now unified under one intelligent roof.</p><div class="ptags"><span class="ptag">Gmail + Outlook</span><span class="ptag">Drive Sync</span><span class="ptag">Razorpay + UPI</span><span class="ptag">WhatsApp API</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SECTION -->
+<section id="ais" class="sp">
+  <div class="c">
+    <div class="ain">
+      <div class="amock reveal">
+        <div class="atb"><div class="tbd" style="background:#ff5f57"></div><div class="tbd" style="background:#febc2e"></div><div class="tbd" style="background:#28c840"></div><span style="margin-left:10px;font-size:12px;color:rgba(255,255,255,.38)">Kunjara OS — Proposal Architect™</span></div>
+        <div class="ab">
+          <div class="mkl">Event Type</div><div class="mki">Corporate Annual Gala — 500 Pax</div>
+          <div class="mkl">Budget Range</div><div class="mki">₹ 25,00,000 — ₹ 35,00,000</div>
+          <div class="mkl">Location</div><div class="mki">Mumbai — Grand Hyatt / ITC Maratha</div>
+          <div class="mkl">Theme Preference</div><div class="mki">Modern India — Heritage + Technology</div>
+          <div class="mkbtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>Architect Proposal — ~7 minutes</div>
+          <div class="mko">
+            <div class="mkoh"><span style="font-size:10.5px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:1px;text-transform:uppercase">Output</span><div class="lbadge"><span class="ldot"></span>Generating</div></div>
+            <div class="mkls"><div class="mkl2"></div><div class="mkl2"></div><div class="mkl2"></div><div class="mkl2"></div><div class="mkl2"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ac reveal d2">
+        <div class="slabel">Bespoke AI Architecture™</div>
+        <h2 class="sh2">Proposals that close.<br>Not templates.</h2>
+        <p class="ssub">Our AI gathers your brief through intelligent conversation, then generates a complete, client-ready proposal — not a generic template.</p>
+        <div class="atpill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Proposal Architect™ delivers in 5–10 minutes</div>
+        <div class="afs">
+          <div class="afi"><div class="ai ai-sm afic"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4"/></svg></div><div><div class="aft">Event Concept + Visual Direction</div><div class="afd">Theme, color palette, lighting, stage design and mood board — from your brief.</div></div></div>
+          <div class="afi"><div class="ai ai-sm afic"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></div><div><div class="aft">Budget Allocation + GST</div><div class="afd">Smart cost split with 18% GST auto-calculated. Toggle off for sub-₹19L threshold.</div></div></div>
+          <div class="afi"><div class="ai ai-sm afic"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div><div class="aft">Proposal Intelligence</div><div class="afd">See when your client opens the proposal and get AI signals: "High Intent — Call Now."</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section id="cmp" class="sp">
+  <div class="c">
+    <div class="slabel reveal">Competitive Landscape</div>
+    <h2 class="sh2 reveal d1">We're not competing.<br>We're replacing.</h2>
+    <p class="ssub reveal d2">No Indian-built, India-first, AI-powered Event OS exists. Kunjara OS operates in a blue ocean.</p>
+    <div style="overflow-x:auto;margin-top:52px;" class="reveal d3">
+      <table class="ctbl">
+        <thead><tr><th>Feature</th><th class="k">Kunjara OS™</th><th>WhatsApp + Excel</th><th>Zoho Backstage</th><th>Cvent</th></tr></thead>
+        <tbody>
+          <tr><td class="fl">AI Proposal Builder</td><td class="k">✦ 5–10 Minutes</td><td>Manual — Hours</td><td>None</td><td>None</td></tr>
+          <tr><td class="fl">GST-Compliant Invoicing</td><td class="k"><span class="chk">✓</span> Auto 18%</td><td><span class="crs">✕</span> Manual</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
+          <tr><td class="fl">Event Room — Client Link</td><td class="k"><span class="chk">✓</span> Branded URL</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td><td>Basic</td></tr>
+          <tr><td class="fl">Proposal Intelligence</td><td class="k"><span class="chk">✓</span> AI Open Tracking</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
+          <tr><td class="fl">Run-of-Show AI</td><td class="k"><span class="chk">✓</span> AI Generated</td><td><span class="crs">✕</span> Manual</td><td><span class="crs">✕</span> None</td><td>Basic</td></tr>
+          <tr><td class="fl">Social Media AI</td><td class="k"><span class="chk">✓</span> All Platforms</td><td><span class="crs">✕</span> Manual</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
+          <tr><td class="fl">Hindi + English</td><td class="k"><span class="chk">✓</span> Native</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
+          <tr><td class="fl">Razorpay + UPI</td><td class="k"><span class="chk">✓</span> Native</td><td><span class="crs">✕</span> Manual</td><td>Partial</td><td><span class="crs">✕</span> None</td></tr>
+          <tr><td class="fl">Monthly Cost</td><td class="k" style="color:var(--kgold);font-weight:700;">₹1,999 – ₹24,999</td><td>Free (but broken)</td><td>₹0–₹5,000</td><td>₹50,000+</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- PRINCIPLE -->
+<section id="pr" class="sp">
+  <div class="c">
+    <div class="slabel reveal" style="justify-content:center;">Lex Mercatoria — Founding Principle</div>
+    <blockquote class="pq reveal d1">"We grow only when you grow. The planner succeeds, the client gets a better event, the vendor gets more work — and the entire ecosystem lifts. That is the only business model we believe in."</blockquote>
+    <div class="pc2 reveal d2">— Gautam Shah, Founder · Kunjara OS™ · Indigo EP · Mumbai</div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="prx" class="sp">
+  <div class="c">
+    <div class="slabel reveal">Subscription Architecture</div>
+    <h2 class="sh2 reveal d1">No free tier. No trial.<br>Just the complete OS.</h2>
+    <p class="ssub reveal d2">No setup fee. No onboarding charge. Every plan delivers the complete Kunjara OS™ from day one.</p>
+    <div class="btog reveal d2">
+      <div class="bopt act" id="bm" onclick="setBill('m')">Monthly</div>
+      <div class="bopt" id="ba" onclick="setBill('a')">Annual <span class="bsave">Save 17%</span></div>
+    </div>
+    <div class="prgrid reveal d3">
+      <!-- Basic -->
+      <div class="prc">
+        <div class="pname">Basic</div>
+        <div class="pamnt" id="pb"><sub>₹</sub>1,999</div><div class="pper">per month</div><div class="pann" id="ab">₹19,990 billed annually</div>
+        <div class="pdiv"></div>
+        <ul class="pfl"><li><span class="chk">✓</span>5 Events / month</li><li><span class="chk">✓</span>1 User seat</li><li><span class="chk">✓</span>5 GB storage</li><li><span class="chk">✓</span>Complete AI suite</li><li><span class="chk">✓</span>All 6 pillars</li><li><span class="chk">✓</span>GST auto-calculation</li></ul>
+        <div class="pbw"><a href="/signup?plan=basic" class="btn btn-ol">Get started</a></div>
+      </div>
+      <!-- Pro - Featured -->
+      <div class="prc feat" style="margin-top:-8px;">
+        <div class="ppop">Most Popular</div>
+        <div class="pname" style="margin-top:28px;">Professional</div>
+        <div class="pamnt" id="pp"><sub>₹</sub>3,999</div><div class="pper">per month</div><div class="pann" id="ap">₹39,990 billed annually</div>
+        <div class="pdiv"></div>
+        <ul class="pfl"><li><span class="chk">✓</span>10 Events / month</li><li><span class="chk">✓</span>1 User seat</li><li><span class="chk">✓</span>10 GB storage</li><li><span class="chk">✓</span>Complete AI suite</li><li><span class="chk">✓</span>Proposal Intelligence</li><li><span class="chk">✓</span>Branded Event Room</li></ul>
+        <div class="pbw"><a href="/signup?plan=pro" class="btn btn-wh">Get started</a></div>
+      </div>
+      <!-- Expert - Coming Soon -->
+      <div class="prc" style="opacity:.82;">
+        <div class="csb">Coming Soon</div>
+        <div class="pname">Expert</div>
+        <div class="pamnt" id="pe"><sub>₹</sub>11,999</div><div class="pper">per month</div><div class="pann" id="ae">₹1,19,990 billed annually</div>
+        <div class="pdiv"></div>
+        <ul class="pfl"><li><span class="chk">✓</span>20 Events / month</li><li><span class="chk">✓</span>5 User seats</li><li><span class="chk">✓</span>50 GB storage</li><li><span class="chk">✓</span>Complete AI suite</li><li><span class="chk">✓</span>All Pro features</li><li><span class="chk">✓</span>Priority support</li></ul>
+        <div class="pbw"><a href="/waitlist?plan=expert" class="btn btn-coming">Join Waitlist</a></div>
+      </div>
+      <!-- Enterprise - Coming Soon -->
+      <div class="prc" style="opacity:.82;">
+        <div class="csb">Coming Soon</div>
+        <div class="pname">Enterprise</div>
+        <div class="pamnt" id="pen"><sub>₹</sub>24,999</div><div class="pper">per month</div><div class="pann" id="aen">₹2,49,990 billed annually</div>
+        <div class="pdiv"></div>
+        <ul class="pfl"><li><span class="chk">✓</span>45 Events / month</li><li><span class="chk">✓</span>5 User seats</li><li><span class="chk">✓</span>100 GB storage</li><li><span class="chk">✓</span>Complete AI suite</li><li><span class="chk">✓</span>3 Qualified leads / mo</li><li><span class="chk">✓</span>Lead-to-Proposal AI</li></ul>
+        <div class="pbw"><a href="/waitlist?plan=enterprise" class="btn btn-coming">Join Waitlist</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="tst" class="sp">
+  <div class="c">
+    <div class="slabel reveal">Early Adopters</div>
+    <h2 class="sh2 reveal d1">Built by planners.<br>For planners.</h2>
+    <div class="tg">
+      <div class="tc reveal d1"><div class="tstars"><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div><p class="tq">"The GST automation alone saved me 3 hours per proposal. Finally a tool that understands how Indian events actually work."</p><div class="ta"><div class="tav" style="background:var(--rose-p);color:var(--rose);">RS</div><div><div class="tname">Radhika Sharma</div><div class="trole">Event Director · Mumbai</div></div></div></div>
+      <div class="tc reveal d2"><div class="tstars"><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div><p class="tq">"The AI proposal builder is witchcraft. I described a 400-pax gala and got a complete, client-ready deck in under 10 minutes."</p><div class="ta"><div class="tav" style="background:var(--peacock-p);color:var(--peacock);">AK</div><div><div class="tname">Arjun Kapoor</div><div class="trole">MICE Agency Owner · Delhi</div></div></div></div>
+      <div class="tc reveal d3"><div class="tstars"><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div><p class="tq">"We replaced 6 different tools with Kunjara OS. Entire team on one platform. No more WhatsApp group chaos at 2am."</p><div class="ta"><div class="tav" style="background:var(--sage-p);color:var(--sage);">PD</div><div><div class="tname">Priya Desai</div><div class="trole">Corporate Events Head · Bangalore</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY -->
+<section id="pvx" class="sp">
+  <div class="c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+      <div>
+        <div class="slabel reveal">Data Privacy Promise</div>
+        <h2 class="sh2 reveal d1">Your client data is<br>never shared. Ever.</h2>
+        <p class="ssub reveal d2">Complete database-level isolation. Full compliance with IT Act 2000, IT Rules 2011, and DPDP Act 2023. Mumbai jurisdiction exclusively.</p>
+        <a href="#" class="btn btn-ghost reveal d3" style="margin-top:26px;display:inline-flex;">Read Privacy Policy →</a>
+      </div>
+      <div class="prvg reveal d2">
+        <div class="prvc"><div class="prvi">🔒</div><div class="prvt">Zero Data Sharing</div><div class="prvd">Client names and event data never shared with any third party, ever.</div></div>
+        <div class="prvc"><div class="prvi">🛡️</div><div class="prvt">DPDP Act 2023</div><div class="prvd">Full compliance with India's Personal Data Protection law.</div></div>
+        <div class="prvc"><div class="prvi">☁️</div><div class="prvt">Files Stay in Your Drive</div><div class="prvd">All docs sync to your Google Drive — not our servers.</div></div>
+        <div class="prvc"><div class="prvi">⚖️</div><div class="prvt">Mumbai Jurisdiction</div><div class="prvd">All disputes under exclusive jurisdiction of Mumbai courts.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO SECTION -->
+<section id="demo" class="sp">
+  <div class="c">
+    <div class="demo-inner">
+      <div class="slabel reveal" style="color:var(--teal);">See It In Action</div>
+      <h2 class="sh2 reveal d1" style="color:var(--cream);">Watch. Learn.<br>Then try it yourself.</h2>
+      <p class="ssub reveal d2" style="color:rgba(251,233,208,.50);">Everything from proposal to post-event report — shown in 6 minutes. Then build your own proposal right here, for free.</p>
+
+      <!-- Tabs -->
+      <div class="demo-tabs reveal d2">
+        <button class="demo-tab act" onclick="demoTab('video',this)">Watch Demo</button>
+        <button class="demo-tab" onclick="demoTab('howto',this)">How It Works</button>
+        <button class="demo-tab" onclick="demoTab('try',this)">Try It Now</button>
+      </div>
+
+      <!-- === TAB: VIDEO === -->
+      <div id="tab-video">
+        <div class="video-wrap reveal d3">
+          <div class="video-placeholder">
+            <div class="vp-icon" onclick="this.style.background='var(--teal)'">
+              <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="vp-title">Kunjara OS™ — Full Platform Walkthrough</div>
+            <div class="vp-sub">6-minute demo · AI Proposal → Budget → Event Day → Report</div>
+            <div class="vp-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Video loading soon — check back shortly
+            </div>
+          </div>
+        </div>
+        <!-- Video chapters -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:0;" class="reveal d3">
+          <div style="background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.09);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:12px;">
+            <span style="font-size:22px;">🗂️</span>
+            <div><div style="font-size:13.5px;font-weight:700;color:var(--cream);">0:00 — Plan</div><div style="font-size:12px;color:rgba(251,233,208,.4);margin-top:2px;">AI Proposal Builder in action</div></div>
+          </div>
+          <div style="background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.09);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:12px;">
+            <span style="font-size:22px;">⚙️</span>
+            <div><div style="font-size:13.5px;font-weight:700;color:var(--cream);">2:10 — Execute</div><div style="font-size:12px;color:rgba(251,233,208,.4);margin-top:2px;">Event Day Live + QR check-in</div></div>
+          </div>
+          <div style="background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.09);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:12px;">
+            <span style="font-size:22px;">📊</span>
+            <div><div style="font-size:13.5px;font-weight:700;color:var(--cream);">4:30 — Report</div><div style="font-size:12px;color:rgba(251,233,208,.4);margin-top:2px;">Auto-generated post-event report</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- === TAB: HOW IT WORKS === -->
+      <div id="tab-howto" style="display:none;">
+        <div class="steps-grid reveal d2">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-icon-wrap">🗂️</div>
+            <div class="step-title">Describe Your Event</div>
+            <div class="step-desc">Tell Kunjara OS the event type, budget, location, and theme. Takes 2 minutes.</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-icon-wrap">✦</div>
+            <div class="step-title">AI Architects the Plan</div>
+            <div class="step-desc">Proposal Architect™ generates a complete, branded proposal in 5–10 minutes. Not a template.</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-icon-wrap">📤</div>
+            <div class="step-title">Share with Client</div>
+            <div class="step-desc">Send via your own email. Track opens. AI tells you when to call: "High Intent — Call Now."</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">4</div>
+            <div class="step-icon-wrap">📋</div>
+            <div class="step-title">Execute with Precision</div>
+            <div class="step-desc">Event Day Live module. Real-time run-of-show on mobile. QR check-in. Task tracking. All live.</div>
+          </div>
+        </div>
+        <!-- Feature deep-dive -->
+        <div style="margin-top:32px;background:rgba(251,233,208,.04);border:1px solid rgba(251,233,208,.09);border-radius:20px;padding:32px;" class="reveal d3">
+          <div style="font-family:var(--fd);font-size:18px;font-weight:700;color:var(--cream);margin-bottom:20px;">What happens in each step</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div style="padding:18px;background:rgba(251,233,208,.05);border-radius:12px;border:1px solid rgba(251,233,208,.07);">
+              <div style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Proposal Architect™</div>
+              <div style="font-size:13px;color:rgba(251,233,208,.5);line-height:1.65;">Discuss Mode gathers your brief through intelligent conversation — then fires the full generation. Event concept, visual direction, budget split, vendor list, GST, and run-of-show. All in one pass.</div>
+            </div>
+            <div style="padding:18px;background:rgba(251,233,208,.05);border-radius:12px;border:1px solid rgba(251,233,208,.07);">
+              <div style="font-size:12px;font-weight:700;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Budget Builder</div>
+              <div style="font-size:13px;color:rgba(251,233,208,.5);line-height:1.65;">Agency subtotal → Commission (% or fixed) → Taxable value → 18% GST → Grand Total. All calculated in real-time. Toggle GST off for sub-₹19L threshold planners.</div>
+            </div>
+            <div style="padding:18px;background:rgba(251,233,208,.05);border-radius:12px;border:1px solid rgba(251,233,208,.07);">
+              <div style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Event Room</div>
+              <div style="font-size:13px;color:rgba(251,233,208,.5);line-height:1.65;">One private branded URL per event. Your client sees everything — proposal, budget, approvals — from a single page. Like a Paperflite deal room, built for events.</div>
+            </div>
+            <div style="padding:18px;background:rgba(251,233,208,.05);border-radius:12px;border:1px solid rgba(251,233,208,.07);">
+              <div style="font-size:12px;font-weight:700;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Proposal Intelligence</div>
+              <div style="font-size:13px;color:rgba(251,233,208,.5);line-height:1.65;">Track every open. Every page view. AI scores engagement and surfaces "High Intent" signals so you know exactly when to call — and what to say.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- === TAB: TRY IT === -->
+      <div id="tab-try" style="display:none;">
+        <div class="interactive-demo reveal d2">
+          <div class="idemo-header">
+            <div class="idemo-title">Proposal Architect™ — Live Demo</div>
+            <div class="idemo-live"><span class="idemo-live-dot"></span>Interactive · No signup required</div>
+          </div>
+          <div class="demo-form">
+            <div class="df-field">
+              <label class="df-label">Event Type</label>
+              <select class="df-select" id="d-type">
+                <option value="">Select event type...</option>
+                <option value="corporate">Corporate Gala / Annual Day</option>
+                <option value="product">Product Launch</option>
+                <option value="conference">Conference / Summit</option>
+                <option value="wedding">Wedding Reception</option>
+                <option value="exhibition">Exhibition / Trade Show</option>
+              </select>
+            </div>
+            <div class="df-field">
+              <label class="df-label">Budget Range</label>
+              <select class="df-select" id="d-budget">
+                <option value="">Select budget...</option>
+                <option value="5">₹3L – ₹8L</option>
+                <option value="15">₹8L – ₹25L</option>
+                <option value="50">₹25L – ₹75L</option>
+                <option value="100">₹75L – ₹1.5Cr</option>
+                <option value="200">₹1.5Cr+</option>
+              </select>
+            </div>
+            <div class="df-field">
+              <label class="df-label">Location</label>
+              <select class="df-select" id="d-city">
+                <option value="">Select city...</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Delhi">Delhi / NCR</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Hyderabad">Hyderabad</option>
+                <option value="Pune">Pune</option>
+              </select>
+            </div>
+            <div class="df-field">
+              <label class="df-label">Expected Guests</label>
+              <select class="df-select" id="d-pax">
+                <option value="">Select count...</option>
+                <option value="50">Up to 50 pax</option>
+                <option value="150">50 – 200 pax</option>
+                <option value="500">200 – 600 pax</option>
+                <option value="1000">600 – 1,200 pax</option>
+                <option value="2000">1,200+ pax</option>
+              </select>
+            </div>
+          </div>
+          <button class="demo-gen-btn" onclick="runDemo()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 3l.75 2.25L22 6l-2.25.75L19 9l-.75-2.25L16 6l2.25-.75z"/></svg>
+            Architect My Proposal
+          </button>
+          <!-- Output -->
+          <div class="demo-output" id="demo-out">
+            <div class="do-header">
+              <div class="do-title" id="do-title">Corporate Gala — Mumbai</div>
+              <div class="do-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Proposal ready</div>
+            </div>
+            <div class="do-sections">
+              <div class="do-section">
+                <div class="do-sec-label">Event Concept</div>
+                <div class="do-sec-val" id="do-concept">Modern India — Heritage Meets Innovation</div>
+              </div>
+              <div class="do-section">
+                <div class="do-sec-label">Visual Direction</div>
+                <div class="do-sec-val" id="do-visual">Terracotta · Deep Teal · Champagne Gold</div>
+              </div>
+              <div class="do-section">
+                <div class="do-sec-label">Venue Shortlist</div>
+                <div class="do-sec-val" id="do-venue">Grand Hyatt Mumbai · ITC Maratha · Trident BKC</div>
+              </div>
+              <div class="do-section">
+                <div class="do-sec-label">Budget Split (18% GST incl.)</div>
+                <div class="do-sec-val" id="do-budget">Venue 35% · F&B 22% · Decor 18% · AV 12% · Team 8% · Misc 5%</div>
+              </div>
+            </div>
+            <div style="margin-top:14px;padding:14px 16px;background:rgba(144,174,173,.10);border:1px solid rgba(144,174,173,.18);border-radius:10px;">
+              <div style="font-size:11px;font-weight:700;color:var(--teal);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Run-of-Show (AI Draft)</div>
+              <div class="do-lines"><div class="do-line do-line-m"></div><div class="do-line do-line-s"></div><div class="do-line do-line-l"></div><div class="do-line do-line-m"></div></div>
+            </div>
+            <div style="margin-top:14px;text-align:center;">
+              <a href="/signup" class="btn" style="background:var(--accent);color:#fff;border-radius:12px;padding:12px 28px;font-size:14px;display:inline-flex;">Sign up to save & send this proposal →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" class="sp">
+  <div class="c"><div class="ci">
+    <div class="slabel reveal" style="justify-content:center;color:var(--accent);">Start Today</div>
+    <h2 class="ch2 reveal d1">Your events deserve<br><em>an operating system.</em></h2>
+    <p class="csub reveal d2">Join India's first wave of event professionals running their entire operation on one intelligent platform.</p>
+    <div class="cact reveal d3">
+      <a href="/signup" class="btn" style="background:var(--accent);color:#fff;padding:15px 34px;font-size:16px;">Create your account <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <a href="/login" class="btn btn-outline-w">Log in to your account</a>
+    </div>
+    <div class="cind reveal d4">Made in Bharat 🇮🇳 · By Indigo EP · Mumbai, Maharashtra</div>
+  </div></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="c">
+    <div class="fg">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;"><svg width="30" height="30" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="38" fill="rgba(144,174,173,.18)" stroke="#90AEAD" stroke-width="1.5" stroke-opacity=".35"/><ellipse cx="36" cy="50" rx="20" ry="17" fill="#90AEAD" fill-opacity=".18" stroke="#244855" stroke-width="1.2"/><ellipse cx="52" cy="34" rx="14" ry="13" fill="#90AEAD" fill-opacity=".18" stroke="#244855" stroke-width="1.2"/><ellipse cx="42" cy="30" rx="8" ry="10" fill="rgba(251,233,208,.1)" stroke="#244855" stroke-width="1"/><circle cx="56" cy="30" r="2.5" fill="#244855"/><path d="M61 40 Q70 47 67 58 Q64 65 58 63" stroke="#90AEAD" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M57 42 L66 50" stroke="#874F41" stroke-width="2" stroke-linecap="round"/><path d="M51 15 L57 9 L63 15" stroke="#874F41" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="57" y1="9" x2="57" y2="22" stroke="#874F41" stroke-width="2" stroke-linecap="round"/><rect x="20" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".45"/><rect x="30" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".35"/><rect x="40" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".28"/><rect x="50" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".22"/></svg><span class="flt">Kunjara <em>OS</em>™</span></div>
+        <p class="ftag">The AI-powered event operating system for India. Built by event planners, for event planners — with 20+ years of field intelligence.</p>
+        <div class="fib">🇮🇳 Made in Bharat · By Indigo EP</div>
+      </div>
+      <div><div class="fct">Platform</div><ul class="flinks"><li><a href="#features">All Features</a></li><li><a href="#ais">AI Proposal Builder</a></li><li><a href="#prx">Pricing</a></li><li><a href="#cmp">Compare</a></li></ul></div>
+      <div><div class="fct">Company</div><ul class="flinks"><li><a href="/about">About Us</a></li><li><a href="/contact">Contact</a></li><li><a href="/support">Support</a></li><li><a href="/cdn-cgi/l/email-protection#29414c45454669425c4743485b48465a074a4644"><span class="__cf_email__" data-cfemail="1179747d7d7e517a647f7b7063707e623f727e7c">[email&#160;protected]</span></a></li></ul></div>
+      <div><div class="fct">Legal</div><ul class="flinks"><li><a href="/privacy">Privacy Policy</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/dpdp">DPDP Compliance</a></li><li><a href="/data-deletion">Data Deletion</a></li></ul></div>
+    </div>
+    <div class="fb2">
+      <div class="fcopy">© 2025 Kunjara OS™ by Indigo Events & Promotions. All rights reserved. Mumbai, Maharashtra, India. IT Act 2000 · DPDP Act 2023.</div>
+      <div class="fleg"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/support">Support</a></div>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Cursor
+const cur=document.getElementById('cur'),curR=document.getElementById('cur-r');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.transform=`translate(${mx-5}px,${my-5}px)`;});
+(function a(){rx+=(mx-rx-15)*.1;ry+=(my-ry-15)*.1;curR.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(a);})();
+document.querySelectorAll('a,button,.pc,.prc').forEach(el=>{el.addEventListener('mouseenter',()=>document.body.classList.add('ch'));el.addEventListener('mouseleave',()=>document.body.classList.remove('ch'));});
+
+// Nav scroll
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('sc',window.scrollY>28));
+
+// Reveal
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v');}),{threshold:.07,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+window.addEventListener('load',()=>setTimeout(()=>document.querySelectorAll('#hero .reveal').forEach(el=>el.classList.add('v')),100));
+
+// Parallax
+window.addEventListener('scroll',()=>{const v=document.querySelector('.hvis');if(v)v.style.transform=`translateY(${window.scrollY*.07}px)`;});
+
+// Billing toggle
+const prices={m:{b:'1,999',p:'3,999',e:'11,999',en:'24,999'},a:{b:'1,666',p:'3,332',e:'9,999',en:'20,832'}};
+const anns={m:{b:'₹19,990 billed annually',p:'₹39,990 billed annually',e:'₹1,19,990 billed annually',en:'₹2,49,990 billed annually'},a:{b:'₹19,990/yr — Save ₹3,998',p:'₹39,990/yr — Save ₹7,998',e:'₹1,19,990/yr — Save ₹24,000',en:'₹2,49,990/yr — Save ₹50,000'}};
+function setBill(m){
+  document.getElementById('bm').classList.toggle('act',m==='m');
+  document.getElementById('ba').classList.toggle('act',m==='a');
+  const p=prices[m],a=anns[m];
+  document.getElementById('pb').innerHTML=`<sub>₹</sub>${p.b}`;
+  document.getElementById('pp').innerHTML=`<sub>₹</sub>${p.p}`;
+  document.getElementById('pe').innerHTML=`<sub>₹</sub>${p.e}`;
+  document.getElementById('pen').innerHTML=`<sub>₹</sub>${p.en}`;
+  ['b','p','e','en'].forEach(k=>{document.getElementById('a'+k).textContent=a[k];});
+}
+
+// Demo tabs
+function demoTab(tab, btn) {
+  ['video','howto','try'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if(el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.demo-tab').forEach(b => b.classList.remove('act'));
+  if(btn) btn.classList.add('act');
+}
+
+// Demo proposal generator
+const demoData = {
+  corporate: { concept:'Corporate Excellence — Power Meets Elegance', visual:'Deep Teal · Champagne Gold · Ivory White', venue:{Mumbai:'Grand Hyatt · ITC Maratha · Trident BKC',Delhi:'The Leela Palace · ITC Maurya · Taj Mahal Hotel',Bangalore:'The Oberoi · ITC Windsor · Taj West End',default:'5-star Hotel · Convention Centre · Heritage Property'}, budget:'Venue 35% · F&B 22% · Decor 18% · AV 12% · Team 8% · Misc 5%' },
+  product: { concept:'Launch Forward — The Moment That Matters', visual:'Electric Terracotta · Deep Navy · White', venue:{Mumbai:'NSCI Dome · BKC Exhibition · Nehru Centre',Delhi:'Pragati Maidan · Aerocity Hotels · Kingdom of Dreams',Bangalore:'KTPO · Lalit Ashok · Taj Vivanta',default:'Convention Centre · Hotel Ballroom · Outdoor Venue'}, budget:'AV/Tech 28% · Venue 22% · Decor 18% · F&B 15% · Marketing 12% · Misc 5%' },
+  conference: { concept:'Ideas That Move India Forward', visual:'Scholarly Deep Blue · Warm Stone · Gold Accents', venue:{Mumbai:'CIDCO Exhibition · ITC Grand · Hyatt Regency',Delhi:'ITPO Pragati · Le Meridien · The Ashok',Bangalore:'NIMHANS Convention · Sheraton Grand · ITC Gardenia',default:'Convention Centre · 5-star Hotel · University Auditorium'}, budget:'AV/Staging 30% · Venue 25% · Speakers 20% · F&B 15% · Marketing 7% · Misc 3%' },
+  wedding: { concept:'Shaadi Ki Raat — A Night of a Thousand Stars', visual:'Royal Burgundy · Marigold · Champagne Gold', venue:{Mumbai:'The Grand Ballroom · Turf Club · Hilton Ballroom',Delhi:'The Taj Palace · ITC Maurya · Ambience Creacions',Bangalore:'Golden Palms · ITC Windsor · Lalitha Mahal',default:'Five-Star Ballroom · Heritage Palace · Outdoor Garden'}, budget:'Decor/Flowers 35% · Catering 28% · Entertainment 15% · Photography 10% · Venue 8% · Misc 4%' },
+  exhibition: { concept:'India Connects — Your Brand, Centre Stage', visual:'Industrial Terracotta · Teal · Metallic Silver', venue:{Mumbai:'MMRDA BKC · Bombay Exhibition Centre · NSCI',Delhi:'Pragati Maidan · India Expo Centre · Aerocity',Bangalore:'BIEC · KTPO · Palace Grounds',default:'Exhibition Hall · Convention Centre · Trade Park'}, budget:'Stall Design 32% · Venue/Logistics 24% · Marketing 18% · Staff 12% · F&B 8% · Misc 6%' }
+};
+
+function runDemo() {
+  const type = document.getElementById('d-type').value;
+  const budget = document.getElementById('d-budget').value;
+  const city = document.getElementById('d-city').value;
+  const pax = document.getElementById('d-pax').value;
+  if (!type || !budget || !city || !pax) {
+    alert('Please fill all 4 fields to generate your proposal.');
+    return;
+  }
+  const d = demoData[type];
+  const venue = d.venue[city] || d.venue.default;
+  document.getElementById('do-title').textContent = (document.getElementById('d-type').options[document.getElementById('d-type').selectedIndex].text) + ' — ' + city;
+  document.getElementById('do-concept').textContent = d.concept;
+  document.getElementById('do-visual').textContent = d.visual;
+  document.getElementById('do-venue').textContent = venue;
+  document.getElementById('do-budget').textContent = d.budget;
+  const out = document.getElementById('demo-out');
+  out.classList.add('show');
+  out.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+let translated=false;
+function trigLang(){
+  const el=document.getElementById('gte');
+  el.style.display='block';
+  if(!translated){
+    const trySelect=()=>{const s=el.querySelector('select');if(s){s.value='hi';s.dispatchEvent(new Event('change'));document.getElementById('ll').textContent='English';translated=true;el.style.display='none';}else{setTimeout(trySelect,300);}};
+    trySelect();
+  }  else {
+    const s=el.querySelector('select');if(s){s.value='en';s.dispatchEvent(new Event('change'));}
+    document.getElementById('ll').textContent='हिंदी';translated=false;el.style.display='none';
+  }
+}
+</script>
+</body>
+</html>

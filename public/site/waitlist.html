@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join Waitlist — Kunjara OS™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FBE9D0;--deep:#244855;--accent:#E64833;--teal:#90AEAD;--brown:#874F41;--ink:#1A0F0A;--fd:'Fraunces',Georgia,serif;--fb:'DM Sans',sans-serif;--ease:cubic-bezier(.16,1,.3,1);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:17px}
+body{background:linear-gradient(145deg,#1A0F0A 0%,#0D2130 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:var(--fb);padding:24px;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 500px 400px at 50% 30%,rgba(135,79,65,.10) 0%,transparent 55%);pointer-events:none;}
+body::after{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(251,233,208,.04) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;}
+.wrap{width:100%;max-width:440px;position:relative;z-index:1;}
+.auth-logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:36px;justify-content:center;}
+.auth-wm{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--cream);letter-spacing:-.5px;}
+.auth-wm em{font-style:normal;color:var(--teal);}
+.card{background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.12);border-radius:24px;padding:40px 36px;backdrop-filter:blur(16px);}
+.plan-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(135,79,65,.15);border:1px solid rgba(135,79,65,.28);border-radius:50px;padding:6px 14px;font-size:12px;font-weight:700;color:#C4856A;letter-spacing:.5px;text-transform:uppercase;margin-bottom:20px;}
+h1{font-family:var(--fd);font-size:30px;font-weight:700;color:var(--cream);letter-spacing:-.8px;margin-bottom:8px;}
+.sub{font-size:14px;color:rgba(251,233,208,.45);margin-bottom:28px;font-weight:300;line-height:1.65;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(251,233,208,.4);margin-bottom:6px;}
+.field input,.field select{width:100%;background:rgba(251,233,208,.06);border:1px solid rgba(251,233,208,.12);border-radius:11px;padding:12px 15px;font-size:15px;color:var(--cream);font-family:var(--fb);outline:none;transition:border-color .2s;}
+.field input::placeholder{color:rgba(251,233,208,.25);}
+.field input:focus,.field select:focus{border-color:rgba(144,174,173,.45);}
+.field select option{background:#1A0F0A;}
+.btn{width:100%;background:var(--brown);color:var(--cream);font-size:15px;font-weight:700;font-family:var(--fd);padding:14px;border-radius:12px;border:none;cursor:pointer;transition:all .22s var(--ease);margin-top:6px;}
+.btn:hover{background:#6e3d31;transform:translateY(-1px);box-shadow:0 10px 24px rgba(135,79,65,.35);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.msg{padding:11px 14px;border-radius:10px;font-size:13px;font-weight:500;margin-bottom:14px;display:none;}
+.msg.error{background:rgba(230,72,51,.12);border:1px solid rgba(230,72,51,.25);color:#ff8070;}
+.msg.success{background:rgba(144,174,173,.12);border:1px solid rgba(144,174,173,.25);color:var(--teal);}
+.msg.show{display:block;}
+.perks{margin-top:24px;padding-top:20px;border-top:1px solid rgba(251,233,208,.08);display:flex;flex-direction:column;gap:9px;}
+.perk{display:flex;align-items:center;gap:9px;font-size:13px;color:rgba(251,233,208,.45);}
+.perk svg{flex-shrink:0;color:var(--teal);}
+.back{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:26px;font-size:13px;color:rgba(251,233,208,.25);text-decoration:none;transition:color .2s;}
+.back:hover{color:rgba(251,233,208,.5);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/" class="auth-logo">
+    <svg width="34" height="34" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="38" fill="#E2ECED" stroke="#244855" stroke-width="1.5" stroke-opacity=".45"/><ellipse cx="36" cy="50" rx="20" ry="17" fill="#90AEAD" fill-opacity=".22" stroke="#244855" stroke-width="1.3"/><ellipse cx="52" cy="34" rx="14" ry="13" fill="#90AEAD" fill-opacity=".22" stroke="#244855" stroke-width="1.3"/><ellipse cx="42" cy="30" rx="8" ry="10" fill="#E8F0F0" stroke="#244855" stroke-width="1.1"/><circle cx="56" cy="30" r="2.8" fill="#244855"/><path d="M61 40 Q70 47 67 58 Q64 65 58 63" stroke="#244855" stroke-width="2.8" stroke-linecap="round" fill="none"/><path d="M57 42 L66 50" stroke="#874F41" stroke-width="2.2" stroke-linecap="round"/><path d="M51 15 L57 9 L63 15" stroke="#874F41" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="57" y1="9" x2="57" y2="22" stroke="#874F41" stroke-width="2.2" stroke-linecap="round"/><rect x="20" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".48"/><rect x="30" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".38"/><rect x="40" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".28"/><rect x="50" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".22"/></svg>
+    <span class="auth-wm">Kunjara <em>OS</em>™</span>
+  </a>
+  <div class="card">
+    <div class="plan-chip" id="planChip">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <span id="planChipText">Expert Plan</span>
+    </div>
+    <h1>You're early.<br>That's smart.</h1>
+    <p class="sub">Expert and Enterprise plans launch soon. Get priority access, a founder discount, and a personal onboarding call with Gautam.</p>
+    <div class="msg" id="msg"></div>
+    <div class="field"><label>Full Name</label><input type="text" id="wname" placeholder="Gautam Shah"></div>
+    <div class="field"><label>Work Email</label><input type="email" id="wemail" placeholder="gautam@yourcompany.com"></div>
+    <div class="field"><label>Company / Agency</label><input type="text" id="wcompany" placeholder="Indigo Events & Promotions"></div>
+    <div class="field">
+      <label>Number of Events per Month</label>
+      <select id="wevents">
+        <option value="">Select range...</option>
+        <option value="1-5">1–5 events</option>
+        <option value="6-15">6–15 events</option>
+        <option value="16-30">16–30 events</option>
+        <option value="30+">30+ events</option>
+      </select>
+    </div>
+    <button class="btn" id="wBtn" onclick="joinWaitlist()">Reserve My Spot</button>
+    <div class="perks">
+      <div class="perk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Priority access when plan launches</div>
+      <div class="perk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Founder pricing locked for life</div>
+      <div class="perk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Personal onboarding call with Gautam</div>
+    </div>
+  </div>
+  <a href="/" class="back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back to kunjaraos.com</a>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://hekdnmfkoqpozjgbjmyb.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_KYbxf3aex1-0is_QnZmclg_g_jxo4Xk';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const plan = new URLSearchParams(window.location.search).get('plan') || 'expert';
+document.getElementById('planChipText').textContent = plan === 'enterprise' ? 'Enterprise Plan' : 'Expert Plan';
+
+function showMsg(t,type){const el=document.getElementById('msg');el.textContent=t;el.className='msg '+type+' show';}
+
+async function joinWaitlist() {
+  const name=document.getElementById('wname').value.trim();
+  const email=document.getElementById('wemail').value.trim();
+  const company=document.getElementById('wcompany').value.trim();
+  const events=document.getElementById('wevents').value;
+  if(!name||!email){showMsg('Please fill your name and email.','error');return;}
+  const btn=document.getElementById('wBtn');
+  btn.disabled=true;btn.textContent='Reserving your spot…';
+  const {error}=await sb.from('waitlist').insert([{name,email,company,plan,monthly_events:events,created_at:new Date().toISOString()}]);
+  if(error){showMsg(error.message,'error');btn.disabled=false;btn.textContent='Reserve My Spot';}
+  else{showMsg('You\'re on the list! Gautam will reach out personally within 48 hours.','success');btn.textContent='✓ Spot Reserved';}
+}
+</script>
+</body>
+</html>

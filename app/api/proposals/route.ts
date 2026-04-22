@@ -48,7 +48,6 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("[proposals] KEY LENGTH:", process.env.OPENAI_API_KEY?.length);
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({ success: false, error: "Kunjara Core is not configured." }, { status: 503 });
     }
@@ -83,13 +82,13 @@ export async function POST(req: NextRequest) {
 
     let data;
     try {
-      console.log("[proposals] Calling OpenAI for user:", user.id, "event:", body.eventType);
       data = await generateProposal(body);
-      console.log("[proposals] OpenAI call succeeded");
     } catch (aiError) {
       console.error("[proposals] OpenAI call failed:", aiError);
-      const message = aiError instanceof Error ? aiError.message : "AI generation failed.";
-      return NextResponse.json({ success: false, error: message }, { status: 502 });
+      return NextResponse.json(
+        { success: false, error: "Kunjara Core failed to generate a proposal. Try again in a minute." },
+        { status: 502 }
+      );
     }
 
     // Only increment AFTER successful generation
@@ -108,7 +107,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("[proposals] Unexpected error:", error);
-    const message = error instanceof Error ? error.message : "Unexpected error.";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Unexpected error." }, { status: 500 });
   }
 }

@@ -190,8 +190,7 @@ export async function POST(req: NextRequest) {
       });
     } catch (aiErr) {
       console.error("[generate-experience] OpenAI error:", aiErr);
-      const message = aiErr instanceof Error ? aiErr.message : "AI generation failed.";
-      return NextResponse.json({ error: message }, { status: 502 });
+      return NextResponse.json({ error: "Kunjara Core failed. Try again in a minute." }, { status: 502 });
     }
 
     const content = response.choices[0]?.message?.content;
@@ -203,7 +202,7 @@ export async function POST(req: NextRequest) {
     try {
       parsed = JSON.parse(content);
     } catch {
-      console.error("[generate-experience] JSON parse failed:", content);
+      console.error("[generate-experience] JSON parse failed; content length:", content.length);
       return NextResponse.json({ error: "AI returned invalid JSON." }, { status: 502 });
     }
 
@@ -244,14 +243,11 @@ export async function POST(req: NextRequest) {
 
     if (insertError) {
       console.error("[generate-experience] Persist failed (returning in-memory):", insertError);
-    } else {
-      console.log("[generate-experience] Proposal saved:", proposalId);
     }
 
     return NextResponse.json(proposal);
   } catch (err) {
     console.error("[generate-experience] Unexpected:", err);
-    const message = err instanceof Error ? err.message : "Unexpected error.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Unexpected error." }, { status: 500 });
   }
 }

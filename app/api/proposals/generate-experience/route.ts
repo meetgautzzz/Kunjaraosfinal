@@ -206,6 +206,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "AI returned invalid JSON." }, { status: 502 });
     }
 
+    // L3 defense-in-depth: sanitize AI-controlled fields that flow into
+    // DOM attributes (<img src>, style={{ backgroundColor }}). React escapes
+    // text children, so prose fields don't need sanitizing.
+    if (parsed.visualDirection) {
+      // generatedImageUrl is server-written only (via /api/proposals/generate-image).
+      // Strip any value the model smuggles in to block tracking-beacon / URL-injection abuse.
+      delete (parsed.visualDirection as { generatedImageUrl?: unknown }).generatedImageUrl;
+
+      // Palette hex values land in style.backgroundColor. Keep only strings that
+      // match a real CSS hex color; fall back to a neutral grey otherwise.
+      if (Array.isArray(parsed.visualDirection.palette)) {
+        const HEX = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+        parsed.visualDirection.palette = parsed.visualDirection.palette.map((s) => ({
+          ...s,
+          hex: typeof s?.hex === "string" && HEX.test(s.hex.trim()) ? s.hex.trim() : "#888888",
+        }));
+      }
+    }
+
     // Increment usage only after successful generation
     await incrementUsage(user.id, usage.events_used);
 

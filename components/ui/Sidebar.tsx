@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
@@ -33,12 +33,14 @@ const NAV = [
 
 export default function Sidebar() {
   const path = usePathname();
-  const router = useRouter();
 
   async function handleLogout() {
     const supabase = createClient();
-    if (supabase) await supabase.auth.signOut();
-    router.push("/login");
+    await supabase.auth.signOut();
+    // Hard redirect so the server components and middleware re-read the
+    // now-cleared session cookies. router.push() alone leaves RSC state
+    // authenticated until the next full reload.
+    window.location.href = "/login";
   }
 
   return (
@@ -50,7 +52,9 @@ export default function Sidebar() {
           K
         </div>
         <div>
-          <p className="text-[var(--text-1)] text-sm font-semibold tracking-tight leading-none">Kunjara OS</p>
+          <p className="text-[var(--text-1)] text-sm font-semibold tracking-tight leading-none">
+            Kunjara OS<sup className="text-[8px] font-semibold text-[var(--text-3)]">™</sup>
+          </p>
           <p className="text-[var(--text-3)] text-[10px] leading-none mt-0.5 tracking-wide">Event Intelligence</p>
         </div>
       </div>

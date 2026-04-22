@@ -28,9 +28,18 @@ export default function Topbar() {
 
   return (
     <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-6 border-b border-[var(--border)] bg-[var(--bg-surface)]/90 backdrop-blur-md shrink-0">
-      <div>
-        <h1 className="text-[var(--text-1)] font-semibold text-base">{title}</h1>
-        <p className="text-[var(--text-3)] text-xs">KUNJARA OS · Business Suite</p>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-black text-white text-sm select-none shadow-lg shadow-indigo-500/20 shrink-0">
+          K
+        </div>
+        <div className="min-w-0">
+          <h1 className="text-[var(--text-1)] font-semibold text-base truncate">
+            {title}
+          </h1>
+          <p className="text-[var(--text-3)] text-xs truncate">
+            Kunjara OS<sup className="text-[8px]">™</sup> · Business Suite
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">

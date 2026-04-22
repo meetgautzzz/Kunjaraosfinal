@@ -13,7 +13,7 @@ function getAdminClient() {
 }
 
 function resolvePlan(plan: string): PlanId {
-  return (["basic", "pro", "expert", "enterprise"] as const).includes(plan as PlanId)
+  return (["basic", "pro", "expert", "enterprise", "test"] as const).includes(plan as PlanId)
     ? (plan as PlanId)
     : "basic";
 }

@@ -1,4 +1,4 @@
-export type PlanId = "basic" | "pro" | "expert" | "enterprise";
+export type PlanId = "basic" | "pro" | "expert" | "enterprise" | "test";
 
 export interface Plan {
   id: PlanId;
@@ -12,6 +12,7 @@ export interface Plan {
   overage: number;
   highlighted?: boolean;
   comingSoon?: boolean;
+  dev?: boolean;
   features: string[];
 }
 
@@ -63,6 +64,18 @@ export const PLANS: Plan[] = [
     leads: 3,
     overage: 199,
     features: ["45 proposals/month", "5 users", "100GB storage", "3 qualified leads/month", "Dedicated support"],
+  },
+  {
+    id: "test",
+    name: "Test",
+    dev: true,
+    price: 10,
+    annualPrice: 10,
+    events: 5,
+    users: 1,
+    storage: "—",
+    overage: 0,
+    features: ["End-to-end pay flow test", "5 proposal credits", "Not for production use"],
   },
 ];
 

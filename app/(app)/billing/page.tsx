@@ -184,7 +184,7 @@ export default function BillingPage() {
 
       {/* Plan cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {PLANS.map((plan) => (
+        {PLANS.filter((p) => !p.dev).map((plan) => (
           <PlanCard
             key={plan.id}
             plan={plan}
@@ -197,6 +197,12 @@ export default function BillingPage() {
       </div>
 
       <PaymentInfo />
+
+      <DevSection
+        plans={PLANS.filter((p) => p.dev)}
+        loadingPlan={checkoutPlan}
+        onSubscribe={handleSubscribe}
+      />
 
       {toast && (
         <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg text-sm font-medium max-w-md
@@ -366,6 +372,39 @@ function PlanCard({ plan, annual, isCurrent, loading, onSubscribe }: {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+// ── Dev section (test plan, hidden from public grid) ─────────────────────────
+
+function DevSection({ plans, loadingPlan, onSubscribe }: {
+  plans: Plan[];
+  loadingPlan: PlanId | null;
+  onSubscribe: (plan: Plan) => void;
+}) {
+  if (plans.length === 0) return null;
+  return (
+    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-black">DEV</span>
+        <p className="text-[var(--text-1)] text-sm font-semibold">Internal test plans</p>
+      </div>
+      <p className="text-[var(--text-3)] text-xs mb-4">
+        Real Razorpay charges. Used to verify the end-to-end pay → webhook → credit flow without burning ₹1999.
+      </p>
+      <div className="flex flex-wrap gap-3">
+        {plans.map((plan) => (
+          <button
+            key={plan.id}
+            onClick={() => onSubscribe(plan)}
+            disabled={loadingPlan === plan.id}
+            className="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition-colors disabled:opacity-60"
+          >
+            {loadingPlan === plan.id ? "Opening…" : `Pay ${formatPrice(plan.price)} — ${plan.name} (${plan.events} credit${plan.events === 1 ? "" : "s"})`}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

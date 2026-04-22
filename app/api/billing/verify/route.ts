@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     const orderNotes = order.notes as Record<string, string> | null;
     const orderPlan = orderNotes?.plan ?? "basic";
 
-    const resolvedPlan: PlanId = (["basic", "pro", "expert", "enterprise"] as const).includes(orderPlan as PlanId)
+    const resolvedPlan: PlanId = (["basic", "pro", "expert", "enterprise", "test"] as const).includes(orderPlan as PlanId)
       ? (orderPlan as PlanId)
       : "basic";
     const creditsToAdd = getPlan(resolvedPlan).events;

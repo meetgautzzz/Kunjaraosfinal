@@ -25,21 +25,17 @@ export async function POST(req: NextRequest) {
     }
     const userId = user.id;
 
-    const { plan, annual } = await req.json() as { plan: PlanId | "test"; annual?: boolean };
+    const { plan, annual } = await req.json() as { plan: PlanId; annual?: boolean };
 
-    let amountPaise: number;
-    if (plan === "test") {
-      amountPaise = 100; // ₹1
-    } else {
-      const planData = getPlan((plan ?? "basic") as PlanId);
-      const price = annual ? planData.annualPrice : planData.price;
-      amountPaise = price * 100;
-    }
+    const planData = getPlan((plan ?? "basic") as PlanId);
+    const price = annual ? planData.annualPrice : planData.price;
+    const amountPaise = price * 100;
 
     const order = await razorpay.orders.create({
       amount: amountPaise,
       currency: "INR",
       receipt: "order_" + Date.now(),
+      payment_capture: true,
       notes: { plan: plan ?? "basic", user_id: userId },
     });
 

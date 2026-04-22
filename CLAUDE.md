@@ -1,1 +1,1 @@
-@AGENTS.md
+code .claude/CLAUDE.md@AGENTS.md

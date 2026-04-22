@@ -13,9 +13,116 @@
   --color-accent-cyan: #4CC9F0;
 }
 
+/* ── Design tokens (old frontend compat) ─────────────────────────────────── */
+:root {
+  --bg-base:    #09090d;
+  --bg-surface: #0f1015;
+  --bg-card:    #13151c;
+  --bg-hover:   #191c26;
+  --border:     #1e2130;
+  --border-mid: #252840;
+  --accent:     #6366f1;
+  --accent-dim: #6366f118;
+  --text-1:     #eeeef2;
+  --text-2:     #8b92a8;
+  --text-3:     #454966;
+}
+
+html, body {
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
 body {
-  background-color: #0E1116;
-  color: #E6EDF3;
+  background-color: #09090d;
+  color: #eeeef2;
+}
+
+::selection {
+  background: #6366f130;
+  color: #eeeef2;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--border-mid); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #454966; }
+
+/* ── Focus ───────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #6366f160;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1.2); }
+}
+
+.animate-fade-up  { animation: fade-up  0.5s cubic-bezier(.22,1,.36,1) both; }
+.animate-fade-in  { animation: fade-in  0.4s ease both; }
+.animate-scale-in { animation: scale-in 0.35s cubic-bezier(.22,1,.36,1) both; }
+
+.delay-1 { animation-delay: 0.08s; }
+.delay-2 { animation-delay: 0.16s; }
+.delay-3 { animation-delay: 0.24s; }
+.delay-4 { animation-delay: 0.32s; }
+
+/* ── Skeleton shimmer ────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 25%,
+    var(--bg-hover) 50%,
+    var(--bg-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+/* ── Budget Builder grid ─────────────────────────────────────────────────── */
+.budget-cols {
+  display: grid;
+  grid-template-columns:
+    3fr 80px 60px 110px 70px 90px 100px 110px 32px;
+  align-items: center;
+}
+
+/* ── Proposal client-view ────────────────────────────────────────────────── */
+.cv-section-rule {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.cv-section-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(99,102,241,0.3), transparent);
 }
 
 @media print {

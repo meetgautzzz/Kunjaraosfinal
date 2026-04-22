@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -38,6 +39,7 @@ const defaultForm: FormData = {
 const skeletonSections = ["Concept", "Event Flow", "Technical Setup", "Budget Breakdown", "Add-ons"];
 
 export default function ProposalGenerator() {
+  const router = useRouter();
   const [form, setForm] = useState<FormData>(defaultForm);
   const [loading, setLoading] = useState(false);
   const [proposal, setProposal] = useState<ProposalOutput | null>(null);
@@ -84,45 +86,34 @@ export default function ProposalGenerator() {
         body: JSON.stringify(form),
       });
 
-      const text = await res.text();
-
-      if (!text || !text.trim()) {
-        throw new Error(`Empty response from server (${res.status}).`);
-      }
-
-      if (!res.ok) {
-        let message = `Request failed (${res.status}).`;
-        try {
-          const errJson = JSON.parse(text);
-          if (errJson.error) message = errJson.error;
-        } catch {}
-        throw new Error(message);
-      }
-
-      let json: { success: boolean; data?: ProposalOutput; error?: string; limit_reached?: boolean; usage?: { events_used: number; limit: number; overage: boolean } };
+      let data: { success: boolean; data?: ProposalOutput; error?: string; limit_reached?: boolean; usage?: { events_used: number; limit: number; overage: boolean } };
       try {
-        json = JSON.parse(text);
+        data = await res.json();
       } catch {
-        throw new Error("Server returned invalid JSON.");
+        throw new Error(`Invalid response from server (${res.status}).`);
       }
 
-      if (json.limit_reached) {
-        window.location.href = "/pricing";
+      if (data.limit_reached) {
+        router.push("/pricing");
         return;
       }
 
-      if (!json.success || !json.data) {
-        throw new Error(json.error ?? "Failed to generate proposal.");
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
       }
 
-      setProposal(json.data);
+      if (!data.success || !data.data) {
+        throw new Error(data.error ?? "Failed to generate proposal.");
+      }
 
-      if (json.usage) {
+      setProposal(data.data);
+
+      if (data.usage) {
         setUsage((prev) => prev ? {
           ...prev,
-          events_used: json.usage!.events_used,
-          limit: json.usage!.limit,
-          overage: json.usage!.overage,
+          events_used: data.usage!.events_used,
+          limit: data.usage!.limit,
+          overage: data.usage!.overage,
         } : null);
       }
     } catch (err) {

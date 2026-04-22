@@ -1,18 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { parseJson } from "@/lib/validate";
 import { checkUsage, incrementUsage } from "@/lib/usage";
 import type { EventIdea, ProposalData } from "@/lib/proposals";
 
-type Body = {
-  proposalId?:  string;
-  selectedIdea: EventIdea;
-  eventType:    string;
-  budget:       number;
-  location:     string;
-  requirements: string;
-  guestCount?:  number;
-};
+// We only validate the fields the handler reads from selectedIdea. Extra
+// fields from the generate-ideas response pass through unchanged.
+const SelectedIdeaSchema = z.object({
+  title:            z.string().min(1),
+  headline:         z.string().min(1),
+  concept:          z.string().min(1),
+  experienceType:   z.string().min(1),
+  vibe:             z.string().min(1),
+  wowFactor:        z.string().min(1),
+  brandIntegration: z.string().min(1),
+}).passthrough();
+
+const BodySchema = z.object({
+  proposalId:   z.string().uuid().optional(),
+  selectedIdea: SelectedIdeaSchema,
+  eventType:    z.string().trim().min(1).max(200),
+  budget:       z.number().positive().max(1_000_000_000),
+  location:     z.string().trim().min(1).max(500),
+  requirements: z.string().trim().min(1).max(5000),
+  guestCount:   z.number().int().positive().max(1_000_000).optional(),
+});
 
 const SYSTEM_PROMPT = `You are a senior event director at a premium Indian event agency. You have been given a chosen creative concept for an event — your job is to expand it into a fully executable luxury event plan.
 
@@ -123,17 +137,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    let body: Body;
-    try {
-      body = await req.json();
-    } catch {
-      return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
-    }
-
-    const { selectedIdea, eventType, budget, location, requirements, guestCount } = body;
-    if (!selectedIdea || !eventType || !budget || !location || !requirements) {
-      return NextResponse.json({ error: "selectedIdea, eventType, budget, location, and requirements are required." }, { status: 400 });
-    }
+    const bodyResult = await parseJson(req, BodySchema);
+    if (bodyResult.error) return bodyResult.error;
+    const { selectedIdea, eventType, budget, location, requirements, guestCount } = bodyResult.data;
 
     const usage = await checkUsage(user.id);
     if (usage.overage) {
@@ -201,7 +207,7 @@ export async function POST(req: NextRequest) {
     await incrementUsage(user.id, usage.events_used);
 
     const now = new Date().toISOString();
-    const proposalId = body.proposalId ?? crypto.randomUUID();
+    const proposalId = bodyResult.data.proposalId ?? crypto.randomUUID();
     const proposal: ProposalData = {
       id:           proposalId,
       title:        parsed.title ?? selectedIdea.title,
@@ -218,7 +224,7 @@ export async function POST(req: NextRequest) {
       tips:         parsed.tips     ?? [],
       createdAt:    now,
       updatedAt:    now,
-      selectedIdea,
+      selectedIdea: selectedIdea as unknown as EventIdea,
       eventConcept:       parsed.eventConcept,
       visualDirection:    parsed.visualDirection,
       stageDesign:        parsed.stageDesign,

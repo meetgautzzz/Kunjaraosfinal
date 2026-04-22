@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { parseParams } from "@/lib/validate";
+
+const ParamsSchema = z.object({ id: z.string().uuid() });
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  const rawParams = await params;
+  const parsed = parseParams(rawParams, ParamsSchema);
+  if (parsed.error) return parsed.error;
+  const { id } = parsed.data;
 
   const supabase = await createClient();
   if (!supabase) {

@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { parseJson } from "@/lib/validate";
 import type { EventIdea } from "@/lib/proposals";
 import { randomUUID } from "crypto";
 
-type Body = {
-  eventType:    string;
-  budget:       number;
-  location:     string;
-  requirements: string;
-  guestCount?:  number;
-};
+const BodySchema = z.object({
+  eventType:    z.string().trim().min(1).max(200),
+  budget:       z.number().positive().max(1_000_000_000),
+  location:     z.string().trim().min(1).max(500),
+  requirements: z.string().trim().min(1).max(5000),
+  guestCount:   z.number().int().positive().max(1_000_000).optional(),
+});
 
 const SYSTEM_PROMPT = `You are a senior event director at a premium Indian event agency with 15+ years of experience producing luxury weddings, corporate galas, product launches, and concerts across Mumbai, Delhi, Bangalore, and Goa.
 
@@ -65,17 +67,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    let body: Body;
-    try {
-      body = await req.json();
-    } catch {
-      return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
-    }
-
-    const { eventType, budget, location, requirements, guestCount } = body;
-    if (!eventType || !budget || !location || !requirements) {
-      return NextResponse.json({ error: "eventType, budget, location, and requirements are required." }, { status: 400 });
-    }
+    const bodyResult = await parseJson(req, BodySchema);
+    if (bodyResult.error) return bodyResult.error;
+    const { eventType, budget, location, requirements, guestCount } = bodyResult.data;
 
     const userMessage = [
       `Event type: ${eventType}`,

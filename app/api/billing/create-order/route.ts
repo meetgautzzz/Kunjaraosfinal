@@ -1,8 +1,14 @@
 import Razorpay from "razorpay";
+import { z } from "zod";
 import { getPlan } from "@/lib/plans";
-import type { PlanId } from "@/lib/plans";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { parseJson } from "@/lib/validate";
+
+const BodySchema = z.object({
+  plan:   z.enum(["basic", "pro", "expert", "enterprise", "test"]),
+  annual: z.boolean().optional(),
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,9 +31,11 @@ export async function POST(req: NextRequest) {
     }
     const userId = user.id;
 
-    const { plan, annual } = await req.json() as { plan: PlanId; annual?: boolean };
+    const bodyResult = await parseJson(req, BodySchema);
+    if (bodyResult.error) return bodyResult.error;
+    const { plan, annual } = bodyResult.data;
 
-    const planData = getPlan((plan ?? "basic") as PlanId);
+    const planData = getPlan(plan);
     const price = annual ? planData.annualPrice : planData.price;
     const amountPaise = price * 100;
 
@@ -36,7 +44,7 @@ export async function POST(req: NextRequest) {
       currency: "INR",
       receipt: "order_" + Date.now(),
       payment_capture: true,
-      notes: { plan: plan ?? "basic", user_id: userId },
+      notes: { plan, user_id: userId },
     });
 
     return NextResponse.json({

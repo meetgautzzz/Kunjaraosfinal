@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import Razorpay from "razorpay";
+import { z } from "zod";
 import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { getPlan, type PlanId } from "@/lib/plans";
+
+// Razorpay webhook payload shape — we only read the payment entity on
+// `payment.captured`. Other event types are acked without schema checks.
+const WebhookEventSchema = z.object({
+  event: z.string().min(1),
+  payload: z.object({
+    payment: z.object({
+      entity: z.object({
+        id:       z.string().min(1),
+        order_id: z.string().min(1),
+        amount:   z.number(),
+        status:   z.string().min(1),
+      }),
+    }).optional(),
+  }),
+});
 
 // Service-role client — bypasses RLS, safe for server-to-server use only
 function getAdminClient() {
@@ -39,18 +56,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
   }
 
-  let event: {
-    event: string;
-    payload: {
-      payment?: { entity: { id: string; order_id: string; amount: number; status: string } };
-    };
-  };
-
+  let rawEvent: unknown;
   try {
-    event = JSON.parse(body);
+    rawEvent = JSON.parse(body);
   } catch {
     return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
   }
+
+  const parsed = WebhookEventSchema.safeParse(rawEvent);
+  if (!parsed.success) {
+    console.warn("[webhook] Schema mismatch:", parsed.error.issues);
+    return NextResponse.json({ error: "Invalid webhook payload." }, { status: 400 });
+  }
+  const event = parsed.data;
 
   console.log("[webhook] Event received:", event.event);
 

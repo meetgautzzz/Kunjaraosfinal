@@ -1,20 +1,27 @@
 import Razorpay from "razorpay";
 import { NextRequest } from "next/server";
 import crypto from "crypto";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getPlan, type PlanId } from "@/lib/plans";
+import { parseJson } from "@/lib/validate";
+
+// Razorpay IDs look like "pay_XXXX" / "order_XXXX" / hex. Tight length bounds
+// plus an allow-listed charset rejects obvious injection noise at the edge.
+const RZP_ID  = z.string().min(5).max(64).regex(/^[A-Za-z0-9_\-]+$/);
+const RZP_SIG = z.string().min(32).max(256).regex(/^[a-f0-9]+$/i);
+
+const BodySchema = z.object({
+  razorpay_payment_id: RZP_ID,
+  razorpay_order_id:   RZP_ID,
+  razorpay_signature:  RZP_SIG,
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    console.log("[verify] Body received:", body);
-
-    // Do NOT trust plan/credits from request body — fetch from Razorpay order
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = body;
-
-    if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
-      return Response.json({ error: "Missing required fields." }, { status: 400 });
-    }
+    const bodyResult = await parseJson(req, BodySchema);
+    if (bodyResult.error) return bodyResult.error;
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = bodyResult.data;
 
     const secret = process.env.RAZORPAY_KEY_SECRET;
     const keyId = process.env.RAZORPAY_KEY_ID;

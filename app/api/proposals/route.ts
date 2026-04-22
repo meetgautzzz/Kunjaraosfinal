@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateProposal, ProposalInput } from "@/lib/generateProposal";
+import { z } from "zod";
+import { generateProposal } from "@/lib/generateProposal";
 import { createClient } from "@/lib/supabase/server";
+import { parseJson } from "@/lib/validate";
 import { checkUsage, incrementUsage } from "@/lib/usage";
+
+const BodySchema = z.object({
+  eventType:  z.string().trim().min(1).max(200),
+  budget:     z.string().trim().min(1).max(100),
+  location:   z.string().trim().min(1).max(500),
+  audience:   z.string().trim().min(1).max(500),
+  theme:      z.string().trim().min(1).max(500),
+  clientName: z.string().trim().max(200).optional(),
+});
 
 export async function GET() {
   const supabase = await createClient();
@@ -48,17 +59,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized." }, { status: 401 });
     }
 
-    let body: ProposalInput;
-    try {
-      body = await req.json();
-    } catch {
-      return NextResponse.json({ success: false, error: "Invalid request body." }, { status: 400 });
-    }
-
-    const { eventType, budget, location, audience, theme } = body;
-    if (!eventType || !budget || !location || !audience || !theme) {
-      return NextResponse.json({ success: false, error: "All fields are required." }, { status: 400 });
-    }
+    const bodyResult = await parseJson(req, BodySchema);
+    if (bodyResult.error) return bodyResult.error;
+    const body = bodyResult.data;
 
     // Check usage WITHOUT incrementing — blocked users must not consume quota
     const usageCheck = await checkUsage(user.id);
@@ -73,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     let data;
     try {
-      console.log("[proposals] Calling OpenAI for user:", user.id, "event:", eventType);
+      console.log("[proposals] Calling OpenAI for user:", user.id, "event:", body.eventType);
       data = await generateProposal(body);
       console.log("[proposals] OpenAI call succeeded");
     } catch (aiError) {

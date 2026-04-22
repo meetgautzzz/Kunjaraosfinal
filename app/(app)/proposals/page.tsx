@@ -44,7 +44,7 @@ export default function ProposalsPage() {
             <SparkleIcon />
           </div>
           <div>
-            <h1 className="t-display">AI Proposals</h1>
+            <h1 className="t-display">Kunjara Vision Board</h1>
             <p className="t-body mt-1">
               Generate, edit, and pitch production-ready event proposals.
             </p>

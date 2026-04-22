@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# bulk data dumps (Razorpay / Supabase exports often contain secrets or PII)
+*.csv
+*.CSV
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -39,3 +43,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel

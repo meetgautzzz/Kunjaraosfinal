@@ -1,7 +1,8 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -23,11 +24,14 @@ function LoginSkeleton() {
 }
 
 function LoginInner() {
+  const router = useRouter();
   const params = useSearchParams();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
 
-  // OAuth error feedback lands here via ?err=...
   useEffect(() => {
     const err = params.get("err");
     if (!err) return;
@@ -37,22 +41,50 @@ function LoginInner() {
   }, [params]);
 
   async function handleGoogle() {
-    setLoading(true);
+    setGoogleLoading(true);
     setError(null);
     const supabase = createClient();
-    if (!supabase) {
-      setError("Service unavailable.");
-      setLoading(false);
-      return;
-    }
+    const next = params.get("next") ?? "/dashboard";
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+      },
     });
     if (error) {
       setError("Could not open Google sign-in.");
-      setLoading(false);
+      setGoogleLoading(false);
     }
+  }
+
+  async function handleEmailSignIn(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    if (!email.trim() || !password) {
+      setError("Enter email and password.");
+      return;
+    }
+
+    setEmailLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    if (error) {
+      setEmailLoading(false);
+      if (error.message.toLowerCase().includes("email not confirmed")) {
+        setError("Check your inbox for a confirmation link before signing in.");
+      } else {
+        setError("Incorrect email or password.");
+      }
+      return;
+    }
+
+    const next = params.get("next") ?? "/dashboard";
+    router.push(next);
   }
 
   return (
@@ -69,12 +101,48 @@ function LoginInner() {
         <button
           type="button"
           onClick={handleGoogle}
-          disabled={loading}
+          disabled={googleLoading || emailLoading}
           className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/10 bg-surface px-4 py-3 text-sm font-medium text-text-primary transition-colors hover:border-white/20 hover:bg-card disabled:cursor-not-allowed disabled:opacity-40"
         >
           <GoogleG />
-          {loading ? "Opening Google..." : "Continue with Google"}
+          {googleLoading ? "Opening Google..." : "Continue with Google"}
         </button>
+
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-[11px] uppercase tracking-widest text-text-secondary/60">
+            or
+          </span>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+
+        <form onSubmit={handleEmailSignIn} className="space-y-3">
+          <input
+            type="email"
+            autoComplete="email"
+            placeholder="you@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={googleLoading || emailLoading}
+            className="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/50 focus:border-white/30 focus:outline-none disabled:opacity-40"
+          />
+          <input
+            type="password"
+            autoComplete="current-password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={googleLoading || emailLoading}
+            className="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/50 focus:border-white/30 focus:outline-none disabled:opacity-40"
+          />
+          <button
+            type="submit"
+            disabled={googleLoading || emailLoading}
+            className="w-full rounded-lg bg-text-primary px-4 py-3 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {emailLoading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
 
         {error && (
           <p className="mt-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-xs text-red-400">
@@ -82,8 +150,15 @@ function LoginInner() {
           </p>
         )}
 
+        <p className="mt-6 text-center text-xs text-text-secondary">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="font-medium text-text-primary hover:underline">
+            Sign up
+          </Link>
+        </p>
+
         <p className="mt-8 text-center text-[11px] text-text-secondary/60">
-          By continuing you agree to our terms. More sign-in options coming soon.
+          By continuing you agree to our terms.
         </p>
       </div>
     </div>

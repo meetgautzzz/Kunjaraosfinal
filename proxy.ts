@@ -13,7 +13,7 @@ const PROTECTED = [
   "/billing",
   "/settings",
 ];
-const AUTH_ONLY = ["/login"];
+const AUTH_ONLY = ["/login", "/signup"];
 
 // Routes that must accept cross-origin POST by design — never CSRF-gate these.
 const CSRF_EXEMPT_API = ["/api/billing/webhook"];
@@ -121,6 +121,7 @@ export const config = {
     "/billing/:path*",
     "/settings/:path*",
     "/login",
+    "/signup",
     "/api/:path*",
   ],
 };

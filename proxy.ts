@@ -15,7 +15,7 @@ const PROTECTED = [
 ];
 const AUTH_ONLY = ["/login", "/signup"];
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -28,35 +28,38 @@ export function proxy(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  let sessionToken: string | undefined;
-
+  // Validate session by asking Supabase to verify the JWT, not just by
+  // checking cookie presence. A user can set any cookie value client-side;
+  // only getUser() actually validates the token signature + expiry.
+  let user = null;
   try {
     const supabase = createServerClient(url, key, {
       cookies: {
         getAll: () => request.cookies.getAll(),
-        setAll: () => {},
+        setAll: (cookiesToSet) => {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
       },
     });
 
-    const authCookieName = `sb-${new URL(url).hostname.split(".")[0]}-auth-token`;
-    sessionToken = request.cookies.get(authCookieName)?.value;
-
-    void supabase;
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
   } catch (err) {
-    console.error("[proxy] createServerClient failed:", err);
-    return response;
+    console.error("[proxy] Session validation failed:", err);
   }
 
   const isProtected = PROTECTED.some((p) => pathname.startsWith(p));
   const isAuthRoute = AUTH_ONLY.some((p) => pathname.startsWith(p));
 
-  if (isProtected && !sessionToken) {
+  if (isProtected && !user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAuthRoute && sessionToken) {
+  if (isAuthRoute && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

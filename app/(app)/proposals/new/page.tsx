@@ -15,9 +15,22 @@ const EVENT_TYPES = [
 
 type FormState = {
   eventType:    string;
+  // Client info
+  clientName:   string;
+  companyName:  string;
+  mobile:       string;
+  email:        string;
+  address:      string;
+  // Event details
   budget:       string;
   location:     string;
   guestCount:   string;
+  eventDate:    string;
+  // Booking toggles — "yes" means client has booked it themselves,
+  // so AI should leave it alone. "no" means AI should plan it.
+  venueByClient: "yes" | "no";
+  foodByClient:  "yes" | "no";
+  // Vision
   requirements: string;
 };
 
@@ -36,10 +49,14 @@ export default function NewProposalPage() {
   const [error,        setError]        = useState("");
 
   const [form, setForm] = useState<FormState>({
-    eventType: "", budget: "", location: "", guestCount: "", requirements: "",
+    eventType: "",
+    clientName: "", companyName: "", mobile: "", email: "", address: "",
+    budget: "", location: "", guestCount: "", eventDate: "",
+    venueByClient: "yes", foodByClient: "yes",
+    requirements: "",
   });
 
-  function setField(k: keyof FormState, v: string) {
+  function setField<K extends keyof FormState>(k: K, v: FormState[K]) {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
@@ -58,6 +75,10 @@ export default function NewProposalPage() {
         location:     form.location,
         requirements: form.requirements,
         ...(form.guestCount ? { guestCount: Number(form.guestCount) } : {}),
+        ...(form.companyName ? { companyName: form.companyName } : {}),
+        ...(form.eventDate   ? { eventDate:   form.eventDate   } : {}),
+        venueByClient: form.venueByClient === "yes",
+        foodByClient:  form.foodByClient  === "yes",
       }) as { proposalId: string; ideas: EventIdea[] };
       setProposalId(result.proposalId);
       setEventIdeas(result.ideas);
@@ -73,6 +94,14 @@ export default function NewProposalPage() {
     setError("");
     setStep("generating-plan");
     try {
+      const clientInfo = {
+        ...(form.clientName  ? { name:        form.clientName  } : {}),
+        ...(form.companyName ? { companyName: form.companyName } : {}),
+        ...(form.mobile      ? { mobile:      form.mobile      } : {}),
+        ...(form.email       ? { email:       form.email       } : {}),
+        ...(form.address     ? { address:     form.address     } : {}),
+      };
+
       const result = await api.proposals.generateExperience({
         proposalId:   proposalId,
         selectedIdea: idea,
@@ -81,6 +110,10 @@ export default function NewProposalPage() {
         location:     form.location,
         requirements: form.requirements,
         ...(form.guestCount ? { guestCount: Number(form.guestCount) } : {}),
+        ...(form.eventDate  ? { eventDate:  form.eventDate  } : {}),
+        ...(Object.keys(clientInfo).length ? { client: clientInfo } : {}),
+        venueByClient: form.venueByClient === "yes",
+        foodByClient:  form.foodByClient  === "yes",
       }) as ProposalData;
       setProposal({ ...result, budget: Number(result.budget), status: result.status as ProposalData["status"] });
       setStep("output");
@@ -284,6 +317,59 @@ export default function NewProposalPage() {
           />
         </FormSection>
 
+        {/* Client Information */}
+        <FormSection label="Client Information">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="field-label">Client Name</label>
+              <input
+                value={form.clientName}
+                onChange={(e) => setField("clientName", e.target.value)}
+                placeholder="e.g. Ramesh Kapoor"
+                className="input"
+              />
+            </div>
+            <div>
+              <label className="field-label">Company Name</label>
+              <input
+                value={form.companyName}
+                onChange={(e) => setField("companyName", e.target.value)}
+                placeholder="e.g. Kapoor Fintech"
+                className="input"
+              />
+            </div>
+            <div>
+              <label className="field-label">Mobile Number</label>
+              <input
+                type="tel"
+                value={form.mobile}
+                onChange={(e) => setField("mobile", e.target.value)}
+                placeholder="+91 98xxx xxxxx"
+                className="input"
+              />
+            </div>
+            <div>
+              <label className="field-label">Email ID</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setField("email", e.target.value)}
+                placeholder="client@company.com"
+                className="input"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="field-label">Address</label>
+              <input
+                value={form.address}
+                onChange={(e) => setField("address", e.target.value)}
+                placeholder="Street, city, state, PIN"
+                className="input"
+              />
+            </div>
+          </div>
+        </FormSection>
+
         {/* Event Details */}
         <FormSection label="Event Details">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -318,18 +404,55 @@ export default function NewProposalPage() {
                 className="input"
               />
             </div>
-            <div className="sm:col-span-2">
+            <div>
               <label className="field-label">Expected Guests</label>
               <input
                 type="number"
                 value={form.guestCount}
                 onChange={(e) => setField("guestCount", e.target.value)}
-                placeholder="e.g. 300  (helps calibrate per-head budget)"
+                placeholder="e.g. 300"
                 min={1}
                 className="input"
               />
             </div>
+            <div>
+              <label className="field-label">Date of Event</label>
+              <input
+                type="date"
+                value={form.eventDate}
+                onChange={(e) => setField("eventDate", e.target.value)}
+                className="input"
+              />
+            </div>
           </div>
+        </FormSection>
+
+        {/* Venue booking toggle */}
+        <FormSection label="Venue Booking by Client">
+          <p className="t-caption" style={{ marginBottom: 12, lineHeight: 1.65 }}>
+            Has the client already booked and paid for the venue? If not, AI will
+            suggest a venue and add it to the plan.
+          </p>
+          <YesNoField
+            value={form.venueByClient}
+            onChange={(v) => setField("venueByClient", v)}
+            yesLabel="Yes, client has booked"
+            noLabel="No, suggest + plan it"
+          />
+        </FormSection>
+
+        {/* F&B toggle */}
+        <FormSection label="Food &amp; Beverages by Client">
+          <p className="t-caption" style={{ marginBottom: 12, lineHeight: 1.65 }}>
+            Has the client arranged their own catering? If not, AI will design
+            the F&amp;B plan and suggest vendors.
+          </p>
+          <YesNoField
+            value={form.foodByClient}
+            onChange={(v) => setField("foodByClient", v)}
+            yesLabel="Yes, client has arranged"
+            noLabel="No, suggest + plan it"
+          />
         </FormSection>
 
         {/* Requirements */}
@@ -406,6 +529,55 @@ function FormSection({ label, required, children }: { label: string; required?: 
         </p>
       </div>
       {children}
+    </div>
+  );
+}
+
+function YesNoField({
+  value, onChange, yesLabel, noLabel,
+}: {
+  value: "yes" | "no";
+  onChange: (v: "yes" | "no") => void;
+  yesLabel: string;
+  noLabel:  string;
+}) {
+  const baseStyle: React.CSSProperties = {
+    flex: 1,
+    padding: "11px 14px",
+    borderRadius: 10,
+    fontSize: 13,
+    fontWeight: 500,
+    border: "1px solid",
+    transition: "all 0.12s",
+    cursor: "pointer",
+    textAlign: "center",
+  };
+  const activeStyle: React.CSSProperties = {
+    background: "rgba(99,102,241,0.14)",
+    borderColor: "rgba(99,102,241,0.4)",
+    color: "#a5b4fc",
+  };
+  const idleStyle: React.CSSProperties = {
+    background: "transparent",
+    borderColor: "var(--border)",
+    color: "var(--text-2)",
+  };
+  return (
+    <div style={{ display: "flex", gap: 10 }}>
+      <button
+        type="button"
+        onClick={() => onChange("yes")}
+        style={{ ...baseStyle, ...(value === "yes" ? activeStyle : idleStyle) }}
+      >
+        {yesLabel}
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("no")}
+        style={{ ...baseStyle, ...(value === "no" ? activeStyle : idleStyle) }}
+      >
+        {noLabel}
+      </button>
     </div>
   );
 }

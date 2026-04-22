@@ -13,6 +13,12 @@ const BodySchema = z.object({
   location:     z.string().trim().min(1).max(500),
   requirements: z.string().trim().min(1).max(5000),
   guestCount:   z.number().int().positive().max(1_000_000).optional(),
+  // Extended inputs (all optional — not every call needs them, and we
+  // don't pass client PII to the model).
+  companyName:   z.string().trim().max(200).optional(),
+  eventDate:     z.string().trim().max(40).optional(),
+  venueByClient: z.boolean().optional(),
+  foodByClient:  z.boolean().optional(),
 });
 
 const SYSTEM_PROMPT = `You are a senior event director at a premium Indian event agency with 15+ years of experience producing luxury weddings, corporate galas, product launches, and concerts across Mumbai, Delhi, Bangalore, and Goa.
@@ -73,13 +79,24 @@ export async function POST(req: NextRequest) {
 
     const bodyResult = await parseJson(req, BodySchema);
     if (bodyResult.error) return bodyResult.error;
-    const { eventType, budget, location, requirements, guestCount } = bodyResult.data;
+    const {
+      eventType, budget, location, requirements, guestCount,
+      companyName, eventDate, venueByClient, foodByClient,
+    } = bodyResult.data;
 
     const userMessage = [
       `Event type: ${eventType}`,
+      companyName ? `Client company: ${companyName}` : null,
       `Location: ${location}`,
+      eventDate ? `Event date: ${eventDate}` : null,
       `Total budget: ₹${budget.toLocaleString("en-IN")}`,
       guestCount ? `Expected guests: ${guestCount}` : null,
+      venueByClient === false
+        ? `VENUE: Client has NOT booked a venue — factor venue selection into each concept.`
+        : null,
+      foodByClient === false
+        ? `F&B: Client has NOT arranged catering — factor food & beverage design into each concept.`
+        : null,
       ``,
       `Requirements and vision from the client:`,
       requirements,

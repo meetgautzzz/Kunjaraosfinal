@@ -19,6 +19,14 @@ const SelectedIdeaSchema = z.object({
   brandIntegration: z.string().min(1),
 }).passthrough();
 
+const ClientInfoSchema = z.object({
+  name:        z.string().trim().max(200).optional(),
+  companyName: z.string().trim().max(200).optional(),
+  mobile:      z.string().trim().max(40).optional(),
+  email:       z.string().trim().email().max(200).optional().or(z.literal("")),
+  address:     z.string().trim().max(500).optional(),
+}).partial();
+
 const BodySchema = z.object({
   proposalId:   z.string().uuid().optional(),
   selectedIdea: SelectedIdeaSchema,
@@ -27,6 +35,12 @@ const BodySchema = z.object({
   location:     z.string().trim().min(1).max(500),
   requirements: z.string().trim().min(1).max(5000),
   guestCount:   z.number().int().positive().max(1_000_000).optional(),
+  // Extended inputs. Client PII is persisted on the proposal row but NOT
+  // passed to the model — only company name is sent for brand context.
+  client:        ClientInfoSchema.optional(),
+  eventDate:     z.string().trim().max(40).optional(),
+  venueByClient: z.boolean().optional(),
+  foodByClient:  z.boolean().optional(),
 });
 
 const SYSTEM_PROMPT = `You are a senior event director at a premium Indian event agency. You have been given a chosen creative concept for an event — your job is to expand it into a fully executable luxury event plan.
@@ -143,7 +157,10 @@ export async function POST(req: NextRequest) {
 
     const bodyResult = await parseJson(req, BodySchema);
     if (bodyResult.error) return bodyResult.error;
-    const { selectedIdea, eventType, budget, location, requirements, guestCount } = bodyResult.data;
+    const {
+      selectedIdea, eventType, budget, location, requirements, guestCount,
+      client: clientInfo, eventDate, venueByClient, foodByClient,
+    } = bodyResult.data;
 
     const usage = await checkUsage(user.id);
     if (usage.overage) {
@@ -165,9 +182,21 @@ export async function POST(req: NextRequest) {
       ``,
       `Event brief:`,
       `- Event type: ${eventType}`,
+      clientInfo?.companyName ? `- Client company: ${clientInfo.companyName}` : null,
       `- Location:   ${location}`,
+      eventDate ? `- Event date: ${eventDate}` : null,
       `- Total budget: ₹${budget.toLocaleString("en-IN")} INR`,
       guestCount ? `- Expected guests: ${guestCount}` : null,
+      venueByClient === false
+        ? `- VENUE: Client has NOT booked a venue — include a specific venue recommendation in the Venue line item and the vendors list.`
+        : venueByClient === true
+        ? `- VENUE: Client has already booked their own venue — do not suggest alternates; treat venue as fixed.`
+        : null,
+      foodByClient === false
+        ? `- F&B: Client has NOT arranged food and beverages — include a full catering plan and vendor.`
+        : foodByClient === true
+        ? `- F&B: Client has already arranged food and beverages — do not plan catering; treat F&B as handled.`
+        : null,
       ``,
       `Client requirements:`,
       requirements,
@@ -252,6 +281,10 @@ export async function POST(req: NextRequest) {
       stageDesign:        parsed.stageDesign,
       decorPlan:          parsed.decorPlan,
       experienceElements: parsed.experienceElements,
+      client: clientInfo,
+      eventDate,
+      venueByClient,
+      foodByClient,
     };
 
     const { error: insertError } = await supabase.from("proposals").insert({

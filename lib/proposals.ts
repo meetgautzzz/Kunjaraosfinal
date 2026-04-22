@@ -1,3 +1,11 @@
+export type ClientInfo = {
+  name?:        string;
+  companyName?: string;
+  mobile?:      string;
+  email?:       string;
+  address?:     string;
+};
+
 export type ProposalConcept = {
   title:       string;
   tagline:     string;
@@ -115,6 +123,11 @@ export type ProposalData = {
     techElements:     string[];
     surpriseElements: string[];
   };
+  // Client + event metadata collected at form time
+  client?:        ClientInfo;
+  eventDate?:     string;
+  venueByClient?: boolean;
+  foodByClient?:  boolean;
 };
 
 export function formatINR(amount: number) {

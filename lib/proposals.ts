@@ -82,7 +82,7 @@ export type ProposalData = {
   location:        string;
   budget:          number;
   requirements:    string;
-  status:          "DRAFT" | "GENERATED" | "SAVED" | "SENT";
+  status:          "DRAFT" | "GENERATED" | "SAVED" | "SENT" | "APPROVED" | "CHANGES_REQUESTED";
   concept:         ProposalConcept;
   budgetBreakdown: BudgetLine[];
   timeline:        TimelinePhase[];
@@ -130,6 +130,13 @@ export type ProposalData = {
   foodByClient?:  boolean;
   // Compliance checklist generated from eventType + eventDate
   compliance?:    import("./compliance").ComplianceItem[];
+  // Captured when a client responds via the public /p/[id] share page
+  clientResponse?: {
+    action:     "APPROVED" | "CHANGES_REQUESTED";
+    clientName: string;
+    comment:    string;
+    respondedAt: string; // ISO timestamp
+  };
 };
 
 export function formatINR(amount: number) {
@@ -137,8 +144,10 @@ export function formatINR(amount: number) {
 }
 
 export const STATUS_STYLES: Record<string, string> = {
-  DRAFT:     "bg-gray-500/15 text-gray-400",
-  GENERATED: "bg-indigo-500/15 text-indigo-400",
-  SAVED:     "bg-emerald-500/15 text-emerald-400",
-  SENT:      "bg-purple-500/15 text-purple-400",
+  DRAFT:              "bg-gray-500/15 text-gray-400",
+  GENERATED:          "bg-indigo-500/15 text-indigo-400",
+  SAVED:              "bg-emerald-500/15 text-emerald-400",
+  SENT:               "bg-purple-500/15 text-purple-400",
+  APPROVED:           "bg-emerald-500/15 text-emerald-400",
+  CHANGES_REQUESTED:  "bg-amber-500/15 text-amber-400",
 };

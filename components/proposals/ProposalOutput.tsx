@@ -172,6 +172,42 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     <div className="max-w-7xl mx-auto" style={{ paddingBottom: 48, display: "flex", flexDirection: "column", gap: 16 }}>
 
       {/* ── Top bar ───────────────────────────────────────────────────────── */}
+      {proposal.clientResponse && (
+        <div
+          style={{
+            borderRadius: 12,
+            border: `1px solid ${proposal.clientResponse.action === "APPROVED" ? "rgba(16,185,129,0.28)" : "rgba(245,158,11,0.28)"}`,
+            background: proposal.clientResponse.action === "APPROVED" ? "rgba(16,185,129,0.08)" : "rgba(245,158,11,0.08)",
+            padding: "12px 16px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+            <span style={{ fontSize: 16, color: proposal.clientResponse.action === "APPROVED" ? "#34d399" : "#fbbf24" }}>
+              {proposal.clientResponse.action === "APPROVED" ? "✓" : "✎"}
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: proposal.clientResponse.action === "APPROVED" ? "#34d399" : "#fbbf24", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                {proposal.clientResponse.action === "APPROVED" ? "Client approved" : "Client requested changes"}
+              </div>
+              <div style={{ fontSize: 13, color: "var(--text-1)", marginTop: 2 }}>
+                <strong>{proposal.clientResponse.clientName}</strong>
+                <span style={{ color: "var(--text-3)" }}>
+                  {" · "}
+                  {new Date(proposal.clientResponse.respondedAt).toLocaleString("en-IN", {
+                    day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit",
+                  })}
+                </span>
+              </div>
+              {proposal.clientResponse.comment && (
+                <div style={{ fontSize: 13, color: "var(--text-2)", marginTop: 6, fontStyle: "italic" }}>
+                  "{proposal.clientResponse.comment}"
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div
         style={{
           background: "var(--bg-card)",

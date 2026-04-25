@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
+import { getAdminClient } from "@/lib/supabase/admin";
 import { parseParams } from "@/lib/validate";
 import { apiLimiter, limit } from "@/lib/ratelimit";
-import { rowToPayment, type ProposalPaymentRow } from "@/lib/payments";
+import {
+  rowToPayment, isMissingTableError, PAYMENT_TABLE_MISSING_MESSAGE,
+  type ProposalPaymentRow,
+} from "@/lib/payments";
 
 const ParamsSchema = z.object({ id: z.string().uuid() });
 
@@ -19,12 +22,10 @@ export async function GET(
   const rl = await limit(apiLimiter, `share-payments:${ip}`);
   if (rl) return rl;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) {
+  const admin = getAdminClient();
+  if (!admin) {
     return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
   }
-  const admin = createSupabaseAdmin(url, serviceKey);
 
   const { data, error } = await admin
     .from("proposal_payments")
@@ -34,6 +35,11 @@ export async function GET(
     .order("created_at", { ascending: false });
 
   if (error) {
+    if (isMissingTableError(error)) {
+      // Public consumer — keep the message non-technical, but surface 503
+      // so the share-page UI knows to hide the payments section.
+      return NextResponse.json({ error: "Payments unavailable." }, { status: 503 });
+    }
     return NextResponse.json({ error: "Could not load payments." }, { status: 500 });
   }
   // Strip planner_notes — those are internal.

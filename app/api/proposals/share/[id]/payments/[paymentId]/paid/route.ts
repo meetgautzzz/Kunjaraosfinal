@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
+import { getAdminClient } from "@/lib/supabase/admin";
 import { parseJson, parseParams } from "@/lib/validate";
 import { apiLimiter, limit } from "@/lib/ratelimit";
 import {
   sendEmail, getPlannerEmail, getOriginFromRequest, tmplPaymentPaid,
 } from "@/lib/email";
 import { formatINR } from "@/lib/proposals";
+import { isMissingTableError } from "@/lib/payments";
 
 const ParamsSchema = z.object({
   id:        z.string().uuid(),
@@ -34,12 +35,10 @@ export async function POST(
   const parsedBody = await parseJson(req, BodySchema);
   if (parsedBody.error) return parsedBody.error;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) {
+  const admin = getAdminClient();
+  if (!admin) {
     return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
   }
-  const admin = createSupabaseAdmin(url, serviceKey);
 
   // Only allow marking REQUESTED → PAID. Already-paid or already-confirmed
   // rows get a 409 so the share link can't be used to overwrite history.
@@ -51,6 +50,9 @@ export async function POST(
     .single();
 
   if (readErr || !existing) {
+    if (isMissingTableError(readErr)) {
+      return NextResponse.json({ error: "Payments unavailable." }, { status: 503 });
+    }
     return NextResponse.json({ error: "Payment not found." }, { status: 404 });
   }
   if (existing.status !== "REQUESTED") {
@@ -73,6 +75,9 @@ export async function POST(
     .eq("id", parsedParams.data.paymentId);
 
   if (writeErr) {
+    if (isMissingTableError(writeErr)) {
+      return NextResponse.json({ error: "Payments unavailable." }, { status: 503 });
+    }
     console.error("[share/paid] write failed:", writeErr.message);
     return NextResponse.json({ error: "Could not record payment." }, { status: 500 });
   }

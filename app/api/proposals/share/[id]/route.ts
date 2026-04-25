@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
+import { getAdminClient } from "@/lib/supabase/admin";
 import { parseParams } from "@/lib/validate";
 import { apiLimiter, limit } from "@/lib/ratelimit";
 
@@ -19,12 +19,10 @@ export async function GET(
   const rl = await limit(apiLimiter, `share:${ip}`);
   if (rl) return rl;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) {
+  const admin = getAdminClient();
+  if (!admin) {
     return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
   }
-  const admin = createSupabaseAdmin(url, serviceKey);
 
   const { data, error } = await admin
     .from("proposals")

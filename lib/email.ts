@@ -44,13 +44,11 @@ export async function sendEmail({ to, subject, html, text }: SendArgs): Promise<
 // Look up a planner's email by user_id using the service-role admin client.
 // The public share endpoints don't have a session, so they cannot use the
 // session-scoped Supabase client to read auth.users.
-import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
+import { getAdminClient } from "@/lib/supabase/admin";
 export async function getPlannerEmail(userId: string): Promise<string | null> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) return null;
+  const admin = getAdminClient();
+  if (!admin) return null;
   try {
-    const admin = createSupabaseAdmin(url, serviceKey);
     const { data, error } = await admin.auth.admin.getUserById(userId);
     if (error || !data?.user?.email) return null;
     return data.user.email;

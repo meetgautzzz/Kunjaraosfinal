@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import Razorpay from "razorpay";
 import { z } from "zod";
-import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
+import { getAdminClient } from "@/lib/supabase/admin";
 import { getPlan, type PlanId } from "@/lib/plans";
 
 // Razorpay webhook payload shape — we only read the payment entity on
@@ -20,14 +20,6 @@ const WebhookEventSchema = z.object({
     }).optional(),
   }),
 });
-
-// Service-role client — bypasses RLS, safe for server-to-server use only
-function getAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) return null;
-  return createSupabaseAdmin(url, serviceKey);
-}
 
 function resolvePlan(plan: string): PlanId {
   return (["basic", "pro", "expert", "enterprise", "test"] as const).includes(plan as PlanId)
@@ -119,7 +111,7 @@ export async function POST(req: NextRequest) {
   // 4. Add credits server-side using service-role client (no auth session needed)
   const admin = getAdminClient();
   if (!admin) {
-    console.error("[webhook] Admin client unavailable — set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
+    // getAdminClient already logs which env var is missing.
     return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
   }
 

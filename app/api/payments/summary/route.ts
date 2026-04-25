@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { isMissingTableError } from "@/lib/payments";
 
 export async function GET() {
   const auth = await requireUser();
@@ -16,6 +17,11 @@ export async function GET() {
     .neq("status", "CANCELLED");
 
   if (error) {
+    if (isMissingTableError(error)) {
+      // Return zeroed totals so the dashboard widget renders cleanly
+      // before the migration is applied, instead of an error state.
+      return NextResponse.json({ received: 0, verifying: 0, outstanding: 0, count: 0 });
+    }
     return NextResponse.json({ error: "Could not load summary." }, { status: 500 });
   }
 

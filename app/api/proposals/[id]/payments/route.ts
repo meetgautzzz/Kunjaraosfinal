@@ -3,7 +3,10 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { parseJson, parseParams } from "@/lib/validate";
-import { rowToPayment, type ProposalPaymentRow } from "@/lib/payments";
+import {
+  rowToPayment, isMissingTableError, PAYMENT_TABLE_MISSING_MESSAGE,
+  type ProposalPaymentRow,
+} from "@/lib/payments";
 
 const ParamsSchema = z.object({ id: z.string().uuid() });
 
@@ -37,6 +40,10 @@ export async function GET(
     .order("created_at", { ascending: false });
 
   if (error) {
+    if (isMissingTableError(error)) {
+      console.error("[payments] table missing — apply the proposal_payments migration");
+      return NextResponse.json({ error: PAYMENT_TABLE_MISSING_MESSAGE }, { status: 503 });
+    }
     return NextResponse.json({ error: "Could not load payments." }, { status: 500 });
   }
   return NextResponse.json(((data ?? []) as ProposalPaymentRow[]).map(rowToPayment));
@@ -85,6 +92,10 @@ export async function POST(
     .single();
 
   if (error || !data) {
+    if (isMissingTableError(error)) {
+      console.error("[payments] table missing — apply the proposal_payments migration");
+      return NextResponse.json({ error: PAYMENT_TABLE_MISSING_MESSAGE }, { status: 503 });
+    }
     console.error("[payments] insert failed:", error?.message);
     return NextResponse.json({ error: "Could not create payment request." }, { status: 500 });
   }

@@ -65,6 +65,19 @@ export function rowToPayment(row: ProposalPaymentRow): ProposalPayment {
   };
 }
 
+// Defensive helper: when the proposal_payments migration hasn't been applied,
+// Supabase returns Postgres error code 42P01 (undefined_table). Detect that
+// here so callers can return a clear 503 instead of a generic 500.
+export function isMissingTableError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const e = err as { code?: string; message?: string };
+  if (e.code === "42P01") return true;
+  return typeof e.message === "string" && /relation .*proposal_payments.* does not exist/i.test(e.message);
+}
+
+export const PAYMENT_TABLE_MISSING_MESSAGE =
+  "Payments are not configured yet. Run the proposal_payments migration in Supabase.";
+
 export const PAYMENT_STATUS_STYLES: Record<PaymentStatus, { label: string; bg: string; text: string }> = {
   REQUESTED: { label: "Awaiting payment",     bg: "bg-amber-500/15",   text: "text-amber-400"   },
   PAID:      { label: "Paid · verifying",     bg: "bg-indigo-500/15",  text: "text-indigo-400"  },

@@ -3,7 +3,10 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { parseJson, parseParams } from "@/lib/validate";
-import { rowToPayment, type ProposalPaymentRow } from "@/lib/payments";
+import {
+  rowToPayment, isMissingTableError, PAYMENT_TABLE_MISSING_MESSAGE,
+  type ProposalPaymentRow,
+} from "@/lib/payments";
 
 const ParamsSchema = z.object({
   id:        z.string().uuid(),
@@ -51,6 +54,10 @@ export async function PATCH(
     .single();
 
   if (error || !data) {
+    if (isMissingTableError(error)) {
+      console.error("[payments] table missing — apply the proposal_payments migration");
+      return NextResponse.json({ error: PAYMENT_TABLE_MISSING_MESSAGE }, { status: 503 });
+    }
     return NextResponse.json({ error: "Payment not found." }, { status: 404 });
   }
   return NextResponse.json(rowToPayment(data as ProposalPaymentRow));
@@ -78,6 +85,10 @@ export async function DELETE(
     .eq("user_id", auth.user.id);
 
   if (error) {
+    if (isMissingTableError(error)) {
+      console.error("[payments] table missing — apply the proposal_payments migration");
+      return NextResponse.json({ error: PAYMENT_TABLE_MISSING_MESSAGE }, { status: 503 });
+    }
     return NextResponse.json({ error: "Could not delete payment request." }, { status: 500 });
   }
   return NextResponse.json({ ok: true });

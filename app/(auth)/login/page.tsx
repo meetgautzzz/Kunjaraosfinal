@@ -35,24 +35,40 @@ function LoginInner() {
   useEffect(() => {
     const err = params.get("err");
     if (!err) return;
-    if (err === "oauth_failed") setError("Google sign-in failed. Try again.");
+    if (err === "oauth_failed") setError("Google sign-in failed. Try again, or use email below.");
     else if (err === "missing_code") setError("Sign-in was cancelled.");
-    else if (err === "unavailable") setError("Service unavailable. Try again shortly.");
+    else if (err === "unavailable") setError("Service temporarily unavailable. Try again shortly.");
+    else setError("Sign-in failed. Try again.");
   }, [params]);
 
   async function handleGoogle() {
     setGoogleLoading(true);
     setError(null);
-    const supabase = createClient();
-    const next = params.get("next") ?? "/dashboard";
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    });
-    if (error) {
-      setError("Could not open Google sign-in.");
+    try {
+      const supabase = createClient();
+      const next = params.get("next") ?? "/dashboard";
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
+      });
+      if (error) {
+        // Surfaces in browser devtools so prod issues can be traced from
+        // a user's screen-share without needing to repro server-side.
+        console.error("[login] Google OAuth start failed:", error.message);
+        setError("Could not open Google sign-in. Check that pop-ups aren't blocked, or use email below.");
+        setGoogleLoading(false);
+      }
+      // On success the browser is redirected away; loading stays true on
+      // purpose so the button can't be re-clicked during the redirect.
+    } catch (err) {
+      // signInWithOAuth can throw on network failure, missing supabase
+      // config, or unexpected errors — none of which set the {error}
+      // return field. Without this catch the button would stay disabled
+      // forever and the user would see no message.
+      console.error("[login] Google OAuth threw:", err);
+      setError("Could not reach Google. Check your connection and try again.");
       setGoogleLoading(false);
     }
   }

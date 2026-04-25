@@ -37,6 +37,18 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const [templateName,    setTemplateName]    = useState(proposal.concept?.title ?? proposal.title);
   const [savingTemplate,  setSavingTemplate]  = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [linkCopied,      setLinkCopied]      = useState(false);
+
+  async function handleCopyShareLink() {
+    try {
+      const url = `${window.location.origin}/p/${proposal.id}`;
+      await navigator.clipboard.writeText(url);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 1800);
+    } catch {
+      alert("Could not copy link. Long-press to copy from the address bar instead.");
+    }
+  }
 
   function update(field: keyof ProposalData, value: any) {
     onChange({ ...proposal, [field]: value });
@@ -217,6 +229,26 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             >
               <span>◈</span> Client View
             </button>
+            <button
+              onClick={handleCopyShareLink}
+              title="Copy a shareable link to send to your client"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 13px",
+                borderRadius: 9,
+                border: linkCopied ? "1px solid rgba(34,197,94,0.28)" : "1px solid var(--border)",
+                background: linkCopied ? "rgba(34,197,94,0.12)" : "var(--bg-surface)",
+                color: linkCopied ? "#4ade80" : "var(--text-1)",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              {linkCopied ? <>✓ Link copied</> : <>🔗 Copy share link</>}
+            </button>
             <button onClick={() => setShowTplModal(true)} className="btn-ghost">
               Save Template
             </button>
@@ -392,7 +424,7 @@ function CvSection({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-function ClientView({ proposal, onClose }: { proposal: ProposalData; onClose: () => void }) {
+export function ClientView({ proposal, onClose }: { proposal: ProposalData; onClose?: () => void }) {
   const c  = proposal.concept;
   const ec = proposal.eventConcept;
   const vd = proposal.visualDirection;
@@ -416,12 +448,14 @@ function ClientView({ proposal, onClose }: { proposal: ProposalData; onClose: ()
           <div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-[10px] font-black">K</div>
           <span className="text-white/30 text-xs uppercase tracking-[0.15em]">Kunjara · Proposal Deck</span>
         </div>
-        <button
-          onClick={onClose}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/20 text-xs transition-all"
-        >
-          <span>✕</span> Exit Preview
-        </button>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/20 text-xs transition-all"
+          >
+            <span>✕</span> Exit Preview
+          </button>
+        )}
       </div>
 
       <div className="max-w-[860px] mx-auto px-6 sm:px-10 py-20 space-y-24">

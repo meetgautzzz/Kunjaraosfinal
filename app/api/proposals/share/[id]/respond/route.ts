@@ -3,6 +3,10 @@ import { z } from "zod";
 import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { parseJson, parseParams } from "@/lib/validate";
 import { apiLimiter, limit } from "@/lib/ratelimit";
+import {
+  sendEmail, getPlannerEmail, getOriginFromRequest,
+  tmplProposalApproved, tmplProposalChangesRequested,
+} from "@/lib/email";
 
 const ParamsSchema = z.object({ id: z.string().uuid() });
 
@@ -38,7 +42,7 @@ export async function POST(
 
   const { data: existing, error: readErr } = await admin
     .from("proposals")
-    .select("id, data")
+    .select("id, user_id, data")
     .eq("id", id)
     .single();
 
@@ -78,5 +82,38 @@ export async function POST(
     return NextResponse.json({ error: "Could not record response." }, { status: 500 });
   }
 
+  // Notify the planner. Best-effort — never block the response.
+  void notifyPlanner({
+    plannerId:     existing.user_id as string,
+    proposalId:    id,
+    proposalTitle: (current.title as string) || "Untitled proposal",
+    action,
+    clientName,
+    comment,
+    origin:        getOriginFromRequest(req),
+  });
+
   return NextResponse.json({ ok: true, status: action });
+}
+
+async function notifyPlanner(args: {
+  plannerId: string;
+  proposalId: string;
+  proposalTitle: string;
+  action: "APPROVED" | "CHANGES_REQUESTED";
+  clientName: string;
+  comment: string;
+  origin: string;
+}) {
+  try {
+    const to = await getPlannerEmail(args.plannerId);
+    if (!to) return;
+    const link = `${args.origin}/proposals/${args.proposalId}`;
+    const tmpl = args.action === "APPROVED"
+      ? tmplProposalApproved({ clientName: args.clientName, proposalTitle: args.proposalTitle, comment: args.comment, link })
+      : tmplProposalChangesRequested({ clientName: args.clientName, proposalTitle: args.proposalTitle, comment: args.comment, link });
+    await sendEmail({ to, subject: tmpl.subject, html: tmpl.html });
+  } catch (err) {
+    console.error("[share/respond] notify failed:", err);
+  }
 }

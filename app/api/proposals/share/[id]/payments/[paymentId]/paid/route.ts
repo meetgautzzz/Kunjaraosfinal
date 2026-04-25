@@ -3,6 +3,10 @@ import { z } from "zod";
 import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { parseJson, parseParams } from "@/lib/validate";
 import { apiLimiter, limit } from "@/lib/ratelimit";
+import {
+  sendEmail, getPlannerEmail, getOriginFromRequest, tmplPaymentPaid,
+} from "@/lib/email";
+import { formatINR } from "@/lib/proposals";
 
 const ParamsSchema = z.object({
   id:        z.string().uuid(),
@@ -41,7 +45,7 @@ export async function POST(
   // rows get a 409 so the share link can't be used to overwrite history.
   const { data: existing, error: readErr } = await admin
     .from("proposal_payments")
-    .select("id, status, proposal_id")
+    .select("id, status, proposal_id, user_id, amount")
     .eq("id", parsedParams.data.paymentId)
     .eq("proposal_id", parsedParams.data.id)
     .single();
@@ -72,5 +76,48 @@ export async function POST(
     console.error("[share/paid] write failed:", writeErr.message);
     return NextResponse.json({ error: "Could not record payment." }, { status: 500 });
   }
+
+  void notifyPlanner({
+    admin,
+    plannerId:     existing.user_id as string,
+    proposalId:    parsedParams.data.id,
+    payerName:     parsedBody.data.payerName,
+    payerRef:      parsedBody.data.payerReference,
+    amount:        existing.amount as number,
+    origin:        getOriginFromRequest(req),
+  });
+
   return NextResponse.json({ ok: true });
+}
+
+async function notifyPlanner(args: {
+  admin: any;
+  plannerId: string;
+  proposalId: string;
+  payerName: string;
+  payerRef: string;
+  amount: number;
+  origin: string;
+}) {
+  try {
+    const to = await getPlannerEmail(args.plannerId);
+    if (!to) return;
+    const { data: prop } = await args.admin
+      .from("proposals")
+      .select("data")
+      .eq("id", args.proposalId)
+      .single();
+    const proposalTitle = (prop?.data as { title?: string } | null)?.title || "Untitled proposal";
+    const link = `${args.origin}/proposals/${args.proposalId}`;
+    const tmpl = tmplPaymentPaid({
+      payerName:    args.payerName,
+      reference:    args.payerRef,
+      amount:       formatINR(args.amount),
+      proposalTitle,
+      link,
+    });
+    await sendEmail({ to, subject: tmpl.subject, html: tmpl.html });
+  } catch (err) {
+    console.error("[share/paid] notify failed:", err);
+  }
 }

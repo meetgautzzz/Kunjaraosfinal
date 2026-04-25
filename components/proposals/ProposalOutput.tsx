@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { api } from "@/lib/api";
 import type {
   ProposalData, BudgetLine, TimelinePhase, ProposalVendor,
@@ -11,9 +11,13 @@ import {
   generateChecklist, calcScore, deadlineState, STATUS_CONFIG,
   type ComplianceItem, type ComplianceStatus,
 } from "@/lib/compliance";
+import {
+  PAYMENT_STATUS_STYLES,
+  type ProposalPayment, type PaymentMethod, type PaymentStatus,
+} from "@/lib/payments";
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
-         | "experience" | "visual" | "stage" | "activations" | "compliance";
+         | "experience" | "visual" | "stage" | "activations" | "compliance" | "payments";
 
 // Flip to true once /api/proposals/generate-image ships (planned ~1 week
 // post-launch, Google Imagen 3 backed). Until then, hide the button so
@@ -160,6 +164,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     { id: "stage",       label: "Stage & Decor",  icon: "🏛", show: hasStage },
     { id: "activations", label: "Activations",    icon: "⚡", show: hasActivations },
     { id: "compliance",  label: "Compliance",     icon: "⚖", show: !!proposal.eventType },
+    { id: "payments",    label: "Payments",       icon: "₹", show: true },
   ];
   const TABS = ALL_TABS.filter((t) => t.show);
 
@@ -475,6 +480,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         {tab === "stage"       && <StageTab        proposal={proposal} update={update} />}
         {tab === "activations" && <ActivationsTab  proposal={proposal} update={update} />}
         {tab === "compliance"  && <ComplianceTab   proposal={proposal} update={update} />}
+        {tab === "payments"    && <PaymentsTab     proposal={proposal} />}
       </div>
 
       {/* ── Save as Template modal ─────────────────────────────────────────── */}
@@ -1841,5 +1847,257 @@ function ComplianceTab({
         Click any status to cycle: Not Started → In Progress → Submitted → Approved. Saves with the proposal.
       </p>
     </div>
+  );
+}
+
+// ── Payments Tab ───────────────────────────────────────────────────────────────
+function PaymentsTab({ proposal }: { proposal: ProposalData }) {
+  const [items,    setItems]    = useState<ProposalPayment[]>([]);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState("");
+  const [showForm, setShowForm] = useState(false);
+
+  // form state
+  const [amount,        setAmount]        = useState<number>(proposal.budget || 0);
+  const [description,   setDescription]   = useState("Advance · 50% of total");
+  const [dueDate,       setDueDate]       = useState("");
+  const [method,        setMethod]        = useState<PaymentMethod>("UPI");
+  const [paymentTarget, setPaymentTarget] = useState("");
+  const [creating,      setCreating]      = useState(false);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const r = await fetch(`/api/proposals/${proposal.id}/payments`);
+      if (!r.ok) throw new Error("Could not load payments.");
+      setItems(await r.json());
+      setError("");
+    } catch (e: any) {
+      setError(e.message ?? "Could not load payments.");
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [proposal.id]);
+
+  async function createRequest() {
+    if (!amount || amount <= 0 || !paymentTarget.trim()) return;
+    setCreating(true);
+    try {
+      const r = await fetch(`/api/proposals/${proposal.id}/payments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount, description, method,
+          paymentTarget: paymentTarget.trim(),
+          dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+        }),
+      });
+      if (!r.ok) throw new Error((await r.json()).error ?? "Could not create.");
+      setShowForm(false);
+      setDescription("Balance");
+      setPaymentTarget((prev) => prev); // keep last UPI/bank for convenience
+      await load();
+    } catch (e: any) {
+      alert(e.message ?? "Could not create payment request.");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function patchStatus(p: ProposalPayment, status: PaymentStatus) {
+    if (status === "CONFIRMED" && !confirm(`Confirm that you've received ${formatINR(p.amount)} in your account?`)) return;
+    if (status === "CANCELLED" && !confirm("Cancel this payment request? The client will no longer see it.")) return;
+    try {
+      const r = await fetch(`/api/proposals/${proposal.id}/payments/${p.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!r.ok) throw new Error((await r.json()).error ?? "Update failed.");
+      await load();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  }
+
+  const totals = items.reduce(
+    (acc, p) => {
+      if (p.status === "CONFIRMED") acc.received += p.amount;
+      else if (p.status === "PAID") acc.verifying += p.amount;
+      else if (p.status === "REQUESTED") acc.outstanding += p.amount;
+      return acc;
+    },
+    { received: 0, verifying: 0, outstanding: 0 }
+  );
+
+  return (
+    <div className="p-6 space-y-5">
+      {/* Totals */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Stat label="Received" value={formatINR(totals.received)} tone="emerald" />
+        <Stat label="Verifying" value={formatINR(totals.verifying)} tone="indigo" />
+        <Stat label="Outstanding" value={formatINR(totals.outstanding)} tone="amber" />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <h4 className="text-[var(--text-1)] font-semibold text-sm">Payment requests</h4>
+        <button
+          onClick={() => setShowForm((v) => !v)}
+          className="text-xs px-3 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-semibold transition-colors"
+        >
+          {showForm ? "Close" : "+ Request payment"}
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label="Amount (₹)">
+              <input
+                type="number" min={1} value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-1)] text-sm outline-none focus:border-indigo-500/50"
+              />
+            </Field>
+            <Field label="Due date (optional)">
+              <input
+                type="date" value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-1)] text-sm outline-none focus:border-indigo-500/50"
+              />
+            </Field>
+          </div>
+          <Field label="Description shown to client">
+            <input
+              type="text" value={description} maxLength={500}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="e.g. Advance — 50% of total"
+              className="w-full px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-1)] text-sm outline-none focus:border-indigo-500/50"
+            />
+          </Field>
+          <Field label="Payment method">
+            <div className="flex gap-2">
+              {(["UPI", "BANK"] as PaymentMethod[]).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMethod(m)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                    method === m
+                      ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
+                      : "border-[var(--border)] text-[var(--text-2)]"
+                  }`}
+                >
+                  {m === "UPI" ? "UPI" : "Bank transfer"}
+                </button>
+              ))}
+            </div>
+          </Field>
+          <Field label={method === "UPI" ? "Your UPI ID" : "Bank details (account, IFSC, name)"}>
+            <textarea
+              value={paymentTarget} maxLength={500} rows={method === "UPI" ? 1 : 3}
+              onChange={(e) => setPaymentTarget(e.target.value)}
+              placeholder={method === "UPI" ? "you@upi" : "Acc: 1234567890\nIFSC: HDFC0001234\nName: Your Studio Pvt Ltd"}
+              className="w-full px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-1)] text-sm outline-none focus:border-indigo-500/50 resize-y"
+            />
+          </Field>
+          <div className="flex justify-end gap-2 pt-1">
+            <button onClick={() => setShowForm(false)} className="btn-ghost">Cancel</button>
+            <button
+              onClick={createRequest}
+              disabled={creating || !amount || !paymentTarget.trim()}
+              className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold disabled:opacity-40 transition-colors"
+            >
+              {creating ? "Creating…" : "Create request"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {error && <p className="text-red-400 text-xs">{error}</p>}
+
+      {loading ? (
+        <p className="text-[var(--text-3)] text-xs">Loading…</p>
+      ) : items.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-card)] p-10 text-center">
+          <p className="text-[var(--text-2)] text-sm">No payment requests yet.</p>
+          <p className="text-[var(--text-3)] text-xs mt-1">After the client approves, request an advance to start recording payments.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {items.map((p) => {
+            const cfg = PAYMENT_STATUS_STYLES[p.status];
+            return (
+              <div key={p.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[var(--text-1)] font-semibold text-sm">{formatINR(p.amount)}</span>
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
+                    </div>
+                    {p.description && <p className="text-[var(--text-2)] text-xs mt-1">{p.description}</p>}
+                    <p className="text-[var(--text-3)] text-xs mt-1">
+                      {p.method === "UPI" ? "UPI" : "Bank"} · {p.paymentTarget.split("\n")[0]}
+                      {p.dueDate && <> · due {new Date(p.dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</>}
+                    </p>
+                    {p.status === "PAID" && p.payerReference && (
+                      <div className="mt-3 p-3 rounded-lg bg-indigo-500/8 border border-indigo-500/20">
+                        <p className="text-indigo-300 text-xs font-semibold">Client says they've paid</p>
+                        <p className="text-[var(--text-2)] text-xs mt-1">
+                          <strong>{p.payerName}</strong> · UTR: <span className="font-mono">{p.payerReference}</span>
+                        </p>
+                        {p.payerNote && <p className="text-[var(--text-3)] text-xs italic mt-1">"{p.payerNote}"</p>}
+                        {p.submittedAt && <p className="text-[var(--text-3)] text-[11px] mt-1">{new Date(p.submittedAt).toLocaleString("en-IN")}</p>}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    {p.status === "REQUESTED" && (
+                      <button
+                        onClick={() => patchStatus(p, "CANCELLED")}
+                        className="text-[var(--text-3)] hover:text-red-400 text-xs transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    {p.status === "PAID" && (
+                      <button
+                        onClick={() => patchStatus(p, "CONFIRMED")}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-semibold transition-colors"
+                      >
+                        ✓ Confirm received
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Stat({ label, value, tone }: { label: string; value: string; tone: "emerald" | "indigo" | "amber" }) {
+  const map = {
+    emerald: "border-emerald-500/20 bg-emerald-500/5 text-emerald-400",
+    indigo:  "border-indigo-500/20  bg-indigo-500/5  text-indigo-400",
+    amber:   "border-amber-500/20   bg-amber-500/5   text-amber-400",
+  };
+  return (
+    <div className={`rounded-xl border p-3 ${map[tone]}`}>
+      <p className="text-[11px] uppercase tracking-wide font-medium opacity-80">{label}</p>
+      <p className="text-lg font-bold mt-0.5 tabular-nums text-[var(--text-1)]">{value}</p>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="text-[var(--text-3)] text-[11px] uppercase tracking-wide font-medium">{label}</span>
+      <div className="mt-1">{children}</div>
+    </label>
   );
 }

@@ -137,7 +137,47 @@ export type ProposalData = {
     comment:    string;
     respondedAt: string; // ISO timestamp
   };
+  // Regeneration history. The active version's content lives at top-level
+  // (concept/budgetBreakdown/etc); `versions` holds historical snapshots.
+  versions?:           ProposalVersionSnapshot[];
+  regenerationsUsed?:  number;        // 0–5
+  activeVersionLabel?: string;        // e.g. "v1", "v2"
+  originalBrief?:      OriginalBrief; // captured on first generation, replayable
 };
+
+export type OriginalBrief = {
+  selectedIdea: EventIdea;
+  eventType:    string;
+  budget:       number;
+  location:     string;
+  requirements: string;
+  guestCount?:  number;
+  clientCompanyName?: string;
+  eventDate?:   string;
+  venueByClient?: boolean;
+  foodByClient?:  boolean;
+};
+
+export type ProposalVersionSnapshot = {
+  label:     string;       // "v1", "v2"...
+  createdAt: string;
+  guidance?: string;       // free-text the user typed when regenerating into this version
+  // AI-generated payload at the time this version was active.
+  title:              string;
+  concept:            ProposalConcept;
+  budgetBreakdown:    BudgetLine[];
+  timeline:           TimelinePhase[];
+  vendors:            ProposalVendor[];
+  riskFlags:          string[];
+  tips:               string[];
+  eventConcept?:      ProposalData["eventConcept"];
+  visualDirection?:   ProposalData["visualDirection"];
+  stageDesign?:       ProposalData["stageDesign"];
+  decorPlan?:         ProposalData["decorPlan"];
+  experienceElements?:ProposalData["experienceElements"];
+};
+
+export const MAX_REGENERATIONS = 5;
 
 export function formatINR(amount: number) {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);

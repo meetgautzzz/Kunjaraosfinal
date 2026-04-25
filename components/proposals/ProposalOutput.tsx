@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { api } from "@/lib/api";
 import type {
   ProposalData, BudgetLine, TimelinePhase, ProposalVendor,
@@ -100,6 +100,24 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     } finally {
       setGeneratingImage(false);
     }
+  }
+
+  function handleUploadImage(file: File) {
+    if (!file.type.startsWith("image/")) {
+      alert("Please choose an image file (PNG, JPG, WebP).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image is over 5MB. Please choose a smaller file.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      update("visualDirection", { ...proposal.visualDirection, generatedImageUrl: dataUrl });
+    };
+    reader.onerror = () => alert("Failed to read image. Try again.");
+    reader.readAsDataURL(file);
   }
 
   // ── Build tab list ─────────────────────────────────────────────────────────
@@ -293,6 +311,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             proposal={proposal}
             update={update}
             onGenerateImage={handleGenerateImage}
+            onUploadImage={handleUploadImage}
             generatingImage={generatingImage}
           />
         )}
@@ -904,63 +923,124 @@ function ExperienceTab({ proposal, update }: { proposal: ProposalData; update: (
 
 // ── Visual Tab ─────────────────────────────────────────────────────────────────
 function VisualTab({
-  proposal, update, onGenerateImage, generatingImage,
+  proposal, update, onGenerateImage, onUploadImage, generatingImage,
 }: {
   proposal: ProposalData;
   update: (f: keyof ProposalData, v: any) => void;
   onGenerateImage: () => void;
+  onUploadImage: (file: File) => void;
   generatingImage: boolean;
 }) {
   const vd = proposal.visualDirection;
+  const fileRef = useRef<HTMLInputElement>(null);
   if (!vd) return <div style={{ padding: 28 }} className="t-caption">No visual direction data.</div>;
+
+  function pickFile() {
+    fileRef.current?.click();
+  }
+  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (f) onUploadImage(f);
+    e.target.value = "";
+  }
+
+  const generateBtnStyle: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 7,
+    padding: "8px 14px",
+    borderRadius: 9,
+    border: "1px solid rgba(139,92,246,0.3)",
+    background: "rgba(139,92,246,0.1)",
+    color: "#c4b5fd",
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+    flexShrink: 0,
+  };
+  const uploadBtnStyle: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 7,
+    padding: "8px 14px",
+    borderRadius: 9,
+    border: "1px solid var(--border)",
+    background: "var(--bg-surface)",
+    color: "var(--text-1)",
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+    flexShrink: 0,
+  };
 
   return (
     <div style={{ padding: "28px", display: "flex", flexDirection: "column", gap: 36 }}>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        onChange={onFileChange}
+        style={{ display: "none" }}
+      />
+
       {/* Generated image */}
       <div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, gap: 12, flexWrap: "wrap" }}>
           <TabSection eyebrow="Visual Identity" title="Event Visual" />
-          {IMAGE_GEN_ENABLED && !vd.generatedImageUrl && vd.dallePrompt && (
-            <button
-              onClick={onGenerateImage}
-              disabled={generatingImage}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 7,
-                padding: "8px 14px",
-                borderRadius: 9,
-                border: "1px solid rgba(139,92,246,0.3)",
-                background: "rgba(139,92,246,0.1)",
-                color: "#c4b5fd",
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-                opacity: generatingImage ? 0.5 : 1,
-                flexShrink: 0,
-                alignSelf: "flex-start",
-              }}
-            >
-              {generatingImage ? (
-                <>
-                  <span className="w-3 h-3 rounded-full border-2 border-violet-400/30 border-t-violet-400 animate-spin" />
-                  Generating…
-                </>
+          {!vd.generatedImageUrl && (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {IMAGE_GEN_ENABLED ? (
+                vd.dallePrompt && (
+                  <button
+                    onClick={onGenerateImage}
+                    disabled={generatingImage}
+                    style={{ ...generateBtnStyle, opacity: generatingImage ? 0.5 : 1 }}
+                  >
+                    {generatingImage ? (
+                      <>
+                        <span className="w-3 h-3 rounded-full border-2 border-violet-400/30 border-t-violet-400 animate-spin" />
+                        Generating…
+                      </>
+                    ) : (
+                      <>✦ Generate Image</>
+                    )}
+                  </button>
+                )
               ) : (
-                <>✦ Generate Image</>
+                <button
+                  disabled
+                  title="Imagen 3 image generation — coming soon"
+                  style={{ ...generateBtnStyle, opacity: 0.5, cursor: "not-allowed" }}
+                >
+                  ✦ Generate Image · soon
+                </button>
               )}
-            </button>
+              <button onClick={pickFile} style={uploadBtnStyle}>
+                ⤴ Upload your own
+              </button>
+            </div>
           )}
         </div>
         {vd.generatedImageUrl ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid var(--border)" }}>
-              <img src={vd.generatedImageUrl} alt="Generated event visual" className="w-full object-cover" />
+              <img src={vd.generatedImageUrl} alt="Event visual" className="w-full object-cover" />
             </div>
-            <p className="t-caption" style={{ display: "flex", alignItems: "center", gap: 6, fontStyle: "italic" }}>
-              <span style={{ color: "rgba(245,158,11,0.7)" }}>⚠</span>
-              AI-generated image URLs expire after ~1 hour. Download and re-upload if sharing externally.
-            </p>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <p className="t-caption" style={{ display: "flex", alignItems: "center", gap: 6, fontStyle: "italic", margin: 0 }}>
+                <span style={{ color: "rgba(245,158,11,0.7)" }}>⚠</span>
+                AI-generated image URLs expire after ~1 hour. Download and re-upload if sharing externally.
+              </p>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={pickFile} style={uploadBtnStyle}>⤴ Replace</button>
+                <button
+                  onClick={() => update("visualDirection", { ...vd, generatedImageUrl: undefined })}
+                  style={{ ...uploadBtnStyle, color: "var(--text-2)" }}
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           <div
@@ -973,9 +1053,7 @@ function VisualTab({
             }}
           >
             <p className="t-caption">
-              {vd.dallePrompt
-                ? "Click 'Generate Image' to create an AI visual for this event."
-                : "No image prompt available."}
+              Upload your own image or design — AI generation coming soon.
             </p>
           </div>
         )}

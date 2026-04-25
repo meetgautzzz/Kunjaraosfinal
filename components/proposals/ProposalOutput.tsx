@@ -38,6 +38,14 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const [savingTemplate,  setSavingTemplate]  = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
   const [linkCopied,      setLinkCopied]      = useState(false);
+  const [exportOpen,      setExportOpen]      = useState(false);
+
+  function handleExportPDF() {
+    setExportOpen(false);
+    setClientView(true);
+    // Wait for ClientView to mount before invoking print.
+    setTimeout(() => window.print(), 300);
+  }
 
   async function handleCopyShareLink() {
     try {
@@ -252,6 +260,81 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             <button onClick={() => setShowTplModal(true)} className="btn-ghost">
               Save Template
             </button>
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setExportOpen((v) => !v)}
+                className="btn-ghost"
+                aria-expanded={exportOpen}
+              >
+                Export ▾
+              </button>
+              {exportOpen && (
+                <>
+                  <div
+                    onClick={() => setExportOpen(false)}
+                    style={{ position: "fixed", inset: 0, zIndex: 40 }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "calc(100% + 6px)",
+                      right: 0,
+                      zIndex: 50,
+                      minWidth: 220,
+                      borderRadius: 12,
+                      border: "1px solid var(--border)",
+                      background: "var(--bg-card)",
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+                      padding: 6,
+                    }}
+                  >
+                    <button onClick={handleExportPDF} className="export-row">
+                      <span>📄</span>
+                      <div style={{ flex: 1, textAlign: "left" }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)" }}>Export as PDF</div>
+                        <div style={{ fontSize: 11, color: "var(--text-3)" }}>Opens print dialog · save as PDF</div>
+                      </div>
+                    </button>
+                    <button disabled className="export-row" title="PowerPoint export — coming soon">
+                      <span>🪄</span>
+                      <div style={{ flex: 1, textAlign: "left" }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-2)" }}>Export as PPT · soon</div>
+                        <div style={{ fontSize: 11, color: "var(--text-3)" }}>Branded .pptx deck</div>
+                      </div>
+                    </button>
+                    <button disabled className="export-row" title="Google Drive — coming soon">
+                      <span>☁️</span>
+                      <div style={{ flex: 1, textAlign: "left" }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-2)" }}>Save to Google Drive · soon</div>
+                        <div style={{ fontSize: 11, color: "var(--text-3)" }}>Syncs to your Drive folder</div>
+                      </div>
+                    </button>
+                  </div>
+                </>
+              )}
+              <style jsx>{`
+                .export-row {
+                  width: 100%;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  padding: 10px 12px;
+                  border-radius: 8px;
+                  background: transparent;
+                  border: 1px solid transparent;
+                  cursor: pointer;
+                  text-align: left;
+                  transition: background 0.12s;
+                }
+                .export-row:hover:not(:disabled) {
+                  background: var(--bg-surface);
+                }
+                .export-row:disabled {
+                  cursor: not-allowed;
+                  opacity: 0.55;
+                }
+              `}</style>
+            </div>
             <button
               onClick={handleSave}
               style={{
@@ -440,10 +523,20 @@ export function ClientView({ proposal, onClose }: { proposal: ProposalData; onCl
   const theme   = c?.theme ?? ec?.theme;
 
   return (
-    <div className="min-h-screen bg-[#07070c] text-white font-[var(--font-geist-sans)]">
+    <div className="cv-root min-h-screen bg-[#07070c] text-white font-[var(--font-geist-sans)]">
+      <style jsx global>{`
+        @media print {
+          @page { size: A4; margin: 18mm; }
+          .cv-root { background: #fff !important; color: #111 !important; }
+          .cv-no-print { display: none !important; }
+          .cv-root * { color: #111 !important; }
+          .cv-root .text-transparent { color: #111 !important; -webkit-background-clip: initial !important; background: none !important; }
+          html, body { background: #fff !important; }
+        }
+      `}</style>
 
       {/* ── Exit bar ── */}
-      <div className="sticky top-0 z-50 flex items-center justify-between px-8 py-3.5 bg-[#07070c]/90 backdrop-blur-xl border-b border-white/6">
+      <div className="cv-no-print sticky top-0 z-50 flex items-center justify-between px-8 py-3.5 bg-[#07070c]/90 backdrop-blur-xl border-b border-white/6">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-[10px] font-black">K</div>
           <span className="text-white/30 text-xs uppercase tracking-[0.15em]">Kunjara · Proposal Deck</span>

@@ -1,7 +1,21 @@
 "use client";
 import Link from "next/link";
+import { useState, useMemo } from "react";
+
+type Status = "Confirmed" | "Pending" | "In Review" | "Cancelled";
+type Tab = "All" | Status;
 
 export default function EventsPage() {
+  const [tab, setTab] = useState<Tab>("All");
+
+  const counts = useMemo(() => {
+    const c: Record<Tab, number> = { All: EVENTS.length, Confirmed: 0, Pending: 0, "In Review": 0, Cancelled: 0 };
+    for (const e of EVENTS) c[e.status as Status]++;
+    return c;
+  }, []);
+
+  const filtered = tab === "All" ? EVENTS : EVENTS.filter((e) => e.status === tab);
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -9,43 +23,69 @@ export default function EventsPage() {
           <h2 className="text-2xl font-bold text-[var(--text-1)]">Events</h2>
           <p className="text-[var(--text-2)] text-sm mt-1">Manage and track all your events in one place.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-colors">
+        <Link
+          href="/proposals/new"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-colors"
+        >
           + New Event
-        </button>
+        </Link>
       </div>
 
-      {/* Filter bar */}
       <div className="flex flex-wrap gap-2">
-        {["All", "Confirmed", "Pending", "In Review", "Cancelled"].map((f) => (
-          <button key={f} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${f === "All" ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400" : "border-[var(--border)] text-[var(--text-2)] hover:border-indigo-500/30 hover:text-[var(--text-1)]"}`}>
-            {f}
-          </button>
-        ))}
+        {(["All", "Confirmed", "Pending", "In Review", "Cancelled"] as Tab[]).map((f) => {
+          const active = tab === f;
+          return (
+            <button
+              key={f}
+              onClick={() => setTab(f)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                active
+                  ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
+                  : "border-[var(--border)] text-[var(--text-2)] hover:border-indigo-500/30 hover:text-[var(--text-1)]"
+              }`}
+            >
+              {f} <span className="opacity-60 ml-1">{counts[f]}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {EVENTS.map((e) => (
-          <div key={e.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 hover:border-indigo-500/30 transition-colors group">
-            <div className="flex items-start justify-between mb-3">
-              <span className="text-2xl">{e.emoji}</span>
-              <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${STATUS[e.status]}`}>{e.status}</span>
-            </div>
-            <h4 className="text-[var(--text-1)] font-semibold text-sm mb-1">{e.name}</h4>
-            <p className="text-[var(--text-3)] text-xs mb-4">{e.date} · {e.venue}</p>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4 text-xs text-[var(--text-3)]">
-                <span>🏪 {e.vendors} vendors</span>
-                <span>👥 {e.guests} guests</span>
+      {filtered.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-card)] p-12 text-center">
+          <p className="text-[var(--text-2)] text-sm">No {tab.toLowerCase()} events yet.</p>
+          <Link
+            href="/proposals/new"
+            className="inline-block mt-3 text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+          >
+            Create your first event →
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map((e) => (
+            <div key={e.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 hover:border-indigo-500/30 transition-colors group">
+              <div className="flex items-start justify-between mb-3">
+                <span className="text-2xl">{e.emoji}</span>
+                <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${STATUS[e.status]}`}>{e.status}</span>
               </div>
-              <Link href={`/events/${e.id}/room`}
-                className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-all">
-                Open Room →
-              </Link>
+              <h4 className="text-[var(--text-1)] font-semibold text-sm mb-1">{e.name}</h4>
+              <p className="text-[var(--text-3)] text-xs mb-4">{e.date} · {e.venue}</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 text-xs text-[var(--text-3)]">
+                  <span>🏪 {e.vendors} vendors</span>
+                  <span>👥 {e.guests} guests</span>
+                </div>
+                <Link
+                  href={`/events/${e.id}/room`}
+                  className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-all"
+                >
+                  Open Room →
+                </Link>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

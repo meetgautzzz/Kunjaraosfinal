@@ -1361,6 +1361,26 @@ function BudgetTab({ proposal, update }: { proposal: ProposalData; update: (f: k
   const total = lines.reduce((s, l) => s + l.amount, 0);
   const mismatch = lines.length > 0 && Math.abs(total - proposal.budget) > 1;
   function updateLine(i: number, field: keyof BudgetLine, value: any) { const next = [...lines]; next[i] = { ...next[i], [field]: value }; update("budgetBreakdown", next); }
+
+  // Drag a slider → redistribute the delta proportionally across other lines,
+  // then re-sync each line's amount from proposal.budget so totals stay clean.
+  function setSliderPct(i: number, raw: number) {
+    const newPct = Math.max(0, Math.min(100, Math.round(raw)));
+    const oldPct = lines[i].percentage;
+    if (newPct === oldPct) return;
+    const delta = newPct - oldPct;
+    const others = lines.map((l, j) => (j === i ? 0 : l.percentage));
+    const otherTotal = others.reduce((s, p) => s + p, 0);
+    const next = lines.map((l, j) => {
+      let p = l.percentage;
+      if (j === i) p = newPct;
+      else if (otherTotal > 0) p = Math.max(0, l.percentage - (l.percentage / otherTotal) * delta);
+      else if (delta < 0) p = (-delta) / Math.max(1, lines.length - 1);
+      const pct = Math.round(p * 10) / 10;
+      return { ...l, percentage: pct, amount: Math.round((proposal.budget * pct) / 100) };
+    });
+    update("budgetBreakdown", next);
+  }
   const COLORS = ["bg-indigo-500","bg-purple-500","bg-emerald-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-orange-500","bg-teal-500"];
   return (
     <div className="p-6 space-y-6">
@@ -1393,8 +1413,17 @@ function BudgetTab({ proposal, update }: { proposal: ProposalData; update: (f: k
             <div className="col-span-3 text-right"><EditableNumber value={l.amount} onChange={(v) => updateLine(i,"amount",v)} className="text-[var(--text-1)] text-sm font-semibold" prefix="₹" /></div>
             <div className="col-span-3">
               <div className="flex items-center gap-2">
-                <div className="flex-1 h-1.5 rounded-full bg-[var(--bg-card)] overflow-hidden"><div className={`h-full ${COLORS[i%COLORS.length]}`} style={{ width: `${l.percentage}%` }} /></div>
-                <EditableNumber value={l.percentage} onChange={(v) => updateLine(i,"percentage",v)} className="text-[var(--text-3)] text-xs w-8 text-right" suffix="%" />
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={Math.round(l.percentage)}
+                  onChange={(e) => setSliderPct(i, Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-indigo-500 cursor-pointer"
+                  title={`${l.category}: ${l.percentage}% · ${formatINR(l.amount)}`}
+                />
+                <span className="text-[var(--text-3)] text-xs w-10 text-right tabular-nums">{Math.round(l.percentage)}%</span>
               </div>
             </div>
             <button onClick={() => update("budgetBreakdown", lines.filter((_,j)=>j!==i))} className="col-span-1 text-[var(--text-3)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-xs">✕</button>

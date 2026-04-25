@@ -3,6 +3,7 @@ import UpgradeBanner from "./UpgradeBanner";
 import StatCard from "@/components/ui/StatCard";
 import ActivityFeed from "@/components/ui/ActivityFeed";
 import QuickActions from "@/components/ui/QuickActions";
+import ReceivablesWidget from "@/components/dashboard/ReceivablesWidget";
 
 const STATUS_STYLES: Record<string, string> = {
   "Confirmed": "bg-emerald-500/15 text-emerald-400",
@@ -37,6 +38,8 @@ export default function DashboardPage() {
         <StatCard label="Compliance Score" value="94%"  delta="+2%"  trend="up"   icon="🛡️" />
         <StatCard label="Open Tasks"       value="17"   delta="-5"   trend="down" icon="✅" />
       </div>
+
+      <ReceivablesWidget />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">

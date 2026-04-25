@@ -3,6 +3,8 @@
 import { use, useEffect, useState } from "react";
 import { ClientView } from "@/components/proposals/ProposalOutput";
 import type { ProposalData } from "@/lib/proposals";
+import { formatINR } from "@/lib/proposals";
+import { type ProposalPayment } from "@/lib/payments";
 
 type Action = "APPROVED" | "CHANGES_REQUESTED";
 
@@ -81,6 +83,8 @@ export default function PublicProposalPage({
   return (
     <>
       <ClientView proposal={proposal} />
+
+      <PaymentsSection proposalId={id} />
 
       {/* Response footer — hidden on print so it never bleeds into PDFs */}
       <div className="cv-no-print bg-[#07070c] border-t border-white/8 px-6 py-12">
@@ -188,6 +192,198 @@ export default function PublicProposalPage({
         </div>
       </div>
     </>
+  );
+}
+
+function PaymentsSection({ proposalId }: { proposalId: string }) {
+  const [items, setItems]   = useState<ProposalPayment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState<string | null>(null); // payment id currently being marked
+  const [refresh, setRefresh] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetch(`/api/proposals/share/${proposalId}/payments`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => { if (!cancelled) setItems(d as ProposalPayment[]); })
+      .catch(() => { if (!cancelled) setItems([]); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [proposalId, refresh]);
+
+  if (loading) return null;
+  if (items.length === 0) return null;
+
+  const visible = items.filter((p) => p.status !== "CANCELLED");
+
+  return (
+    <div className="cv-no-print bg-[#07070c] border-t border-white/8 px-6 py-12">
+      <div className="max-w-[640px] mx-auto space-y-4">
+        <div className="text-center">
+          <p className="text-white/30 text-xs uppercase tracking-[0.18em]">Payments</p>
+          <h3 className="text-2xl font-bold text-white mt-1">Outstanding for this event</h3>
+        </div>
+
+        <div className="space-y-3">
+          {visible.map((p) => (
+            <PaymentCard
+              key={p.id}
+              payment={p}
+              proposalId={proposalId}
+              isActive={paying === p.id}
+              onOpen={() => setPaying(p.id)}
+              onClose={() => setPaying(null)}
+              onSubmitted={() => { setPaying(null); setRefresh((n) => n + 1); }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PaymentCard({
+  payment, proposalId, isActive, onOpen, onClose, onSubmitted,
+}: {
+  payment: ProposalPayment;
+  proposalId: string;
+  isActive: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onSubmitted: () => void;
+}) {
+  const [payerName, setPayerName] = useState("");
+  const [payerRef,  setPayerRef]  = useState("");
+  const [payerNote, setPayerNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function submit() {
+    if (!payerName.trim() || !payerRef.trim()) return;
+    setSubmitting(true);
+    setErr("");
+    try {
+      const r = await fetch(`/api/proposals/share/${proposalId}/payments/${payment.id}/paid`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payerName: payerName.trim(),
+          payerReference: payerRef.trim(),
+          payerNote: payerNote.trim(),
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error ?? "Could not record payment.");
+      onSubmitted();
+    } catch (e: any) {
+      setErr(e.message ?? "Could not record payment.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (payment.status === "CONFIRMED") {
+    return (
+      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-emerald-400 text-xs font-semibold uppercase tracking-[0.12em]">✓ Confirmed received</p>
+            <p className="text-white text-base font-bold mt-1">{formatINR(payment.amount)}</p>
+            {payment.description && <p className="text-white/50 text-xs mt-0.5">{payment.description}</p>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (payment.status === "PAID") {
+    return (
+      <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-5">
+        <p className="text-indigo-400 text-xs font-semibold uppercase tracking-[0.12em]">⏳ Awaiting confirmation</p>
+        <p className="text-white text-base font-bold mt-1">{formatINR(payment.amount)}</p>
+        {payment.description && <p className="text-white/50 text-xs mt-0.5">{payment.description}</p>}
+        <p className="text-white/40 text-xs mt-3">
+          Marked paid by <strong className="text-white/70">{payment.payerName}</strong> · ref{" "}
+          <span className="font-mono text-white/70">{payment.payerReference}</span>
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 space-y-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-white text-2xl font-black">{formatINR(payment.amount)}</p>
+          {payment.description && <p className="text-white/60 text-sm mt-1">{payment.description}</p>}
+          {payment.dueDate && (
+            <p className="text-white/40 text-xs mt-1">
+              Due {new Date(payment.dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+            </p>
+          )}
+        </div>
+        <span className="text-amber-400 text-[11px] font-semibold uppercase tracking-[0.12em] shrink-0">Awaiting</span>
+      </div>
+
+      <div className="rounded-xl bg-black/30 border border-white/8 p-4">
+        <p className="text-white/40 text-[10px] uppercase tracking-[0.15em] font-semibold mb-1.5">
+          Pay via {payment.method === "UPI" ? "UPI" : "Bank transfer"}
+        </p>
+        <pre className="text-white text-sm font-mono whitespace-pre-wrap break-words">{payment.paymentTarget}</pre>
+      </div>
+
+      {!isActive ? (
+        <button
+          onClick={onOpen}
+          className="w-full px-4 py-2.5 rounded-lg bg-white text-[#07070c] text-sm font-bold hover:bg-white/90 transition-colors"
+        >
+          I've paid · enter reference
+        </button>
+      ) : (
+        <div className="space-y-3 pt-2 border-t border-white/8">
+          <label className="block">
+            <span className="text-white/50 text-xs">Your name</span>
+            <input
+              type="text" value={payerName} maxLength={120}
+              onChange={(e) => setPayerName(e.target.value)}
+              placeholder="e.g. Priya Sharma"
+              className="mt-1 w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-indigo-400/50 outline-none text-white text-sm placeholder:text-white/25"
+            />
+          </label>
+          <label className="block">
+            <span className="text-white/50 text-xs">UTR / transaction reference</span>
+            <input
+              type="text" value={payerRef} maxLength={120}
+              onChange={(e) => setPayerRef(e.target.value)}
+              placeholder="e.g. 412345678901"
+              className="mt-1 w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-indigo-400/50 outline-none text-white text-sm placeholder:text-white/25 font-mono"
+            />
+            <span className="text-white/30 text-[10px]">From your UPI app or bank statement.</span>
+          </label>
+          <label className="block">
+            <span className="text-white/50 text-xs">Note (optional)</span>
+            <textarea
+              value={payerNote} maxLength={1000} rows={2}
+              onChange={(e) => setPayerNote(e.target.value)}
+              placeholder="Paid via PhonePe at 4:12 PM…"
+              className="mt-1 w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 focus:border-indigo-400/50 outline-none text-white text-sm placeholder:text-white/25 resize-y"
+            />
+          </label>
+          {err && <p className="text-red-400 text-xs">{err}</p>}
+          <div className="flex justify-end gap-2">
+            <button onClick={onClose} className="px-4 py-2 rounded-lg text-white/60 hover:text-white text-sm" disabled={submitting}>Cancel</button>
+            <button
+              onClick={submit}
+              disabled={submitting || !payerName.trim() || !payerRef.trim()}
+              className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-emerald-950 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              {submitting ? "Sending…" : "Submit reference"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -7,9 +7,13 @@ import type {
   ExperienceActivation, ColorSwatch,
 } from "@/lib/proposals";
 import { formatINR } from "@/lib/proposals";
+import {
+  generateChecklist, calcScore, deadlineState, STATUS_CONFIG,
+  type ComplianceItem, type ComplianceStatus,
+} from "@/lib/compliance";
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
-         | "experience" | "visual" | "stage" | "activations";
+         | "experience" | "visual" | "stage" | "activations" | "compliance";
 
 // Flip to true once /api/proposals/generate-image ships (planned ~1 week
 // post-launch, Google Imagen 3 backed). Until then, hide the button so
@@ -86,6 +90,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         stageDesign:       proposal.stageDesign,
         decorPlan:         proposal.decorPlan,
         experienceElements:proposal.experienceElements,
+        compliance:        proposal.compliance,
         status:            "SAVED",
       });
       setSaved(true);
@@ -154,6 +159,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     { id: "visual",      label: "Visual",         icon: "🎨", show: hasVisual },
     { id: "stage",       label: "Stage & Decor",  icon: "🏛", show: hasStage },
     { id: "activations", label: "Activations",    icon: "⚡", show: hasActivations },
+    { id: "compliance",  label: "Compliance",     icon: "⚖", show: !!proposal.eventType },
   ];
   const TABS = ALL_TABS.filter((t) => t.show);
 
@@ -432,6 +438,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         )}
         {tab === "stage"       && <StageTab        proposal={proposal} update={update} />}
         {tab === "activations" && <ActivationsTab  proposal={proposal} update={update} />}
+        {tab === "compliance"  && <ComplianceTab   proposal={proposal} update={update} />}
       </div>
 
       {/* ── Save as Template modal ─────────────────────────────────────────── */}
@@ -1685,5 +1692,118 @@ function EditableNumber({ value, onChange, className, prefix, suffix }: {
         className="bg-transparent border-b border-transparent hover:border-[var(--border)] focus:border-indigo-500/60 outline-none transition-colors w-24 text-right" />
       {suffix && <span>{suffix}</span>}
     </span>
+  );
+}
+
+// ── Compliance Tab ──────────────────────────────────────────────────────────────
+const STATUS_CYCLE: ComplianceStatus[] = ["NOT_STARTED", "IN_PROGRESS", "SUBMITTED", "APPROVED"];
+
+function ComplianceTab({
+  proposal, update,
+}: {
+  proposal: ProposalData;
+  update: (f: keyof ProposalData, v: any) => void;
+}) {
+  const items = proposal.compliance ?? [];
+  const score = items.length ? calcScore(items) : 0;
+
+  function regenerate() {
+    if (items.length && !confirm("Replace existing checklist with a fresh one from the event type? Statuses will be reset.")) return;
+    update("compliance", generateChecklist(proposal.eventType, proposal.eventDate ?? null));
+  }
+
+  function cycleStatus(id: string) {
+    update("compliance", items.map((it) => {
+      if (it.id !== id) return it;
+      const idx = STATUS_CYCLE.indexOf(it.status);
+      const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+      return { ...it, status: next };
+    }));
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-400 text-xl mb-3">⚖</div>
+        <h4 className="text-[var(--text-1)] font-semibold text-sm mb-1">No compliance checklist yet</h4>
+        <p className="text-[var(--text-3)] text-xs mb-5 max-w-md mx-auto">
+          Generate the required permits, NOCs and licences for a <strong>{proposal.eventType || "this event"}</strong>
+          {proposal.eventDate ? <> happening on <strong>{new Date(proposal.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</strong></> : null}.
+        </p>
+        <button
+          onClick={regenerate}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold transition-colors"
+        >
+          ⚡ Generate checklist
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 space-y-4">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <div className="text-[var(--text-3)] text-[11px] uppercase tracking-wide font-medium mb-1">Compliance score</div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-[var(--text-1)] tabular-nums">{score}%</span>
+            <span className="text-[var(--text-3)] text-xs">{items.length} permit{items.length === 1 ? "" : "s"}</span>
+          </div>
+        </div>
+        <button
+          onClick={regenerate}
+          className="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-indigo-500/30 transition-colors"
+        >
+          Regenerate
+        </button>
+      </div>
+
+      <div className="h-1.5 rounded-full bg-[var(--bg-surface)] border border-[var(--border)] overflow-hidden">
+        <div className="h-full bg-emerald-500 transition-all" style={{ width: `${score}%` }} />
+      </div>
+
+      <div className="rounded-xl border border-[var(--border)] overflow-hidden">
+        {items.map((item, idx) => {
+          const cfg = STATUS_CONFIG[item.status];
+          const dl = deadlineState(item);
+          const dlLabel = item.deadline
+            ? new Date(item.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+            : "—";
+          const dlColor = dl === "overdue" ? "text-red-400"
+            : dl === "urgent" ? "text-amber-400"
+            : dl === "upcoming" ? "text-indigo-400"
+            : "text-[var(--text-3)]";
+          return (
+            <div
+              key={item.id}
+              className={`flex items-center gap-3 px-4 py-3 ${idx > 0 ? "border-t border-[var(--border)]" : ""} hover:bg-[var(--bg-surface)] transition-colors`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                item.priority === "CRITICAL" ? "bg-red-500"
+                : item.priority === "HIGH" ? "bg-amber-500"
+                : item.priority === "MEDIUM" ? "bg-indigo-500"
+                : "bg-gray-500"
+              }`} />
+              <div className="flex-1 min-w-0">
+                <div className="text-[var(--text-1)] text-sm font-medium truncate">{item.name}</div>
+                <div className="text-[var(--text-3)] text-xs truncate">{item.authority} · {item.fee}</div>
+              </div>
+              <div className={`text-xs tabular-nums ${dlColor} shrink-0 w-16 text-right`}>{dlLabel}</div>
+              <button
+                onClick={() => cycleStatus(item.id)}
+                title="Click to cycle status"
+                className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-colors shrink-0 ${cfg.bg} ${cfg.color}`}
+              >
+                {cfg.icon} {cfg.label}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="text-[var(--text-3)] text-[11px] text-center">
+        Click any status to cycle: Not Started → In Progress → Submitted → Approved. Saves with the proposal.
+      </p>
+    </div>
   );
 }

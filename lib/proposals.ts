@@ -128,6 +128,8 @@ export type ProposalData = {
   eventDate?:     string;
   venueByClient?: boolean;
   foodByClient?:  boolean;
+  // Compliance checklist generated from eventType + eventDate
+  compliance?:    import("./compliance").ComplianceItem[];
 };
 
 export function formatINR(amount: number) {

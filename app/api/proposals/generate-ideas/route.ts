@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import OpenAI from "openai";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
 import { parseJson } from "@/lib/validate";
-import { aiLimiter, limit } from "@/lib/ratelimit";
+import { requireAiCredits } from "@/lib/ai/middleware";
+import { aiError, aiSuccess } from "@/lib/ai/responses";
 import type { EventIdea } from "@/lib/proposals";
 import { randomUUID } from "crypto";
 
@@ -13,8 +13,6 @@ const BodySchema = z.object({
   location:     z.string().trim().min(1).max(500),
   requirements: z.string().trim().min(1).max(5000),
   guestCount:   z.number().int().positive().max(1_000_000).optional(),
-  // Extended inputs (all optional — not every call needs them, and we
-  // don't pass client PII to the model).
   companyName:   z.string().trim().max(200).optional(),
   eventDate:     z.string().trim().max(40).optional(),
   venueByClient: z.boolean().optional(),
@@ -60,101 +58,96 @@ Rules:
 - No markdown inside JSON values.`;
 
 export async function POST(req: NextRequest) {
-  try {
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json({ error: "AI service not configured." }, { status: 503 });
-    }
-
-    const supabase = await createClient();
-    if (!supabase) {
-      return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
-    }
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-    }
-
-    const rl = await limit(aiLimiter, `user:${user.id}`);
-    if (rl) return rl;
-
-    const bodyResult = await parseJson(req, BodySchema);
-    if (bodyResult.error) return bodyResult.error;
-    const {
-      eventType, budget, location, requirements, guestCount,
-      companyName, eventDate, venueByClient, foodByClient,
-    } = bodyResult.data;
-
-    const userMessage = [
-      `Event type: ${eventType}`,
-      companyName ? `Client company: ${companyName}` : null,
-      `Location: ${location}`,
-      eventDate ? `Event date: ${eventDate}` : null,
-      `Total budget: ₹${budget.toLocaleString("en-IN")}`,
-      guestCount ? `Expected guests: ${guestCount}` : null,
-      venueByClient === false
-        ? `VENUE: Client has NOT booked a venue — factor venue selection into each concept.`
-        : null,
-      foodByClient === false
-        ? `F&B: Client has NOT arranged catering — factor food & beverage design into each concept.`
-        : null,
-      ``,
-      `Requirements and vision from the client:`,
-      requirements,
-    ].filter(Boolean).join("\n");
-
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-    let response;
-    try {
-      response = await client.chat.completions.create({
-        model:           "gpt-4o",
-        temperature:     0.85,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user",   content: userMessage },
-        ],
-        response_format: { type: "json_object" },
-      });
-    } catch (aiErr) {
-      console.error("[generate-ideas] OpenAI error:", aiErr);
-      return NextResponse.json({ error: "Kunjara Core failed. Try again in a minute." }, { status: 502 });
-    }
-
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      return NextResponse.json({ error: "AI returned an empty response." }, { status: 502 });
-    }
-
-    let parsed: { ideas?: Omit<EventIdea, "id">[] };
-    try {
-      parsed = JSON.parse(content);
-    } catch {
-      console.error("[generate-ideas] JSON parse failed; content length:", content.length);
-      return NextResponse.json({ error: "AI returned invalid JSON." }, { status: 502 });
-    }
-
-    if (!parsed.ideas || !Array.isArray(parsed.ideas) || parsed.ideas.length !== 3) {
-      return NextResponse.json({ error: "AI did not return 3 ideas." }, { status: 502 });
-    }
-
-    // Assign stable IDs and ensure one is recommended
-    const ideas: EventIdea[] = parsed.ideas.map((idea) => ({
-      ...idea,
-      id: randomUUID(),
-    }));
-
-    const anyRecommended = ideas.some((i) => i.score?.isRecommended);
-    if (!anyRecommended && ideas.length) {
-      const topIdx = ideas.reduce((best, idea, i, arr) => (idea.score.overall > arr[best].score.overall ? i : best), 0);
-      ideas[topIdx].score = { ...ideas[topIdx].score, isRecommended: true };
-    }
-
-    return NextResponse.json({
-      proposalId: randomUUID(),
-      ideas,
-    });
-  } catch (err) {
-    console.error("[generate-ideas] Unexpected:", err);
-    return NextResponse.json({ error: "Unexpected error." }, { status: 500 });
+  if (!process.env.OPENAI_API_KEY) {
+    return aiError("SERVICE_UNAVAILABLE", "AI service not configured.", 503);
   }
+
+  const bodyResult = await parseJson(req, BodySchema);
+  if (bodyResult.error) return aiError("VALIDATION_ERROR", "Invalid request.", 400);
+
+  const {
+    eventType, budget, location, requirements, guestCount,
+    companyName, eventDate, venueByClient, foodByClient,
+  } = bodyResult.data;
+
+  const userMessage = [
+    `Event type: ${eventType}`,
+    companyName ? `Client company: ${companyName}` : null,
+    `Location: ${location}`,
+    eventDate ? `Event date: ${eventDate}` : null,
+    `Total budget: ₹${budget.toLocaleString("en-IN")}`,
+    guestCount ? `Expected guests: ${guestCount}` : null,
+    venueByClient === false
+      ? `VENUE: Client has NOT booked a venue — factor venue selection into each concept.`
+      : null,
+    foodByClient === false
+      ? `F&B: Client has NOT arranged catering — factor food & beverage design into each concept.`
+      : null,
+    ``,
+    `Requirements and vision from the client:`,
+    requirements,
+  ].filter(Boolean).join("\n");
+
+  // Single line: auth + rate limit + atomic credit deduction.
+  const pre = await requireAiCredits({
+    req,
+    action: "concept",
+    promptLength: userMessage.length,
+  });
+  if (!pre.ok) return pre.res;
+  const { ctx } = pre;
+
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  let response;
+  try {
+    response = await client.chat.completions.create({
+      model:           ctx.model,
+      temperature:     0.85,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user",   content: userMessage },
+      ],
+      response_format: { type: "json_object" },
+    });
+  } catch (aiErr) {
+    console.error("[generate-ideas] OpenAI error:", aiErr);
+    await ctx.refund("openai_error");
+    return aiError("AI_ERROR", "Kunjara Core failed. Try again in a minute.", 502);
+  }
+
+  const content = response.choices[0]?.message?.content;
+  if (!content) {
+    await ctx.refund("empty_response");
+    return aiError("AI_ERROR", "AI returned an empty response.", 502);
+  }
+
+  let parsed: { ideas?: Omit<EventIdea, "id">[] };
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    console.error("[generate-ideas] JSON parse failed; content length:", content.length);
+    await ctx.refund("json_parse");
+    return aiError("AI_ERROR", "AI returned invalid JSON.", 502);
+  }
+
+  if (!parsed.ideas || !Array.isArray(parsed.ideas) || parsed.ideas.length !== 3) {
+    await ctx.refund("idea_count");
+    return aiError("AI_ERROR", "AI did not return 3 ideas.", 502);
+  }
+
+  const ideas: EventIdea[] = parsed.ideas.map((idea) => ({ ...idea, id: randomUUID() }));
+  const anyRecommended = ideas.some((i) => i.score?.isRecommended);
+  if (!anyRecommended && ideas.length) {
+    const topIdx = ideas.reduce((best, idea, i, arr) => (idea.score.overall > arr[best].score.overall ? i : best), 0);
+    ideas[topIdx].score = { ...ideas[topIdx].score, isRecommended: true };
+  }
+
+  const proposalId = randomUUID();
+  const remaining = await ctx.finish({
+    tokensUsed: response.usage?.total_tokens ?? null,
+    eventId:    proposalId,
+  });
+
+  return aiSuccess({ proposalId, ideas }, ctx.creditsCharged, remaining);
 }

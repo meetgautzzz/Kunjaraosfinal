@@ -1,4 +1,4 @@
-export type PlanId = "basic" | "pro" | "expert" | "enterprise" | "test";
+export type PlanId = "basic" | "pro" | "expert" | "test";
 
 export interface Plan {
   id: PlanId;
@@ -51,19 +51,6 @@ export const PLANS: Plan[] = [
     storage: "50GB",
     overage: 199,
     features: ["20 proposals/month", "5 users", "50GB storage", "PDF export", "Priority support"],
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    comingSoon: true,
-    price: 24999,
-    annualPrice: 20832,
-    events: 45,
-    users: 5,
-    storage: "100GB",
-    leads: 3,
-    overage: 199,
-    features: ["45 proposals/month", "5 users", "100GB storage", "3 qualified leads/month", "Dedicated support"],
   },
   {
     id: "test",

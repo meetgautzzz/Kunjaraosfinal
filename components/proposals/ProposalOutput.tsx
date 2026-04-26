@@ -349,13 +349,6 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
                         <div style={{ fontSize: 11, color: "var(--text-3)" }}>Branded .pptx deck</div>
                       </div>
                     </button>
-                    <button disabled className="export-row" title="Google Drive — coming soon">
-                      <span>☁️</span>
-                      <div style={{ flex: 1, textAlign: "left" }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-2)" }}>Save to Google Drive · soon</div>
-                        <div style={{ fontSize: 11, color: "var(--text-3)" }}>Syncs to your Drive folder</div>
-                      </div>
-                    </button>
                   </div>
                 </>
               )}

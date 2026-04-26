@@ -7,7 +7,7 @@ import { parseJson } from "@/lib/validate";
 import { billingLimiter, limit, ipFromRequest } from "@/lib/ratelimit";
 
 const BodySchema = z.object({
-  plan:   z.enum(["basic", "pro", "expert", "enterprise", "test"]),
+  plan:   z.enum(["basic", "pro", "expert", "test"]),
   annual: z.boolean().optional(),
 });
 

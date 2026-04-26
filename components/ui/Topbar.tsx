@@ -10,7 +10,6 @@ const PAGE_LABELS: Record<string, string> = {
   "/compliance": "Compliance",
   "/proposals":  "Kunjara Vision Board",
   "/budget":     "Budget Builder",
-  "/ai":         "AI Tools",
   "/billing":    "Billing",
   "/settings":   "Settings",
 };

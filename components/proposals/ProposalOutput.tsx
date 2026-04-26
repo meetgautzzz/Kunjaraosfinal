@@ -15,9 +15,10 @@ import {
   PAYMENT_STATUS_STYLES,
   type ProposalPayment, type PaymentMethod, type PaymentStatus,
 } from "@/lib/payments";
+import ToolkitTab from "@/components/proposals/ToolkitTab";
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
-         | "experience" | "visual" | "stage" | "activations" | "compliance" | "payments";
+         | "experience" | "visual" | "stage" | "activations" | "compliance" | "payments" | "toolkit";
 
 // Flip to true once /api/proposals/generate-image ships (planned ~1 week
 // post-launch, Google Imagen 3 backed). Until then, hide the button so
@@ -165,6 +166,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     { id: "activations", label: "Activations",    icon: "⚡", show: hasActivations },
     { id: "compliance",  label: "Compliance",     icon: "⚖", show: !!proposal.eventType },
     { id: "payments",    label: "Payments",       icon: "₹", show: true },
+    { id: "toolkit",     label: "AI Toolkit",     icon: "✦", show: true },
   ];
   const TABS = ALL_TABS.filter((t) => t.show);
 
@@ -474,6 +476,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         {tab === "activations" && <ActivationsTab  proposal={proposal} update={update} />}
         {tab === "compliance"  && <ComplianceTab   proposal={proposal} update={update} />}
         {tab === "payments"    && <PaymentsTab     proposal={proposal} />}
+        {tab === "toolkit"     && <ToolkitTab />}
       </div>
 
       {/* ── Save as Template modal ─────────────────────────────────────────── */}

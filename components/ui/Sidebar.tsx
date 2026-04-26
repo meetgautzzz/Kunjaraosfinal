@@ -19,7 +19,6 @@ const NAV = [
     label: "Compliance",
     items: [
       { href: "/compliance", icon: <ShieldIcon />,  label: "Compliance" },
-      { href: "/ai",         icon: <AiIcon />,      label: "AI Tools" },
     ],
   },
   {

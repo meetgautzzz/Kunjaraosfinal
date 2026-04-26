@@ -85,6 +85,65 @@ export async function addEvents(userId: string, amount: number): Promise<number 
   return addCredits(userId, amount);
 }
 
+// Credit-pack purchase entry point. Atomic three-in-one: replay check
+// (UNIQUE on payment_id) + credit grant on user_usage + insert into
+// credit_transactions ledger. Use this from /api/payments/credits only.
+export type CreditPackResult =
+  | { ok: true;  idempotent: boolean; newBalance: number; transactionId: string | null }
+  | { ok: false; error: string };
+
+export async function applyCreditPack(args: {
+  userId:    string;
+  credits:   number;
+  amount:    number;   // INR rupees
+  paymentId: string;
+  pack:      string;
+}): Promise<CreditPackResult> {
+  const admin = getAdminClient();
+  if (!admin) return { ok: false, error: "admin_unavailable" };
+
+  const { data, error } = await admin.rpc("apply_credit_pack", {
+    p_user_id:    args.userId,
+    p_credits:    args.credits,
+    p_amount:     args.amount,
+    p_payment_id: args.paymentId,
+    p_pack:       args.pack,
+  });
+  if (error) {
+    // 23505 unique_violation on credit_transactions.payment_id means a
+    // parallel worker won the race in the tiny gap between our replay
+    // check and our insert. Treat as idempotent — credits granted by
+    // the winner. Re-read the balance.
+    const code = (error as { code?: string }).code;
+    if (code === "23505") {
+      const { data: row } = await admin
+        .from("user_usage")
+        .select("credits_added, events_used")
+        .eq("user_id", args.userId)
+        .maybeSingle();
+      const balance = row
+        ? Math.max(0, ((row.credits_added as number) ?? 0) - ((row.events_used as number) ?? 0))
+        : 0;
+      const { data: tx } = await admin
+        .from("credit_transactions")
+        .select("id")
+        .eq("payment_id", args.paymentId)
+        .maybeSingle();
+      return { ok: true, idempotent: true, newBalance: balance, transactionId: (tx?.id as string) ?? null };
+    }
+    console.error("[credits] apply_credit_pack failed:", error.message);
+    return { ok: false, error: error.message };
+  }
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) return { ok: false, error: "empty_rpc_result" };
+  return {
+    ok:            true,
+    idempotent:    !!row.idempotent,
+    newBalance:    row.new_balance ?? 0,
+    transactionId: (row.transaction_id as string) ?? null,
+  };
+}
+
 // Billing-webhook entry point. Atomic in one round-trip: idempotency on
 // payment_id + plan stamp + credit grant. Use this from the Razorpay
 // webhook only — the payment_id is the dedup token.

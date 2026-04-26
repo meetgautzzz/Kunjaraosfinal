@@ -16,7 +16,8 @@ const PROTECTED = [
 const AUTH_ONLY = ["/login", "/signup"];
 
 // Routes that must accept cross-origin POST by design — never CSRF-gate these.
-const CSRF_EXEMPT_API = ["/api/billing/webhook"];
+// Razorpay webhooks for both subscription billing and credit-pack purchases.
+const CSRF_EXEMPT_API = ["/api/billing/webhook", "/api/payments/credits"];
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 export async function proxy(request: NextRequest) {

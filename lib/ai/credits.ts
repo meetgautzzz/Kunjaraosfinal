@@ -85,6 +85,37 @@ export async function addEvents(userId: string, amount: number): Promise<number 
   return addCredits(userId, amount);
 }
 
+// Billing-webhook entry point. Atomic in one round-trip: idempotency on
+// payment_id + plan stamp + credit grant. Use this from the Razorpay
+// webhook only — the payment_id is the dedup token.
+export type PaymentCreditsResult =
+  | { ok: true;  idempotent: boolean; totalCredits: number }
+  | { ok: false; error: string };
+
+export async function applyPaymentCredits(args: {
+  userId:    string;
+  plan:      string;
+  amount:    number;
+  paymentId: string;
+}): Promise<PaymentCreditsResult> {
+  const admin = getAdminClient();
+  if (!admin) return { ok: false, error: "admin_unavailable" };
+
+  const { data, error } = await admin.rpc("apply_payment_credits", {
+    p_user_id:    args.userId,
+    p_plan:       args.plan,
+    p_amount:     args.amount,
+    p_payment_id: args.paymentId,
+  });
+  if (error) {
+    console.error("[credits] apply_payment_credits failed:", error.message);
+    return { ok: false, error: error.message };
+  }
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) return { ok: false, error: "empty_rpc_result" };
+  return { ok: true, idempotent: !!row.idempotent, totalCredits: row.total_credits ?? 0 };
+}
+
 // Read-only summary for UI / responses. No mutation.
 export async function getRemaining(userId: string): Promise<number> {
   const admin = getAdminClient();

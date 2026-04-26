@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import Razorpay from "razorpay";
 import { z } from "zod";
-import { getAdminClient } from "@/lib/supabase/admin";
+import { applyPaymentCredits } from "@/lib/ai/credits";
 import { getPlan, type PlanId } from "@/lib/plans";
 
 // Razorpay webhook payload shape — we only read the payment entity on
@@ -26,6 +26,8 @@ function resolvePlan(plan: string): PlanId {
     ? (plan as PlanId)
     : "basic";
 }
+
+const VALID_PLANS = new Set<PlanId>(["basic", "pro", "expert", "test"]);
 
 // Timing-safe HMAC comparison. A naive === leaks signature length and
 // position of the first mismatched byte via response-time variance, which
@@ -124,93 +126,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  // 4. Add credits server-side using service-role client (no auth session needed)
-  const admin = getAdminClient();
-  if (!admin) {
-    // getAdminClient already logs which env var is missing.
-    return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
+  // 4. Apply credits via the atomic billing RPC. Single round-trip handles
+  // idempotency (on payment_id), plan stamp, credit grant, and the
+  // race against parallel Razorpay retries. SECURITY DEFINER inside the
+  // function does SELECT FOR UPDATE so two concurrent calls cannot both
+  // grant credits for the same payment.
+  const resolvedPlan = resolvePlan(orderPlan);
+  if (!VALID_PLANS.has(resolvedPlan)) {
+    console.warn("[webhook] Unknown plan in order notes — defaulting to basic", { eventDeliveryId, orderPlan });
+  }
+  const creditsToAdd = getPlan(resolvedPlan).events;
+
+  const result = await applyPaymentCredits({
+    userId,
+    plan:      resolvedPlan,
+    amount:    creditsToAdd,
+    paymentId,
+  });
+
+  if (!result.ok) {
+    console.error("[webhook] applyPaymentCredits failed", { eventDeliveryId, userId, paymentId, err: result.error });
+    return NextResponse.json({ error: "DB write failed." }, { status: 500 });
   }
 
-  // Idempotency guard, pass 1: read current state. Skips the entire upsert
-  // if the payment is already recorded. The conditional WHERE on the write
-  // (pass 2 below) is what actually protects against a TOCTOU race when
-  // Razorpay retries the same delivery in parallel.
-  const { data: existing, error: readErr } = await admin
-    .from("user_usage")
-    .select("credits_added, last_payment_id")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (readErr) {
-    console.error("[webhook] Failed to read user_usage", { eventDeliveryId, userId, err: readErr.message });
-    return NextResponse.json({ error: "DB read failed." }, { status: 500 });
-  }
-
-  if (existing?.last_payment_id === paymentId) {
-    console.log("[webhook] Payment already processed — skipping (idempotent)", { eventDeliveryId, paymentId, userId });
+  if (result.idempotent) {
+    console.log("[webhook] Payment already applied — idempotent", { eventDeliveryId, paymentId, userId, totalCredits: result.totalCredits });
     return NextResponse.json({ received: true, idempotent: true });
   }
 
-  const existingCredits = (existing?.credits_added as number) ?? 0;
-  const resolvedPlan = resolvePlan(orderPlan);
-  const creditsToAdd = getPlan(resolvedPlan).events;
-  const totalCredits = existingCredits + creditsToAdd;
-
-  // Pass 2: race-safe write.
-  // - If the row doesn't exist yet (new user paying first time), insert it.
-  //   The unique constraint on user_usage.user_id makes a second concurrent
-  //   insert fail with code 23505, which we treat as "another worker won".
-  // - If the row exists, conditional update where last_payment_id IS DISTINCT
-  //   FROM paymentId. A concurrent winner that already wrote paymentId makes
-  //   the UPDATE affect 0 rows — we then re-read and confirm the credit
-  //   landed, returning idempotent.
-  if (!existing) {
-    const { error: insertErr } = await admin.from("user_usage").insert({
-      user_id: userId,
-      plan: resolvedPlan,
-      credits_added: totalCredits,
-      last_payment_id: paymentId,
-      updated_at: new Date().toISOString(),
-    });
-    if (insertErr) {
-      // 23505 = unique_violation on (user_id) — another worker raced and
-      // already inserted. Treat as idempotent success.
-      const code = (insertErr as { code?: string }).code;
-      if (code === "23505") {
-        console.log("[webhook] Concurrent insert won the race — treating as idempotent", { eventDeliveryId, paymentId, userId });
-        return NextResponse.json({ received: true, idempotent: true });
-      }
-      console.error("[webhook] Failed to insert user_usage", { eventDeliveryId, userId, err: insertErr.message });
-      return NextResponse.json({ error: "DB insert failed." }, { status: 500 });
-    }
-  } else {
-    // The OR handles legacy/trial rows where last_payment_id is NULL —
-    // standard SQL `NULL <> 'x'` evaluates to NULL, not true, which would
-    // otherwise exclude those rows from the conditional update.
-    const { data: updated, error: updateErr } = await admin
-      .from("user_usage")
-      .update({
-        plan: resolvedPlan,
-        credits_added: totalCredits,
-        last_payment_id: paymentId,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", userId)
-      .or(`last_payment_id.is.null,last_payment_id.neq.${paymentId}`)
-      .select("last_payment_id");
-
-    if (updateErr) {
-      console.error("[webhook] Failed to update user_usage", { eventDeliveryId, userId, err: updateErr.message });
-      return NextResponse.json({ error: "DB update failed." }, { status: 500 });
-    }
-    if (!updated || updated.length === 0) {
-      // Update affected 0 rows → another worker wrote this paymentId in the
-      // gap between our read and our write. Confirm and treat as idempotent.
-      console.log("[webhook] Update found row already credited by concurrent worker — idempotent", { eventDeliveryId, paymentId, userId });
-      return NextResponse.json({ received: true, idempotent: true });
-    }
-  }
-
-  console.log("[webhook] Credits applied", { eventDeliveryId, userId, resolvedPlan, creditsToAdd, totalCredits, paymentId });
+  console.log("[webhook] Credits applied", { eventDeliveryId, userId, resolvedPlan, creditsToAdd, totalCredits: result.totalCredits, paymentId });
   return NextResponse.json({ received: true });
 }

@@ -45,15 +45,6 @@ export const billingLimiter = build("billing", 20, "1 m");
 // General read / stub endpoints — permissive per-IP.
 export const apiLimiter = build("api", 60, "1 m");
 
-// OTP send — per phone cooldown. User must wait 45s between resends.
-// Paired with otpSendIpLimiter so one IP can't enumerate numbers.
-export const otpSendLimiter   = build("otp:send",   1, "45 s");
-export const otpSendIpLimiter = build("otp:sendip", 5, "10 m");
-
-// OTP verify — hard cap on guesses per phone within one OTP lifetime
-// (OTP is 2 min; 3 attempts across that window = ~3 / 10^6 brute-force odds).
-export const otpVerifyLimiter = build("otp:verify", 3, "2 m");
-
 // Standard proxy-aware caller identifier. Falls back to a constant so a
 // missing header doesn't collapse all traffic into one bucket when a
 // proxy is misconfigured — that would itself be a denial of service.

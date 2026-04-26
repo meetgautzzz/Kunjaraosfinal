@@ -184,7 +184,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Show plan badge if ?plan= in URL
 const urlParams = new URLSearchParams(window.location.search);
 const plan = urlParams.get('plan');
-const planLabels = { basic:'Basic Plan selected', pro:'Professional Plan selected', expert:'Expert Plan — Join Waitlist', enterprise:'Enterprise Plan — Join Waitlist' };
+const planLabels = { basic:'Basic Plan selected', pro:'Professional Plan selected', expert:'Expert Plan — Join Waitlist' };
 if (plan && planLabels[plan]) {
   document.getElementById('planBadge').classList.add('show');
   document.getElementById('planName').textContent = planLabels[plan];

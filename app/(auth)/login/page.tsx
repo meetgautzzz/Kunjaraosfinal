@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -24,7 +24,6 @@ function LoginSkeleton() {
 }
 
 function LoginInner() {
-  const router = useRouter();
   const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -100,7 +99,7 @@ function LoginInner() {
     }
 
     const next = params.get("next") ?? "/dashboard";
-    router.push(next);
+    window.location.href = next;
   }
 
   return (

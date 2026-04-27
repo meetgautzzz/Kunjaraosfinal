@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -57,7 +55,7 @@ export default function SignupPage() {
     // null and the user must click the link in their inbox. If confirmation
     // is disabled, session is populated and we can redirect straight in.
     if (data.session) {
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
       return;
     }
 

@@ -6,6 +6,7 @@ import ProposalOutput from "@/components/proposals/ProposalOutput";
 import IdeaCards from "@/components/proposals/IdeaCards";
 import { api } from "@/lib/api";
 import type { ProposalData, EventIdea } from "@/lib/proposals";
+import { useCredits } from "@/components/credits/useCredits";
 
 const EVENT_TYPES = [
   "Corporate Gala",   "Conference",      "Product Launch",  "Wedding",
@@ -40,6 +41,7 @@ const STEP_META = ["Define Event", "Choose Concept", "Full Plan"] as const;
 
 export default function NewProposalPage() {
   const router = useRouter();
+  const credits = useCredits();
 
   const [step,         setStep]         = useState<Step>("form");
   const [proposal,     setProposal]     = useState<ProposalData | null>(null);
@@ -47,6 +49,19 @@ export default function NewProposalPage() {
   const [proposalId,   setProposalId]   = useState<string>("");
   const [selectedIdea, setSelectedIdea] = useState<EventIdea | null>(null);
   const [error,        setError]        = useState("");
+
+  // If the API returns LIMIT_REACHED, surface the buy modal instead of a
+  // dead error banner. lib/api throws Error(err.error), so the code lands
+  // in err.message. Backend envelope: { success:false, error:"LIMIT_REACHED" }.
+  function maybeOpenBuyModal(err: any): boolean {
+    const msg = (err?.message || err?.error || "").toString();
+    if (msg === "LIMIT_REACHED" || err?.limit_reached === true) {
+      credits.openBuyModal();
+      credits.refresh();
+      return true;
+    }
+    return false;
+  }
 
   const [form, setForm] = useState<FormState>({
     eventType: "",
@@ -79,12 +94,22 @@ export default function NewProposalPage() {
         ...(form.eventDate   ? { eventDate:   form.eventDate   } : {}),
         venueByClient: form.venueByClient === "yes",
         foodByClient:  form.foodByClient  === "yes",
-      }) as { proposalId: string; ideas: EventIdea[] };
-      setProposalId(result.proposalId);
-      setEventIdeas(result.ideas);
+      }) as { proposalId: string; ideas: EventIdea[]; data?: { proposalId: string; ideas: EventIdea[] } };
+      // Routes now return aiSuccess envelope { success, data, credits_remaining };
+      // older callers still see the flat shape. Handle both.
+      const payload = (result as any).data ?? result;
+      setProposalId(payload.proposalId);
+      setEventIdeas(payload.ideas);
+      if (typeof (result as any).credits_remaining === "number") {
+        credits.setRemaining((result as any).credits_remaining);
+      }
       setStep("ideas");
     } catch (err: any) {
-      setError(err.message ?? "Failed to generate ideas. Please try again.");
+      if (maybeOpenBuyModal(err)) {
+        setStep("form");
+        return;
+      }
+      setError(err.message ?? "Something went wrong. Please try again.");
       setStep("form");
     }
   }
@@ -114,11 +139,19 @@ export default function NewProposalPage() {
         ...(Object.keys(clientInfo).length ? { client: clientInfo } : {}),
         venueByClient: form.venueByClient === "yes",
         foodByClient:  form.foodByClient  === "yes",
-      }) as ProposalData;
-      setProposal({ ...result, budget: Number(result.budget), status: result.status as ProposalData["status"] });
+      }) as ProposalData & { credits_remaining?: number; data?: ProposalData };
+      const payload = (result as any).data ?? result;
+      setProposal({ ...payload, budget: Number(payload.budget), status: payload.status as ProposalData["status"] });
+      if (typeof (result as any).credits_remaining === "number") {
+        credits.setRemaining((result as any).credits_remaining);
+      }
       setStep("output");
     } catch (err: any) {
-      setError(err.message ?? "Failed to generate plan. Please try again.");
+      if (maybeOpenBuyModal(err)) {
+        setStep("ideas");
+        return;
+      }
+      setError(err.message ?? "Something went wrong. Please try again.");
       setStep("ideas");
     }
   }

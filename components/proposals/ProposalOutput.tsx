@@ -4,9 +4,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { api } from "@/lib/api";
 import type {
   ProposalData, BudgetLine, TimelinePhase, ProposalVendor,
-  ExperienceActivation, ColorSwatch,
+  ExperienceActivation, ColorSwatch, ProposalVersionSnapshot,
 } from "@/lib/proposals";
-import { formatINR } from "@/lib/proposals";
+import { formatINR, MAX_REGENERATIONS } from "@/lib/proposals";
+import { useCredits } from "@/components/credits/useCredits";
 import {
   generateChecklist, calcScore, deadlineState, STATUS_CONFIG,
   type ComplianceItem, type ComplianceStatus,
@@ -48,6 +49,62 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const [generatingImage, setGeneratingImage] = useState(false);
   const [linkCopied,      setLinkCopied]      = useState(false);
   const [exportOpen,      setExportOpen]      = useState(false);
+  const [versionsOpen,    setVersionsOpen]    = useState(false);
+  const [regenerating,    setRegenerating]    = useState(false);
+  const [regenError,      setRegenError]      = useState("");
+
+  const credits = useCredits();
+  const regensUsed = proposal.regenerationsUsed ?? 0;
+  const regensLeft = Math.max(0, MAX_REGENERATIONS - regensUsed);
+  const versions   = proposal.versions ?? [];
+  const activeLabel = proposal.activeVersionLabel ?? "v1";
+
+  async function handleRegenerate() {
+    if (regenerating) return;
+    setRegenError("");
+    setRegenerating(true);
+    try {
+      const res = await fetch(`/api/proposals/${proposal.id}/regenerate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        if (json?.error === "LIMIT_REACHED") {
+          credits.openBuyModal();
+          credits.refresh();
+          return;
+        }
+        throw new Error(json?.message ?? json?.error ?? "Regeneration failed.");
+      }
+      const next = (json.data ?? json) as ProposalData;
+      onChange({ ...next, budget: Number(next.budget) });
+      if (typeof json.credits_remaining === "number") credits.setRemaining(json.credits_remaining);
+    } catch (e: any) {
+      setRegenError(e.message ?? "Something went wrong. Please try again.");
+    } finally {
+      setRegenerating(false);
+    }
+  }
+
+  async function handleSwitchVersion(label: string) {
+    if (label === activeLabel) { setVersionsOpen(false); return; }
+    setVersionsOpen(false);
+    setRegenError("");
+    try {
+      const res = await fetch(`/api/proposals/${proposal.id}/switch-version`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error ?? "Could not switch version.");
+      onChange({ ...(json as ProposalData), budget: Number((json as ProposalData).budget) });
+    } catch (e: any) {
+      setRegenError(e.message ?? "Could not switch version.");
+    }
+  }
 
   function handleExportPDF() {
     setExportOpen(false);
@@ -267,6 +324,121 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             <button onClick={onBack} className="btn-ghost">
               ← Back
             </button>
+
+            {/* Version chip + dropdown */}
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setVersionsOpen((v) => !v)}
+                title={versions.length ? `Switch between ${versions.length + 1} versions` : "Only one version so far"}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "8px 12px",
+                  borderRadius: 9,
+                  border: "1px solid var(--border)",
+                  background: "var(--bg-surface)",
+                  color: "var(--text-2)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: versions.length ? "pointer" : "default",
+                  opacity: versions.length ? 1 : 0.6,
+                }}
+                disabled={versions.length === 0}
+              >
+                {activeLabel} <span style={{ fontSize: 10, opacity: 0.6 }}>▾</span>
+              </button>
+              {versionsOpen && versions.length > 0 && (
+                <>
+                  <div onClick={() => setVersionsOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "calc(100% + 6px)",
+                      right: 0,
+                      zIndex: 50,
+                      minWidth: 220,
+                      maxHeight: 280,
+                      overflowY: "auto",
+                      borderRadius: 12,
+                      border: "1px solid var(--border)",
+                      background: "var(--bg-card)",
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+                      padding: 6,
+                    }}
+                  >
+                    <div style={{ padding: "6px 10px", fontSize: 10, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                      Active
+                    </div>
+                    <div style={{ padding: "8px 10px", borderRadius: 6, color: "#a5b4fc", fontSize: 13, fontWeight: 600 }}>
+                      {activeLabel} (current)
+                    </div>
+                    <div style={{ padding: "6px 10px", marginTop: 4, fontSize: 10, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                      History
+                    </div>
+                    {versions.map((v: ProposalVersionSnapshot) => (
+                      <button
+                        key={v.label}
+                        onClick={() => handleSwitchVersion(v.label)}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "8px 10px",
+                          borderRadius: 6,
+                          background: "transparent",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "var(--text-1)",
+                          fontSize: 13,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 2,
+                        }}
+                        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "var(--bg-surface)")}
+                        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+                      >
+                        <span style={{ fontWeight: 600 }}>{v.label} · {v.title}</span>
+                        <span style={{ fontSize: 11, color: "var(--text-3)" }}>
+                          {new Date(v.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Regenerate */}
+            <button
+              onClick={handleRegenerate}
+              disabled={regenerating || regensLeft <= 0}
+              title={regensLeft <= 0 ? "Regeneration limit reached for this proposal" : `Regenerate this proposal (2 credits) — ${regensLeft} of ${MAX_REGENERATIONS} left`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 13px",
+                borderRadius: 9,
+                border: "1px solid rgba(99,102,241,0.3)",
+                background: regenerating ? "rgba(99,102,241,0.18)" : "rgba(99,102,241,0.08)",
+                color: "#a5b4fc",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: (regenerating || regensLeft <= 0) ? "not-allowed" : "pointer",
+                opacity: regensLeft <= 0 ? 0.45 : 1,
+                transition: "all 0.15s",
+              }}
+            >
+              {regenerating ? (
+                <>
+                  <span className="w-3 h-3 rounded-full border-2 border-indigo-400/30 border-t-indigo-400 animate-spin" />
+                  Regenerating…
+                </>
+              ) : (
+                <>↺ Regenerate <span style={{ opacity: 0.55, fontWeight: 500 }}>({regensLeft}/{MAX_REGENERATIONS})</span></>
+              )}
+            </button>
+
             <button
               onClick={() => setClientView(true)}
               style={{
@@ -426,6 +598,28 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
           <button
             onClick={() => setSaveError("")}
             style={{ color: "rgba(252,165,165,0.5)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {regenError && (
+        <div
+          className="flex items-center justify-between gap-4"
+          style={{
+            padding: "11px 16px",
+            borderRadius: 10,
+            background: "rgba(245,158,11,0.08)",
+            border: "1px solid rgba(245,158,11,0.25)",
+            color: "#fbbf24",
+            fontSize: 13.5,
+          }}
+        >
+          <span>{regenError}</span>
+          <button
+            onClick={() => setRegenError("")}
+            style={{ color: "rgba(251,191,36,0.5)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}
           >
             ✕
           </button>

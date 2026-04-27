@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import CreditMeter from "@/components/credits/CreditMeter";
 
 const PAGE_LABELS: Record<string, string> = {
   "/dashboard":  "Dashboard",
@@ -42,7 +43,8 @@ export default function Topbar() {
       </div>
 
       <div className="flex items-center gap-2">
-        <button className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-3)] text-xs hover:border-indigo-500/40 transition-colors w-48">
+        <CreditMeter />
+        <button className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-3)] text-xs hover:border-indigo-500/40 transition-colors w-48">
           <SearchIcon />
           <span>Search...</span>
           <span className="ml-auto text-[10px] border border-[var(--border)] rounded px-1 py-0.5">⌘K</span>

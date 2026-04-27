@@ -26,15 +26,16 @@ export default function CreditMeter() {
     <button
       onClick={openBuyModal}
       title="Buy more AI credits"
-      className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-[var(--bg-card)] text-xs font-medium transition-colors ${colors}`}
+      className={`flex items-center gap-1 sm:gap-2 min-h-[36px] sm:min-h-0 px-2.5 sm:px-3 py-1.5 rounded-lg border bg-[var(--bg-card)] text-xs font-medium transition-colors ${colors}`}
     >
-      <span className="text-[10px] opacity-70 uppercase tracking-wide">AI Power</span>
+      <span className="text-[10px] opacity-70 uppercase tracking-wide hidden sm:inline">AI Power</span>
+      <span className="text-base sm:hidden">⚡</span>
       <span className="font-semibold tabular-nums">
         {loading || remaining === null ? "—" : remaining}
       </span>
-      <span className="opacity-60">remaining</span>
+      <span className="opacity-60 hidden sm:inline">remaining</span>
       {tone !== "neutral" && (
-        <span className="ml-1 text-[10px] opacity-60 hidden md:inline">+ buy</span>
+        <span className="ml-1 text-[10px] opacity-60 hidden lg:inline">+ buy</span>
       )}
     </button>
   );

@@ -108,29 +108,31 @@ export default function BuyCreditsModal() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      // Mobile: bottom-aligned sheet. sm+: centered modal.
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4"
       style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)" }}
       onClick={closeBuyModal}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="animate-scale-in"
+        className="animate-scale-in w-full sm:max-w-[760px] max-h-[92vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl"
         style={{
-          width: "100%", maxWidth: 760,
-          borderRadius: 18,
           border: "1px solid var(--border)",
           background: "var(--bg-card)",
           boxShadow: "0 30px 60px rgba(0,0,0,0.5)",
-          overflow: "hidden",
         }}
       >
+        {/* Mobile drag handle */}
+        <div className="sm:hidden flex justify-center pt-2 pb-1">
+          <div className="w-10 h-1 rounded-full bg-[var(--border-mid)]" />
+        </div>
         {/* Header */}
-        <div className="px-7 pt-7 pb-5 flex items-start justify-between gap-4">
-          <div>
+        <div className="px-5 sm:px-7 pt-4 sm:pt-7 pb-4 sm:pb-5 flex items-start justify-between gap-4">
+          <div className="min-w-0">
             <p className="text-[var(--text-3)] text-[11px] uppercase tracking-[0.15em] font-semibold">
               {remaining !== null && remaining <= 0 ? "Out of credits" : "Top up"}
             </p>
-            <h2 className="text-[var(--text-1)] text-2xl font-bold mt-2 tracking-tight">
+            <h2 className="text-[var(--text-1)] text-xl sm:text-2xl font-bold mt-2 tracking-tight">
               Continue your planning <span className="text-indigo-400">⚡</span>
             </h2>
             <p className="text-[var(--text-2)] text-sm mt-2 max-w-md">
@@ -142,7 +144,7 @@ export default function BuyCreditsModal() {
           </div>
           <button
             onClick={closeBuyModal}
-            className="text-[var(--text-3)] hover:text-[var(--text-1)] text-lg shrink-0"
+            className="w-10 h-10 -mr-2 flex items-center justify-center rounded-lg text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--bg-hover)] shrink-0 transition-colors"
             aria-label="Close"
           >
             ✕
@@ -150,7 +152,7 @@ export default function BuyCreditsModal() {
         </div>
 
         {/* Packs */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 px-7 pb-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 px-5 sm:px-7 pb-2">
           {CREDIT_PACKS.map((pack) => {
             const isMid    = pack.id === "medium";
             const perCredit = (pack.amountInr / pack.credits).toFixed(0);
@@ -188,7 +190,7 @@ export default function BuyCreditsModal() {
                 <button
                   onClick={() => handleBuy(pack.id)}
                   disabled={anyBusy}
-                  className={`mt-auto w-full px-4 py-2.5 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`mt-auto w-full min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     isMid
                       ? "bg-indigo-500 hover:bg-indigo-600 text-white"
                       : "bg-[var(--bg-card)] border border-[var(--border)] hover:border-indigo-500/40 text-[var(--text-1)]"
@@ -202,15 +204,15 @@ export default function BuyCreditsModal() {
         </div>
 
         {err && (
-          <div className="px-7 pt-2">
+          <div className="px-5 sm:px-7 pt-2">
             <p className="text-red-400 text-xs">{err}</p>
           </div>
         )}
 
         {/* Footer */}
-        <div className="px-7 py-4 mt-3 border-t border-[var(--border)] bg-[var(--bg-surface)] flex items-center justify-between text-[11px] text-[var(--text-3)]">
+        <div className="px-5 sm:px-7 py-4 mt-3 border-t border-[var(--border)] bg-[var(--bg-surface)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-[11px] text-[var(--text-3)]">
           <span>🔒 Secure payment via Razorpay · UPI, cards, netbanking</span>
-          <span>Credits applied within seconds of payment</span>
+          <span className="hidden sm:inline">Credits applied within seconds of payment</span>
         </div>
       </div>
     </div>

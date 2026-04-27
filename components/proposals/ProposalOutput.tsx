@@ -273,14 +273,14 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
       )}
 
       <div
+        className="px-4 py-4 sm:px-6 sm:py-[18px]"
         style={{
           background: "var(--bg-card)",
           border: "1px solid var(--border)",
           borderRadius: 14,
-          padding: "18px 24px",
         }}
       >
-        <div className="flex items-start justify-between gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
 
           {/* Title + meta */}
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -319,8 +319,8 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+          {/* Actions — wraps on mobile so all 8 buttons stay tappable */}
+          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-start sm:justify-end -mx-1 px-1 overflow-x-auto sm:overflow-visible">
             <button onClick={onBack} className="btn-ghost">
               ← Back
             </button>

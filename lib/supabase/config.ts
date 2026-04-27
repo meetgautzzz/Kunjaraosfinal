@@ -17,18 +17,40 @@ const FALLBACK_ANON_KEY =
 
 let warnedFallback = false;
 
-export function getSupabasePublicConfig(): { url: string; anonKey: string } {
-  const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const envKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+function isValidSupabaseUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" && parsed.hostname.endsWith(".supabase.co");
+  } catch {
+    return false;
+  }
+}
 
-  if (envUrl && envKey) {
-    return { url: envUrl, anonKey: envKey };
+function isValidAnonKey(key: string): boolean {
+  // Supabase anon keys are JWTs — three base64url segments separated by dots
+  return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(key.trim());
+}
+
+export function getSupabasePublicConfig(): { url: string; anonKey: string } {
+  const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const envKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+
+  const urlOk = !!envUrl && isValidSupabaseUrl(envUrl);
+  const keyOk = !!envKey && isValidAnonKey(envKey);
+
+  if (urlOk && keyOk) {
+    return { url: envUrl!, anonKey: envKey! };
   }
 
   if (!warnedFallback && typeof window === "undefined") {
     warnedFallback = true;
+    const problems: string[] = [];
+    if (!envUrl)       problems.push("NEXT_PUBLIC_SUPABASE_URL is not set");
+    else if (!urlOk)   problems.push(`NEXT_PUBLIC_SUPABASE_URL is invalid ("${envUrl}"): must be https://<ref>.supabase.co`);
+    if (!envKey)       problems.push("NEXT_PUBLIC_SUPABASE_ANON_KEY is not set");
+    else if (!keyOk)   problems.push("NEXT_PUBLIC_SUPABASE_ANON_KEY is not a valid JWT");
     console.warn(
-      "[supabase] NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY not set — using hardcoded fallback. Set these in env to enable key rotation."
+      `[supabase] ${problems.join("; ")} — using hardcoded fallback. Fix env vars on Vercel to enable key rotation.`
     );
   }
 

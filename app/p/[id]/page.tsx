@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { ClientView } from "@/components/proposals/ProposalOutput";
 import type { ProposalData } from "@/lib/proposals";
+import type { Branding } from "@/lib/branding";
 import { formatINR } from "@/lib/proposals";
 import { type ProposalPayment } from "@/lib/payments";
 
@@ -15,6 +16,7 @@ export default function PublicProposalPage({
 }) {
   const { id } = use(params);
   const [proposal, setProposal] = useState<ProposalData | null>(null);
+  const [branding, setBranding] = useState<Branding | undefined>(undefined);
   const [error, setError] = useState<string>("");
 
   // Response form state
@@ -31,7 +33,12 @@ export default function PublicProposalPage({
         if (!r.ok) throw new Error(r.status === 404 ? "Proposal not found." : "Unable to load proposal.");
         return r.json();
       })
-      .then((d) => { if (!cancelled) setProposal(d as ProposalData); })
+      .then((d) => {
+        if (!cancelled) {
+          if (d.branding) setBranding(d.branding as Branding);
+          setProposal(d as ProposalData);
+        }
+      })
       .catch((e) => { if (!cancelled) setError(e.message); });
     return () => { cancelled = true; };
   }, [id]);
@@ -82,7 +89,7 @@ export default function PublicProposalPage({
 
   return (
     <>
-      <ClientView proposal={proposal} />
+      <ClientView proposal={proposal} branding={branding} />
 
       <PaymentsSection proposalId={id} />
 

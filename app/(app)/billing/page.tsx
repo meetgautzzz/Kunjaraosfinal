@@ -258,18 +258,18 @@ function CurrentPlanBanner({ plan, creditsAdded, eventsUsed, creditsLeft }: {
 
       {!isFree && (
         <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-[var(--border)]">
-          <Metric label="Credits Remaining" value={`${creditsLeft}`} accent={creditsLeft > 0 ? "emerald" : "amber"} />
-          <Metric label="Proposals Generated" value={`${eventsUsed}`} />
-          <Metric label="Total Purchased"     value={`${creditsAdded}`} />
+          <Metric label="Credits Left"    value={`${creditsLeft}`}  accent={creditsLeft > 0 ? "emerald" : "amber"} hint="Available to spend on AI features" />
+          <Metric label="Credits Used"    value={`${eventsUsed}`}   hint="Total credits consumed across all AI actions" />
+          <Metric label="Credits Bought"  value={`${creditsAdded}`} hint="Total credits added to your account" />
         </div>
       )}
     </div>
   );
 }
 
-function Metric({ label, value, accent }: { label: string; value: string; accent?: "emerald" | "amber" }) {
+function Metric({ label, value, accent, hint }: { label: string; value: string; accent?: "emerald" | "amber"; hint?: string }) {
   return (
-    <div>
+    <div title={hint}>
       <p className="text-[var(--text-3)] text-xs">{label}</p>
       <p className={`text-sm font-semibold mt-0.5 tabular-nums ${
         accent === "emerald" ? "text-emerald-400" :

@@ -82,18 +82,35 @@ export default function BuyCreditsModal() {
         description: `${orderJson.pack.credits} AI credits`,
         theme:    { color: "#6366f1" },
         handler: async () => {
-          // Webhook does the actual credit grant; we just poll the
-          // summary endpoint until it appears, then close the modal.
-          const start = Date.now();
-          let landed = false;
-          while (Date.now() - start < 12000) {
-            await new Promise((r) => setTimeout(r, 800));
+          // Snapshot the balance before payment so we can detect when
+          // the webhook lands and actually adds credits.
+          const balanceBefore = await fetch("/api/credits/summary")
+            .then((r) => r.ok ? r.json() : null)
+            .then((d: { credits_remaining?: number } | null) => d?.credits_remaining ?? -1)
+            .catch(() => -1);
+
+          // Poll up to 15 s for the webhook-granted credits to appear.
+          const deadline = Date.now() + 15000;
+          let credited = false;
+          while (Date.now() < deadline) {
+            await new Promise((r) => setTimeout(r, 1500));
+            const current = await fetch("/api/credits/summary")
+              .then((r) => r.ok ? r.json() : null)
+              .then((d: { credits_remaining?: number } | null) => d?.credits_remaining ?? balanceBefore)
+              .catch(() => balanceBefore);
             await refresh();
-            // Use the latest value via a fresh fetch — simplest: trust refresh
-            landed = true; // we exit and close; meter will repaint from refresh()
-            break;
+            if (current > balanceBefore) { credited = true; break; }
           }
-          if (landed) closeBuyModal();
+
+          if (credited) {
+            closeBuyModal();
+          } else {
+            // Webhook hasn't fired yet (common when webhook URL isn't
+            // registered or there's a delay). Let the user know and
+            // close — credits will appear once the webhook processes.
+            setErr("Payment received! Credits may take up to 2 minutes to appear. Refresh the page if they don't show.");
+            setBusyPack(null);
+          }
         },
         modal: {
           ondismiss: () => setBusyPack(null),
@@ -205,7 +222,9 @@ export default function BuyCreditsModal() {
 
         {err && (
           <div className="px-5 sm:px-7 pt-2">
-            <p className="text-red-400 text-xs">{err}</p>
+            <p className={`text-xs ${err.startsWith("Payment received") ? "text-amber-400" : "text-red-400"}`}>
+              {err.startsWith("Payment received") ? "✓ " : "✗ "}{err}
+            </p>
           </div>
         )}
 

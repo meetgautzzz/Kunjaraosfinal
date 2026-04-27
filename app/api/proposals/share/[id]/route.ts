@@ -26,7 +26,7 @@ export async function GET(
 
   const { data, error } = await admin
     .from("proposals")
-    .select("id, data")
+    .select("id, user_id, data")
     .eq("id", id)
     .single();
 
@@ -34,8 +34,19 @@ export async function GET(
     return NextResponse.json({ error: "Proposal not found." }, { status: 404 });
   }
 
+  // Fetch planner branding (best-effort — never blocks the response)
+  let branding: Record<string, string> = {};
+  if (data.user_id) {
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("company_name, phone_number, address, logo_url")
+      .eq("id", data.user_id)
+      .maybeSingle();
+    if (profile) branding = profile;
+  }
+
   return NextResponse.json(
-    { ...(data.data as Record<string, unknown>), id: data.id },
+    { ...(data.data as Record<string, unknown>), id: data.id, branding },
     { headers: { "Cache-Control": "private, max-age=60" } }
   );
 }

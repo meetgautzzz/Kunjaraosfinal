@@ -17,6 +17,7 @@ import {
   type ProposalPayment, type PaymentMethod, type PaymentStatus,
 } from "@/lib/payments";
 import ToolkitTab from "@/components/proposals/ToolkitTab";
+import { useBranding } from "@/lib/branding";
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
          | "experience" | "visual" | "stage" | "activations" | "compliance" | "payments" | "toolkit";
@@ -54,6 +55,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const [regenError,      setRegenError]      = useState("");
 
   const credits = useCredits();
+  const { branding } = useBranding();
   const regensUsed = proposal.regenerationsUsed ?? 0;
   const regensLeft = Math.max(0, MAX_REGENERATIONS - regensUsed);
   const versions   = proposal.versions ?? [];
@@ -229,7 +231,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
 
   // ── Client View ────────────────────────────────────────────────────────────
   if (clientView) {
-    return <ClientView proposal={proposal} onClose={() => setClientView(false)} />;
+    return <ClientView proposal={proposal} branding={branding} onClose={() => setClientView(false)} />;
   }
 
   return (
@@ -581,6 +583,41 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         </div>
       </div>
 
+      {/* Branding strip — shown when the planner has set company_name or logo */}
+      {(branding.logo_url || branding.company_name) && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "10px 16px",
+            borderRadius: 10,
+            background: "var(--bg-card)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          {branding.logo_url && (
+            <img
+              src={branding.logo_url}
+              alt="Logo"
+              style={{ width: 32, height: 32, objectFit: "contain", borderRadius: 6, flexShrink: 0 }}
+            />
+          )}
+          <div style={{ minWidth: 0 }}>
+            {branding.company_name && (
+              <p style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)", lineHeight: 1.2 }}>
+                {branding.company_name}
+              </p>
+            )}
+            {(branding.phone_number || branding.address) && (
+              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 2 }}>
+                {[branding.phone_number, branding.address].filter(Boolean).join(" · ")}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Save error */}
       {saveError && (
         <div
@@ -746,7 +783,7 @@ function CvSection({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-export function ClientView({ proposal, onClose }: { proposal: ProposalData; onClose?: () => void }) {
+export function ClientView({ proposal, branding, onClose }: { proposal: ProposalData; branding?: import("@/lib/branding").Branding; onClose?: () => void }) {
   const c  = proposal.concept;
   const ec = proposal.eventConcept;
   const vd = proposal.visualDirection;
@@ -794,6 +831,25 @@ export function ClientView({ proposal, onClose }: { proposal: ProposalData; onCl
 
         {/* ── HERO ── */}
         <div className="text-center space-y-5">
+          {/* Planner branding */}
+          {(branding?.logo_url || branding?.company_name) && (
+            <div className="flex flex-col items-center gap-2 mb-2">
+              {branding.logo_url && (
+                <img
+                  src={branding.logo_url}
+                  alt={branding.company_name || "Logo"}
+                  className="h-12 w-auto object-contain"
+                  style={{ maxWidth: 160 }}
+                />
+              )}
+              {branding.company_name && (
+                <p className="text-white/30 text-xs font-semibold uppercase tracking-[0.15em]">
+                  {branding.company_name}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Event type badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/25 bg-indigo-500/8 text-indigo-400 text-xs font-semibold uppercase tracking-[0.15em]">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
@@ -1077,12 +1133,25 @@ export function ClientView({ proposal, onClose }: { proposal: ProposalData; onCl
         )}
 
         {/* ── FOOTER ── */}
-        <div className="border-t border-white/6 pt-10 flex items-center justify-between gap-4">
+        <div className="border-t border-white/6 pt-10 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-sm font-black">K</div>
+            {branding?.logo_url ? (
+              <img
+                src={branding.logo_url}
+                alt="Logo"
+                className="w-8 h-8 object-contain rounded-lg"
+                style={{ background: "rgba(255,255,255,0.06)" }}
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-sm font-black">K</div>
+            )}
             <div>
-              <p className="text-white/50 text-xs font-semibold">Prepared by Kunjara</p>
-              <p className="text-white/25 text-xs">Event Intelligence Platform</p>
+              <p className="text-white/50 text-xs font-semibold">
+                {branding?.company_name || "Kunjara"}
+              </p>
+              <p className="text-white/25 text-xs">
+                {[branding?.phone_number, branding?.address].filter(Boolean).join(" · ") || "Event Intelligence Platform"}
+              </p>
             </div>
           </div>
           <p className="text-white/15 text-xs uppercase tracking-widest">Confidential</p>

@@ -22,10 +22,6 @@ import { useBranding } from "@/lib/branding";
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
          | "experience" | "visual" | "stage" | "activations" | "compliance" | "payments" | "toolkit";
 
-// Flip to true once /api/proposals/generate-image ships (planned ~1 week
-// post-launch, Google Imagen 3 backed). Until then, hide the button so
-// users don't hit the missing endpoint.
-const IMAGE_GEN_ENABLED = false;
 
 type Props = {
   proposal: ProposalData;
@@ -48,6 +44,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const [templateName,    setTemplateName]    = useState(proposal.concept?.title ?? proposal.title);
   const [savingTemplate,  setSavingTemplate]  = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [imageGenError,   setImageGenError]   = useState("");
   const [linkCopied,      setLinkCopied]      = useState(false);
   const [exportOpen,      setExportOpen]      = useState(false);
   const [versionsOpen,    setVersionsOpen]    = useState(false);
@@ -207,14 +204,30 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   }
 
   async function handleGenerateImage() {
-    const dallePrompt = proposal.visualDirection?.dallePrompt;
-    if (!dallePrompt) return;
+    if (generatingImage) return;
+    setImageGenError("");
     setGeneratingImage(true);
+
+    const prompt = proposal.visualDirection?.dallePrompt || undefined;
+
+    async function attempt() {
+      return await api.proposals.generateImage({
+        proposalId: proposal.id,
+        ...(prompt ? { prompt } : {}),
+      }) as { imageUrl: string };
+    }
+
     try {
-      const result = await api.proposals.generateImage({ proposalId: proposal.id, dallePrompt }) as { imageUrl: string };
+      let result: { imageUrl: string };
+      try {
+        result = await attempt();
+      } catch {
+        // Retry once on transient failure
+        result = await attempt();
+      }
       update("visualDirection", { ...proposal.visualDirection, generatedImageUrl: result.imageUrl });
     } catch (err: any) {
-      alert(err.message ?? "Image generation failed");
+      setImageGenError(err.message ?? "Image generation failed. Try again.");
     } finally {
       setGeneratingImage(false);
     }
@@ -833,6 +846,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             onGenerateImage={handleGenerateImage}
             onUploadImage={handleUploadImage}
             generatingImage={generatingImage}
+            imageGenError={imageGenError}
           />
         )}
         {tab === "stage"       && <StageTab        proposal={proposal} update={update} />}
@@ -1490,17 +1504,24 @@ function ExperienceTab({ proposal, update }: { proposal: ProposalData; update: (
 
 // ── Visual Tab ─────────────────────────────────────────────────────────────────
 function VisualTab({
-  proposal, update, onGenerateImage, onUploadImage, generatingImage,
+  proposal, update, onGenerateImage, onUploadImage, generatingImage, imageGenError,
 }: {
   proposal: ProposalData;
   update: (f: keyof ProposalData, v: any) => void;
   onGenerateImage: () => void;
   onUploadImage: (file: File) => void;
   generatingImage: boolean;
+  imageGenError: string;
 }) {
   const vd = proposal.visualDirection;
   const fileRef = useRef<HTMLInputElement>(null);
   if (!vd) return <div style={{ padding: 28 }} className="t-caption">No visual direction data.</div>;
+
+  // Enable when there's a usable prompt (either stored or can be auto-built from event details)
+  const hasEventDetails = !!(proposal.eventType || proposal.location);
+  const canGenerateImage = !generatingImage && (
+    (vd.dallePrompt?.length ?? 0) > 10 || hasEventDetails
+  );
 
   function pickFile() {
     fileRef.current?.click();
@@ -1550,38 +1571,45 @@ function VisualTab({
         style={{ display: "none" }}
       />
 
+      {/* Error banner */}
+      {imageGenError && (
+        <div style={{
+          padding: "10px 14px",
+          borderRadius: 9,
+          background: "rgba(239,68,68,0.1)",
+          border: "1px solid rgba(239,68,68,0.25)",
+          color: "#fca5a5",
+          fontSize: 12,
+        }}>
+          ⚠ {imageGenError}
+        </div>
+      )}
+
       {/* Generated image */}
       <div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, gap: 12, flexWrap: "wrap" }}>
           <TabSection eyebrow="Visual Identity" title="Event Visual" />
           {!vd.generatedImageUrl && (
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {IMAGE_GEN_ENABLED ? (
-                vd.dallePrompt && (
-                  <button
-                    onClick={onGenerateImage}
-                    disabled={generatingImage}
-                    style={{ ...generateBtnStyle, opacity: generatingImage ? 0.5 : 1 }}
-                  >
-                    {generatingImage ? (
-                      <>
-                        <span className="w-3 h-3 rounded-full border-2 border-violet-400/30 border-t-violet-400 animate-spin" />
-                        Generating…
-                      </>
-                    ) : (
-                      <>✦ Generate Image</>
-                    )}
-                  </button>
-                )
-              ) : (
-                <button
-                  disabled
-                  title="Imagen 3 image generation — coming soon"
-                  style={{ ...generateBtnStyle, opacity: 0.5, cursor: "not-allowed" }}
-                >
-                  ✦ Generate Image · soon
-                </button>
-              )}
+              <button
+                onClick={onGenerateImage}
+                disabled={!canGenerateImage}
+                title={canGenerateImage ? undefined : "Add event details to generate visuals"}
+                style={{
+                  ...generateBtnStyle,
+                  opacity: canGenerateImage ? 1 : 0.45,
+                  cursor: canGenerateImage ? "pointer" : "not-allowed",
+                }}
+              >
+                {generatingImage ? (
+                  <>
+                    <span className="w-3 h-3 rounded-full border-2 border-violet-400/30 border-t-violet-400 animate-spin" />
+                    Generating…
+                  </>
+                ) : (
+                  <>✦ Generate Visual</>
+                )}
+              </button>
               <button onClick={pickFile} style={uploadBtnStyle}>
                 ⤴ Upload your own
               </button>

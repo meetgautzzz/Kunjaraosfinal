@@ -7,9 +7,11 @@ export type Branding = {
   phone_number: string;
   address:      string;
   logo_url:     string;
+  gst_number:   string;
+  website:      string;
 };
 
-const EMPTY: Branding = { company_name: "", phone_number: "", address: "", logo_url: "" };
+const EMPTY: Branding = { company_name: "", phone_number: "", address: "", logo_url: "", gst_number: "", website: "" };
 
 export function useBranding() {
   const [branding, setBranding] = useState<Branding>(EMPTY);

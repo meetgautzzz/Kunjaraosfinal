@@ -1,90 +1,194 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Suspense } from "react";
 import UpgradeBanner from "./UpgradeBanner";
-import StatCard from "@/components/ui/StatCard";
-import ActivityFeed from "@/components/ui/ActivityFeed";
 import QuickActions from "@/components/ui/QuickActions";
 import ReceivablesWidget from "@/components/dashboard/ReceivablesWidget";
+import { formatINR } from "@/lib/proposals";
+import type { ProposalData } from "@/lib/proposals";
+
+type ProposalRow = { id: string; data: ProposalData; created_at: string };
+type CreditsData = { credits_added: number; events_used: number; plan: string | null };
 
 const STATUS_STYLES: Record<string, string> = {
-  "Confirmed": "bg-emerald-500/15 text-emerald-400",
-  "Pending":   "bg-amber-500/15 text-amber-400",
-  "In Review": "bg-indigo-500/15 text-indigo-400",
-  "Cancelled": "bg-red-500/15 text-red-400",
+  "DRAFT":             "bg-amber-500/15 text-amber-400",
+  "APPROVED":          "bg-emerald-500/15 text-emerald-400",
+  "CHANGES_REQUESTED": "bg-red-500/15 text-red-400",
+  "SENT":              "bg-indigo-500/15 text-indigo-400",
+  "SHARED":            "bg-indigo-500/15 text-indigo-400",
+  "GENERATED":         "bg-sky-500/15 text-sky-400",
+  "SAVED":             "bg-teal-500/15 text-teal-400",
 };
 
-const EVENTS = [
-  { name: "Gala Night 2025",      date: "Apr 12, 2025", venue: "Grand Hyatt",    vendors: 8,  status: "Confirmed" },
-  { name: "Tech Summit KUN-042",  date: "Apr 18, 2025", venue: "Convention Ctr", vendors: 12, status: "In Review" },
-  { name: "Product Launch – X1",  date: "Apr 25, 2025", venue: "Rooftop Arena",  vendors: 5,  status: "Pending" },
-  { name: "Annual Compliance Day", date: "May 2, 2025",  venue: "HQ Auditorium", vendors: 3,  status: "Confirmed" },
-];
+function statusLabel(s: string | undefined) {
+  if (!s) return "Draft";
+  if (s === "CHANGES_REQUESTED") return "Changes Requested";
+  const lower = s.toLowerCase();
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
 
 export default function DashboardPage() {
+  const [proposals, setProposals] = useState<ProposalRow[]>([]);
+  const [credits,   setCredits]   = useState<CreditsData | null>(null);
+  const [vendors,   setVendors]   = useState<number>(0);
+  const [loading,   setLoading]   = useState(true);
+
+  useEffect(() => {
+    Promise.allSettled([
+      fetch("/api/proposals").then((r) => r.ok ? r.json() : []),
+      fetch("/api/credits/summary").then((r) => r.ok ? r.json() : null),
+      fetch("/api/vendors").then((r) => r.ok ? r.json() : []),
+    ]).then(([propRes, credRes, vendRes]) => {
+      if (propRes.status === "fulfilled") setProposals(Array.isArray(propRes.value) ? propRes.value : []);
+      if (credRes.status === "fulfilled" && credRes.value) setCredits(credRes.value);
+      if (vendRes.status === "fulfilled") setVendors(Array.isArray(vendRes.value) ? vendRes.value.length : 0);
+      setLoading(false);
+    });
+  }, []);
+
+  const creditsLeft = credits
+    ? Math.max(0, (credits.credits_added ?? 0) - (credits.events_used ?? 0))
+    : null;
+
+  const approved      = proposals.filter((p) => p.data?.status === "APPROVED").length;
+  const totalBudget   = proposals.reduce((s, p) => s + (p.data?.budget ?? 0), 0);
+  const recent        = [...proposals].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 5);
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-
       <Suspense>
         <UpgradeBanner />
       </Suspense>
 
       <div>
-        <h2 className="text-2xl font-bold text-[var(--text-1)]">Good morning, Gautam 👋</h2>
+        <h2 className="text-2xl font-bold text-[var(--text-1)]">{greeting} 👋</h2>
         <p className="text-[var(--text-2)] text-sm mt-1">Here's what's happening across your workspace today.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard label="Total Events"     value="128"  delta="+12%" trend="up"   icon="🎪" />
-        <StatCard label="Active Vendors"   value="34"   delta="+3"   trend="up"   icon="🏪" />
-        <StatCard label="Compliance Score" value="94%"  delta="+2%"  trend="up"   icon="🛡️" />
-        <StatCard label="Open Tasks"       value="17"   delta="-5"   trend="down" icon="✅" />
+      {/* Stats */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatCard
+          label="Total Proposals"
+          value={loading ? "—" : String(proposals.length)}
+          icon="📋"
+          href="/proposals"
+          sub={approved > 0 ? `${approved} approved` : "View all"}
+        />
+        <StatCard
+          label="Active Vendors"
+          value={loading ? "—" : String(vendors)}
+          icon="🏪"
+          href="/vendors"
+          sub={vendors === 0 ? "Add vendors" : "Manage network"}
+        />
+        <StatCard
+          label="AI Credits Left"
+          value={loading || creditsLeft === null ? "—" : String(creditsLeft)}
+          icon="⚡"
+          href="/billing"
+          sub={credits?.plan ? `${credits.plan} plan` : "No active plan"}
+          accent={creditsLeft !== null && creditsLeft <= 5 ? "amber" : undefined}
+        />
+        <StatCard
+          label="Pipeline Value"
+          value={loading ? "—" : formatINR(totalBudget)}
+          icon="💰"
+          href="/events"
+          sub={`${proposals.length} event${proposals.length !== 1 ? "s" : ""}`}
+        />
       </div>
 
       <ReceivablesWidget />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2">
-          <ActivityFeed />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent proposals */}
+        <div className="lg:col-span-2 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
+          <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between">
+            <h3 className="text-[var(--text-1)] font-semibold text-sm">Recent Proposals</h3>
+            <Link href="/proposals" className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors">View all →</Link>
+          </div>
+          {loading ? (
+            <div className="p-5 space-y-3">
+              {[...Array(3)].map((_, i) => <div key={i} className="h-12 rounded-lg bg-[var(--bg-surface)] animate-pulse" />)}
+            </div>
+          ) : recent.length === 0 ? (
+            <div className="p-12 text-center">
+              <p className="text-[var(--text-3)] text-sm mb-3">No proposals yet.</p>
+              <Link href="/proposals/new" className="text-indigo-400 text-sm font-medium hover:text-indigo-300">
+                Create your first proposal →
+              </Link>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border)]">
+                    {["Proposal", "Type", "Budget", "Status"].map((h) => (
+                      <th key={h} className="text-left px-5 py-3 text-[var(--text-3)] text-xs font-medium uppercase tracking-wider">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {recent.map((p) => (
+                    <tr key={p.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg-hover)] transition-colors">
+                      <td className="px-5 py-3.5">
+                        <Link href={`/proposals/${p.id}`} className="text-[var(--text-1)] font-medium hover:text-indigo-300 transition-colors truncate block max-w-[200px]">
+                          {p.data?.title ?? "Untitled"}
+                        </Link>
+                        <p className="text-[var(--text-3)] text-xs truncate">{p.data?.client?.companyName ?? p.data?.location ?? "—"}</p>
+                      </td>
+                      <td className="px-5 py-3.5 text-[var(--text-2)] text-xs">{p.data?.eventType ?? "—"}</td>
+                      <td className="px-5 py-3.5 text-[var(--text-2)] tabular-nums text-xs">{p.data?.budget ? formatINR(p.data.budget) : "—"}</td>
+                      <td className="px-5 py-3.5">
+                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[p.data?.status ?? ""] ?? "bg-gray-500/15 text-gray-400"}`}>
+                          {statusLabel(p.data?.status)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
+
+        {/* Quick actions */}
         <div>
           <QuickActions />
         </div>
       </div>
-
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
-        <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between">
-          <h3 className="text-[var(--text-1)] font-semibold text-sm">Upcoming Events</h3>
-          <a href="/events" className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors">View all →</a>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[var(--border)]">
-                {["Event", "Date", "Venue", "Vendors", "Status"].map((h) => (
-                  <th key={h} className="text-left px-5 py-3 text-[var(--text-3)] text-xs font-medium uppercase tracking-wider">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {EVENTS.map((e, i) => (
-                <tr key={i} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg-hover)] transition-colors">
-                  <td className="px-5 py-3.5 text-[var(--text-1)] font-medium">{e.name}</td>
-                  <td className="px-5 py-3.5 text-[var(--text-2)]">{e.date}</td>
-                  <td className="px-5 py-3.5 text-[var(--text-2)]">{e.venue}</td>
-                  <td className="px-5 py-3.5 text-[var(--text-2)]">{e.vendors}</td>
-                  <td className="px-5 py-3.5">
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[e.status]}`}>
-                      {e.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
     </div>
+  );
+}
+
+function StatCard({ label, value, icon, href, sub, accent }: {
+  label: string;
+  value: string;
+  icon: string;
+  href: string;
+  sub: string;
+  accent?: "amber";
+}) {
+  return (
+    <Link href={href} className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 flex flex-col gap-3 hover:border-indigo-500/30 transition-colors group">
+      <div className="flex items-center justify-between">
+        <span className="text-xl">{icon}</span>
+        <svg className="w-3.5 h-3.5 text-[var(--text-3)] group-hover:text-indigo-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </div>
+      <div>
+        <p className={`text-2xl font-black tabular-nums ${accent === "amber" ? "text-amber-400" : "text-[var(--text-1)]"}`}>
+          {value}
+        </p>
+        <p className="text-[var(--text-3)] text-xs mt-0.5">{label}</p>
+      </div>
+      <p className="text-[var(--text-3)] text-xs">{sub}</p>
+    </Link>
   );
 }

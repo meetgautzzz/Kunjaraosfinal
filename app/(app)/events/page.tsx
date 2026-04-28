@@ -1,27 +1,83 @@
 "use client";
-import Link from "next/link";
-import { useState, useMemo } from "react";
 
-type Status = "Confirmed" | "Pending" | "In Review" | "Cancelled";
-type Tab = "All" | Status;
+import Link from "next/link";
+import { useState, useEffect, useMemo } from "react";
+import type { ProposalData } from "@/lib/proposals";
+import { formatINR } from "@/lib/proposals";
+
+type ProposalRow = { id: string; data: ProposalData; created_at: string };
+
+const PIPELINE = ["Lead", "Proposal Sent", "Negotiation", "Won", "Execution", "Completed", "Lost"] as const;
+type Stage = typeof PIPELINE[number];
+
+const STAGE_STYLE: Record<Stage, string> = {
+  "Lead":          "bg-sky-500/15 text-sky-400",
+  "Proposal Sent": "bg-indigo-500/15 text-indigo-400",
+  "Negotiation":   "bg-amber-500/15 text-amber-400",
+  "Won":           "bg-emerald-500/15 text-emerald-400",
+  "Execution":     "bg-violet-500/15 text-violet-400",
+  "Completed":     "bg-emerald-700/20 text-emerald-300",
+  "Lost":          "bg-red-500/15 text-red-400",
+};
+
+function proposalToStage(status: string | undefined): Stage {
+  const s = (status ?? "").toUpperCase();
+  if (s === "APPROVED")                    return "Won";
+  if (s === "CHANGES_REQUESTED")           return "Negotiation";
+  if (s === "DRAFT")                       return "Lead";
+  if (s === "SENT" || s === "SHARED")      return "Proposal Sent";
+  if (s === "LOCKED")                      return "Execution";
+  return "Lead";
+}
 
 export default function EventsPage() {
-  const [tab, setTab] = useState<Tab>("All");
+  const [rows,    setRows]    = useState<ProposalRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tab,     setTab]     = useState<Stage | "All">("All");
 
-  const counts = useMemo(() => {
-    const c: Record<Tab, number> = { All: EVENTS.length, Confirmed: 0, Pending: 0, "In Review": 0, Cancelled: 0 };
-    for (const e of EVENTS) c[e.status as Status]++;
-    return c;
+  useEffect(() => {
+    fetch("/api/proposals")
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => setRows(Array.isArray(data) ? data : []))
+      .catch(() => setRows([]))
+      .finally(() => setLoading(false));
   }, []);
 
-  const filtered = tab === "All" ? EVENTS : EVENTS.filter((e) => e.status === tab);
+  const events = useMemo(() =>
+    rows.map((r) => ({
+      id:       r.id,
+      title:    r.data?.title    ?? "Untitled Event",
+      client:   r.data?.client?.companyName ?? r.data?.requirements?.split(" ").slice(0, 3).join(" ") ?? "—",
+      type:     r.data?.eventType ?? "Event",
+      location: r.data?.location  ?? "—",
+      budget:   r.data?.budget    ?? 0,
+      date:     r.data?.eventDate ?? null,
+      stage:    proposalToStage(r.data?.status),
+      created:  r.created_at,
+    })),
+    [rows]
+  );
+
+  const counts = useMemo(() => {
+    const c: Record<string, number> = { All: events.length };
+    PIPELINE.forEach((s) => { c[s] = events.filter((e) => e.stage === s).length; });
+    return c;
+  }, [events]);
+
+  const filtered = tab === "All" ? events : events.filter((e) => e.stage === tab);
+
+  const totalRevenue = events
+    .filter((e) => e.stage === "Won" || e.stage === "Execution" || e.stage === "Completed")
+    .reduce((sum, e) => sum + e.budget, 0);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--text-1)]">Events</h2>
-          <p className="text-[var(--text-2)] text-sm mt-1">Manage and track all your events in one place.</p>
+          <h2 className="text-2xl font-bold text-[var(--text-1)]">Events Pipeline</h2>
+          <p className="text-[var(--text-2)] text-sm mt-1">
+            {events.length} event{events.length !== 1 ? "s" : ""} · pipeline from lead to completion.
+          </p>
         </div>
         <Link
           href="/proposals/new"
@@ -31,77 +87,106 @@ export default function EventsPage() {
         </Link>
       </div>
 
+      {/* Revenue summary */}
+      {totalRevenue > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {(["Won", "Execution", "Completed", "Lost"] as Stage[]).map((s) => {
+            const stageEvents = events.filter((e) => e.stage === s);
+            const total = stageEvents.reduce((sum, e) => sum + e.budget, 0);
+            return (
+              <div key={s} className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+                <p className="text-[var(--text-3)] text-xs mb-1">{s}</p>
+                <p className="text-[var(--text-1)] font-bold text-base tabular-nums">{formatINR(total)}</p>
+                <p className="text-[var(--text-3)] text-[11px] mt-0.5">{stageEvents.length} event{stageEvents.length !== 1 ? "s" : ""}</p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Stage tabs */}
       <div className="flex flex-wrap gap-2">
-        {(["All", "Confirmed", "Pending", "In Review", "Cancelled"] as Tab[]).map((f) => {
-          const active = tab === f;
+        {(["All", ...PIPELINE] as const).map((s) => {
+          const cnt = counts[s] ?? 0;
+          if (s !== "All" && cnt === 0) return null;
+          const active = tab === s;
           return (
             <button
-              key={f}
-              onClick={() => setTab(f)}
+              key={s}
+              onClick={() => setTab(s)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                 active
                   ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
                   : "border-[var(--border)] text-[var(--text-2)] hover:border-indigo-500/30 hover:text-[var(--text-1)]"
               }`}
             >
-              {f} <span className="opacity-60 ml-1">{counts[f]}</span>
+              {s} <span className="opacity-60 ml-1">{cnt}</span>
             </button>
           );
         })}
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-card)] p-12 text-center">
-          <p className="text-[var(--text-2)] text-sm">No {tab.toLowerCase()} events yet.</p>
-          <Link
-            href="/proposals/new"
-            className="inline-block mt-3 text-indigo-400 hover:text-indigo-300 text-sm font-medium"
-          >
-            Create your first event →
-          </Link>
+      {/* Content */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 animate-pulse h-40" />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-card)] p-16 text-center">
+          <p className="text-3xl mb-3">🎪</p>
+          <p className="text-[var(--text-1)] font-semibold text-sm mb-1">
+            {events.length === 0 ? "No events yet" : `No ${tab} events`}
+          </p>
+          <p className="text-[var(--text-3)] text-xs mb-4">
+            {events.length === 0
+              ? "Generate your first AI proposal to create an event."
+              : "Try a different pipeline stage."}
+          </p>
+          {events.length === 0 && (
+            <Link
+              href="/proposals/new"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-colors"
+            >
+              Create first event →
+            </Link>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((e) => (
-            <div key={e.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 hover:border-indigo-500/30 transition-colors group">
-              <div className="flex items-start justify-between mb-3">
-                <span className="text-2xl">{e.emoji}</span>
-                <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${STATUS[e.status]}`}>{e.status}</span>
-              </div>
-              <h4 className="text-[var(--text-1)] font-semibold text-sm mb-1">{e.name}</h4>
-              <p className="text-[var(--text-3)] text-xs mb-4">{e.date} · {e.venue}</p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 text-xs text-[var(--text-3)]">
-                  <span>🏪 {e.vendors} vendors</span>
-                  <span>👥 {e.guests} guests</span>
+            <Link
+              key={e.id}
+              href={`/proposals/${e.id}`}
+              className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 flex flex-col gap-3 hover:border-indigo-500/30 transition-colors group"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-[var(--text-1)] font-semibold text-sm truncate">{e.title}</p>
+                  <p className="text-[var(--text-3)] text-xs mt-0.5 truncate">{e.client}</p>
                 </div>
-                <Link
-                  href={`/events/${e.id}/room`}
-                  className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-all"
-                >
-                  Open Room →
-                </Link>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${STAGE_STYLE[e.stage]}`}>
+                  {e.stage}
+                </span>
               </div>
-            </div>
+
+              <div className="flex items-center gap-3 text-xs text-[var(--text-3)] flex-wrap">
+                <span>📍 {e.location}</span>
+                <span>🎯 {e.type}</span>
+                {e.date && <span>📅 {e.date}</span>}
+              </div>
+
+              {e.budget > 0 && (
+                <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between">
+                  <span className="text-[var(--text-3)] text-xs">Budget</span>
+                  <span className="text-[var(--text-1)] font-bold text-sm tabular-nums">{formatINR(e.budget)}</span>
+                </div>
+              )}
+            </Link>
           ))}
         </div>
       )}
     </div>
   );
 }
-
-const STATUS: Record<string, string> = {
-  "Confirmed": "bg-emerald-500/15 text-emerald-400",
-  "Pending":   "bg-amber-500/15 text-amber-400",
-  "In Review": "bg-indigo-500/15 text-indigo-400",
-  "Cancelled": "bg-red-500/15 text-red-400",
-};
-
-const EVENTS = [
-  { id: 1, emoji: "🎪", name: "Gala Night 2025",        date: "Apr 12",  venue: "Grand Hyatt",    vendors: 8,  guests: 350, status: "Confirmed" },
-  { id: 2, emoji: "💻", name: "Tech Summit KUN-042",    date: "Apr 18",  venue: "Convention Ctr", vendors: 12, guests: 600, status: "In Review" },
-  { id: 3, emoji: "🚀", name: "Product Launch – X1",    date: "Apr 25",  venue: "Rooftop Arena",  vendors: 5,  guests: 200, status: "Pending"   },
-  { id: 4, emoji: "🏛️", name: "Annual Compliance Day",  date: "May 2",   venue: "HQ Auditorium",  vendors: 3,  guests: 120, status: "Confirmed" },
-  { id: 5, emoji: "🎵", name: "Brand Activation Night", date: "May 9",   venue: "Sky Lounge",     vendors: 6,  guests: 180, status: "Pending"   },
-  { id: 6, emoji: "🎓", name: "Leadership Summit",      date: "May 15",  venue: "Conference Ctr", vendors: 4,  guests: 90,  status: "In Review" },
-];

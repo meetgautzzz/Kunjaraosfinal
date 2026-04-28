@@ -8,6 +8,8 @@ const ProfileSchema = z.object({
   phone_number: z.string().max(30).optional(),
   address:      z.string().max(300).optional(),
   logo_url:     z.string().url().max(500).optional().or(z.literal("")),
+  gst_number:   z.string().trim().max(20).optional(),
+  website:      z.string().trim().max(200).optional(),
 });
 
 export async function GET() {
@@ -19,7 +21,7 @@ export async function GET() {
 
   const { data, error } = await admin
     .from("profiles")
-    .select("company_name, phone_number, address, logo_url")
+    .select("company_name, phone_number, address, logo_url, gst_number, website")
     .eq("id", auth.user.id)
     .maybeSingle();
 

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Branding } from "@/lib/branding";
 
-const EMPTY: Branding = { company_name: "", phone_number: "", address: "", logo_url: "" };
+const EMPTY: Branding = { company_name: "", phone_number: "", address: "", logo_url: "", gst_number: "", website: "" };
 
 export default function BrandingSection() {
   const [form,    setForm]    = useState<Branding>(EMPTY);
@@ -39,6 +39,8 @@ export default function BrandingSection() {
           phone_number: form.phone_number || undefined,
           address:      form.address      || undefined,
           logo_url:     form.logo_url     || undefined,
+          gst_number:   form.gst_number   || undefined,
+          website:      form.website       || undefined,
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error ?? "Save failed.");
@@ -193,7 +195,7 @@ export default function BrandingSection() {
       </div>
 
       {/* Address */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 16 }}>
         <label className="field-label" htmlFor="address">
           Address <span style={{ fontWeight: 400, opacity: 0.6 }}>(optional)</span>
         </label>
@@ -206,6 +208,38 @@ export default function BrandingSection() {
           maxLength={300}
           rows={2}
           style={{ minHeight: 64 }}
+        />
+      </div>
+
+      {/* GST Number */}
+      <div style={{ marginBottom: 16 }}>
+        <label className="field-label" htmlFor="gst_number">
+          GST Number <span style={{ fontWeight: 400, opacity: 0.6 }}>(optional)</span>
+        </label>
+        <input
+          id="gst_number"
+          className="input"
+          type="text"
+          placeholder="22AAAAA0000A1Z5"
+          value={form.gst_number}
+          onChange={(e) => field("gst_number", e.target.value.toUpperCase())}
+          maxLength={20}
+        />
+      </div>
+
+      {/* Website */}
+      <div style={{ marginBottom: 24 }}>
+        <label className="field-label" htmlFor="website">
+          Website <span style={{ fontWeight: 400, opacity: 0.6 }}>(optional)</span>
+        </label>
+        <input
+          id="website"
+          className="input"
+          type="url"
+          placeholder="https://yourevents.in"
+          value={form.website}
+          onChange={(e) => field("website", e.target.value)}
+          maxLength={200}
         />
       </div>
 

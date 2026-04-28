@@ -101,7 +101,13 @@ export async function POST(req: NextRequest) {
   if (!pre.ok) return pre.res;
   const { ctx } = pre;
 
-  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.error("[generate-ideas] OPENAI_API_KEY not set in environment");
+    await ctx.refund("missing_api_key");
+    return aiError("AI_ERROR", "AI service not configured.", 502);
+  }
+  const client = new OpenAI({ apiKey });
 
   let response;
   try {
@@ -115,9 +121,17 @@ export async function POST(req: NextRequest) {
       response_format: { type: "json_object" },
     });
   } catch (aiErr) {
-    console.error("[generate-ideas] OpenAI error:", aiErr);
+    // Surface granular detail across multiple log lines so Vercel's
+    // truncated runtime logs still tell us what actually broke.
+    const e = aiErr as { name?: string; message?: string; status?: number; code?: string; type?: string };
+    console.error("[generate-ideas] OpenAI failed | model=", ctx.model);
+    console.error("[generate-ideas] OpenAI failed | name=", e.name);
+    console.error("[generate-ideas] OpenAI failed | status=", e.status);
+    console.error("[generate-ideas] OpenAI failed | code=", e.code);
+    console.error("[generate-ideas] OpenAI failed | type=", e.type);
+    console.error("[generate-ideas] OpenAI failed | message=", e.message);
     await ctx.refund("openai_error");
-    return aiError("AI_ERROR", "Kunjara Core failed. Try again in a minute.", 502);
+    return aiError("AI_ERROR", `Kunjara Core failed: ${e.message ?? "unknown"} (status ${e.status ?? "?"})`, 502);
   }
 
   const content = response.choices[0]?.message?.content;

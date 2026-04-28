@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
@@ -33,13 +34,21 @@ const NAV = [
 
 export default function Sidebar() {
   const path = usePathname();
+  const [userEmail, setUserEmail] = useState("");
+  const [userInitial, setUserInitial] = useState("?");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      const email = data.user?.email ?? "";
+      setUserEmail(email);
+      setUserInitial(email.charAt(0).toUpperCase() || "?");
+    });
+  }, []);
 
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    // Hard redirect so the server components and middleware re-read the
-    // now-cleared session cookies. router.push() alone leaves RSC state
-    // authenticated until the next full reload.
     window.location.href = "/login";
   }
 
@@ -104,10 +113,10 @@ export default function Sidebar() {
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--border-mid)] cursor-pointer transition-all text-left"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-            G
+            {userInitial}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[var(--text-1)] text-xs font-semibold truncate leading-none">Gautam Shah</p>
+            <p className="text-[var(--text-1)] text-xs font-semibold truncate leading-none">{userEmail || "Account"}</p>
             <p className="text-[var(--text-3)] text-[10px] truncate mt-0.5">Log out</p>
           </div>
           <ChevronIcon />

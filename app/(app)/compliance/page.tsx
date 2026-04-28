@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   ComplianceItem,
   ComplianceStatus,
-  MOCK_ITEMS,
   STATUS_CONFIG,
   PRIORITY_CONFIG,
   deadlineState,
@@ -26,10 +25,19 @@ const STATUS_FILTERS: { label: string; value: FilterStatus }[] = [
 ];
 
 export default function CompliancePage() {
-  const [items,        setItems]        = useState<ComplianceItem[]>(MOCK_ITEMS);
+  const [items,        setItems]        = useState<ComplianceItem[]>([]);
+  const [loading,      setLoading]      = useState(true);
   const [filter,       setFilter]       = useState<FilterStatus>("ALL");
   const [search,       setSearch]       = useState("");
   const [showGenerate, setShowGenerate] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/compliance")
+      .then((r) => r.ok ? r.json() : [])
+      .then((d) => setItems(Array.isArray(d) ? d : []))
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = useMemo(() => {
     return items
@@ -149,9 +157,15 @@ export default function CompliancePage() {
         </div>
 
         {/* Items */}
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="p-5 space-y-3">
+            {[...Array(4)].map((_, i) => <div key={i} className="h-12 rounded-lg bg-[var(--bg-surface)] animate-pulse" />)}
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-[var(--text-3)] text-sm">No permits match the current filter.</p>
+            <p className="text-[var(--text-3)] text-sm">
+              {items.length === 0 ? "No compliance items yet. Use Generate Checklist to get started." : "No permits match the current filter."}
+            </p>
           </div>
         ) : (
           <div>

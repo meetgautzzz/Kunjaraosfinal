@@ -120,11 +120,3 @@ export const DEFAULT_META: BudgetMeta = {
   hideClientCosts:false,
 };
 
-export const SAMPLE_ITEMS: BudgetItem[] = [
-  newItem({ category: "Venue",          description: "Grand Ballroom Rental",      unit: "Day",   quantity: 1, unitCost: 250000, gstRate: 18, margin: 10 }),
-  newItem({ category: "Catering",       description: "3-Course Dinner (per head)", unit: "Pax",   quantity: 300, unitCost: 2500, gstRate: 5,  margin: 12 }),
-  newItem({ category: "AV & Technology",description: "LED Wall + Sound System",   unit: "Day",   quantity: 1, unitCost: 150000, gstRate: 18, margin: 15 }),
-  newItem({ category: "Décor & Design", description: "Floral & Thematic Décor",   unit: "Lump Sum", quantity: 1, unitCost: 120000, gstRate: 12, margin: 20 }),
-  newItem({ category: "Entertainment",  description: "Live Band (4hr set)",        unit: "Event", quantity: 1, unitCost: 80000,  gstRate: 18, margin: 10 }),
-  newItem({ category: "Photography",    description: "Photo + Video Coverage",     unit: "Day",   quantity: 1, unitCost: 60000,  gstRate: 18, margin: 15 }),
-];

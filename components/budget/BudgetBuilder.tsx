@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import {
   calcItem, calcTotals, formatINR, newItem,
-  GST_RATES, CATEGORIES, SAMPLE_ITEMS, DEFAULT_META,
+  GST_RATES, CATEGORIES, DEFAULT_META,
   type BudgetItem, type BudgetMeta,
 } from "@/lib/budget";
 import BudgetTotalsPanel  from "./BudgetTotalsPanel";
@@ -15,7 +15,7 @@ type View = "builder" | "client";
 
 export default function BudgetBuilder() {
   const [meta,      setMeta]      = useState<BudgetMeta>(DEFAULT_META);
-  const [items,     setItems]     = useState<BudgetItem[]>(SAMPLE_ITEMS);
+  const [items,     setItems]     = useState<BudgetItem[]>([]);
   const [view,      setView]      = useState<View>("builder");
   const [saved,     setSaved]     = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});

@@ -34,8 +34,16 @@ export default function DashboardPage() {
   const [credits,   setCredits]   = useState<CreditsData | null>(null);
   const [vendors,   setVendors]   = useState<number>(0);
   const [loading,   setLoading]   = useState(true);
+  const [userName,  setUserName]  = useState("");
 
   useEffect(() => {
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      createClient().auth.getUser().then(({ data }) => {
+        const email = data.user?.email ?? "";
+        setUserName(email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()));
+      });
+    });
+
     Promise.allSettled([
       fetch("/api/proposals").then((r) => r.ok ? r.json() : []),
       fetch("/api/credits/summary").then((r) => r.ok ? r.json() : null),
@@ -66,7 +74,7 @@ export default function DashboardPage() {
       </Suspense>
 
       <div>
-        <h2 className="text-2xl font-bold text-[var(--text-1)]">{greeting} 👋</h2>
+        <h2 className="text-2xl font-bold text-[var(--text-1)]">{greeting}{userName ? `, ${userName}` : ""} 👋</h2>
         <p className="text-[var(--text-2)] text-sm mt-1">Here's what's happening across your workspace today.</p>
       </div>
 

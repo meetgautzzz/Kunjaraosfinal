@@ -7,6 +7,10 @@ import { aiError, aiSuccess } from "@/lib/ai/responses";
 import type { EventIdea } from "@/lib/proposals";
 import { randomUUID } from "crypto";
 
+// JSON-mode generation of 3 detailed event ideas regularly takes 15-30 s.
+// Default Vercel timeout is 10 s, which produced sporadic 502s in prod.
+export const maxDuration = 60;
+
 const BodySchema = z.object({
   eventType:    z.string().trim().min(1).max(200),
   budget:       z.number().positive().max(1_000_000_000),

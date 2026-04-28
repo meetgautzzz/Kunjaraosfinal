@@ -12,6 +12,10 @@ import {
   sanitizeExperiencePayload,
 } from "@/lib/experiencePrompt";
 
+// Full proposal generation (gpt-4o in JSON mode) takes 30-60 s.
+// Default Vercel timeout is 10 s, which produces 502s.
+export const maxDuration = 60;
+
 const SelectedIdeaSchema = z.object({
   title:            z.string().min(1),
   headline:         z.string().min(1),

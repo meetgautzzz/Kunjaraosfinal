@@ -16,6 +16,9 @@ import {
   type ProposalVersionSnapshot,
 } from "@/lib/proposals";
 
+// Full proposal regeneration (gpt-4o in JSON mode) takes 30-60 s.
+export const maxDuration = 60;
+
 const ParamsSchema = z.object({ id: z.string().uuid() });
 
 const BodySchema = z.object({

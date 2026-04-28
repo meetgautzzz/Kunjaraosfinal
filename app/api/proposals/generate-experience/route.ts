@@ -47,6 +47,9 @@ const BodySchema = z.object({
   eventDate:     z.string().trim().max(40).optional(),
   venueByClient: z.boolean().optional(),
   foodByClient:  z.boolean().optional(),
+  // Batch generation fields — all proposals in a batch share the same batchId
+  batchId:    z.string().uuid().optional(),
+  batchIndex: z.number().int().min(0).max(2).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -147,6 +150,8 @@ export async function POST(req: NextRequest) {
     regenerationsUsed:  0,
     activeVersionLabel: "v1",
     originalBrief,
+    ...(bodyResult.data.batchId    !== undefined ? { batchId:    bodyResult.data.batchId    } : {}),
+    ...(bodyResult.data.batchIndex !== undefined ? { batchIndex: bodyResult.data.batchIndex } : {}),
   };
 
   // Persist. Best-effort — failure here doesn't deduct credits twice (already

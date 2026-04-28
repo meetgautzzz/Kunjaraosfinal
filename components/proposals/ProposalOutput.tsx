@@ -53,6 +53,8 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const [versionsOpen,    setVersionsOpen]    = useState(false);
   const [regenerating,    setRegenerating]    = useState(false);
   const [regenError,      setRegenError]      = useState("");
+  const [duplicating,     setDuplicating]     = useState(false);
+  const [lockLoading,     setLockLoading]     = useState(false);
 
   const credits = useCredits();
   const { branding } = useBranding();
@@ -174,6 +176,33 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
       alert(err.message ?? "Failed to save template");
     } finally {
       setSavingTemplate(false);
+    }
+  }
+
+  async function handleDuplicate() {
+    if (duplicating) return;
+    setDuplicating(true);
+    try {
+      const res = await api.proposals.duplicate(proposal.id) as { id: string };
+      window.open(`/proposals/${res.id}`, "_blank");
+    } catch (err: any) {
+      alert(err.message ?? "Could not duplicate proposal.");
+    } finally {
+      setDuplicating(false);
+    }
+  }
+
+  async function handleToggleLock() {
+    if (lockLoading) return;
+    setLockLoading(true);
+    const next = !proposal.isLocked;
+    try {
+      await api.proposals.update(proposal.id, { isLocked: next });
+      onChange({ ...proposal, isLocked: next });
+    } catch (err: any) {
+      alert(err.message ?? "Could not update lock.");
+    } finally {
+      setLockLoading(false);
     }
   }
 
@@ -483,6 +512,35 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             <button onClick={() => setShowTplModal(true)} className="btn-ghost">
               Save Template
             </button>
+            <button
+              onClick={handleDuplicate}
+              disabled={duplicating}
+              title="Duplicate as a new independent proposal"
+              className="btn-ghost"
+            >
+              {duplicating ? "…" : "📄 Duplicate"}
+            </button>
+            <button
+              onClick={handleToggleLock}
+              disabled={lockLoading}
+              title={proposal.isLocked ? "Unlock this proposal to allow edits" : "Lock this version to prevent changes"}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "8px 12px",
+                borderRadius: 9,
+                border: proposal.isLocked ? "1px solid rgba(245,158,11,0.35)" : "1px solid var(--border)",
+                background: proposal.isLocked ? "rgba(245,158,11,0.08)" : "transparent",
+                color: proposal.isLocked ? "#fbbf24" : "var(--text-3)",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: lockLoading ? "not-allowed" : "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              {lockLoading ? "…" : proposal.isLocked ? "🔒 Locked" : "🔒 Lock"}
+            </button>
             <div style={{ position: "relative" }}>
               <button
                 onClick={() => setExportOpen((v) => !v)}
@@ -518,11 +576,15 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
                         <div style={{ fontSize: 11, color: "var(--text-3)" }}>Opens print dialog · save as PDF</div>
                       </div>
                     </button>
-                    <button disabled className="export-row" title="PowerPoint export — coming soon">
-                      <span>🪄</span>
+                    <button
+                      onClick={() => { setExportOpen(false); window.location.href = `/proposals/${proposal.id}/pitch-deck`; }}
+                      className="export-row"
+                      title="Create a pitch deck and export as PowerPoint"
+                    >
+                      <span>🎯</span>
                       <div style={{ flex: 1, textAlign: "left" }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-2)" }}>Export as PPT · soon</div>
-                        <div style={{ fontSize: 11, color: "var(--text-3)" }}>Branded .pptx deck</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)" }}>Create Pitch Deck (.pptx)</div>
+                        <div style={{ fontSize: 11, color: "var(--text-3)" }}>AI-generated slides · editable · download</div>
                       </div>
                     </button>
                   </div>
@@ -551,6 +613,27 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
                 }
               `}</style>
             </div>
+            <button
+              onClick={() => window.location.href = `/proposals/${proposal.id}/pitch-deck`}
+              title="Create a client-ready pitch deck from this proposal"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 13px",
+                borderRadius: 9,
+                border: "1px solid rgba(245,158,11,0.3)",
+                background: "rgba(245,158,11,0.07)",
+                color: "#fbbf24",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.15s",
+                whiteSpace: "nowrap",
+              }}
+            >
+              🎯 Pitch Deck
+            </button>
             <button
               onClick={handleSave}
               style={{
@@ -662,6 +745,55 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
           </button>
         </div>
       )}
+
+      {/* ── Isolation / lock notice ──────────────────────────────────────────── */}
+      {proposal.isLocked ? (
+        <div
+          style={{
+            padding: "10px 16px",
+            borderRadius: 10,
+            background: "rgba(245,158,11,0.07)",
+            border: "1px solid rgba(245,158,11,0.28)",
+            color: "#fbbf24",
+            fontSize: 13,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
+          <span>🔒 This proposal is locked. Unlock it to make edits.</span>
+          <button
+            onClick={handleToggleLock}
+            style={{ fontSize: 12, color: "#fbbf24", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}
+          >
+            Unlock
+          </button>
+        </div>
+      ) : proposal.batchId ? (
+        <div
+          style={{
+            padding: "8px 14px",
+            borderRadius: 9,
+            border: "1px solid rgba(99,102,241,0.15)",
+            background: "rgba(99,102,241,0.04)",
+            color: "var(--text-3)",
+            fontSize: 12.5,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <span style={{ color: "#a5b4fc" }}>⚡</span>
+          Edits apply only to this proposal — others in the batch are unaffected.
+          <a
+            href={`/proposals/batch/${proposal.batchId}`}
+            style={{ marginLeft: "auto", color: "#a5b4fc", textDecoration: "underline", textUnderlineOffset: 3, fontSize: 12, whiteSpace: "nowrap" }}
+          >
+            View batch →
+          </a>
+        </div>
+      ) : null}
 
       {/* ── Tab bar ──────────────────────────────────────────────────────────── */}
       <div style={{ overflowX: "auto" }}>

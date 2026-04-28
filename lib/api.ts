@@ -70,14 +70,22 @@ export const api = {
   proposals: {
     list:              ()                           => api.get("/proposals"),
     get:               (id: string)                 => api.get(`/proposals/${id}`),
+    getBatch:          (batchId: string)            => api.get(`/proposals/batch/${batchId}`),
     generateIdeas:     (body: unknown)              => api.post("/proposals/generate-ideas", body),
     generateExperience:(body: unknown)              => api.post("/proposals/generate-experience", body),
     generate:          (body: unknown)              => api.post("/proposals/generate", body),
     generateImage:     (body: unknown)              => api.post("/proposals/generate-image", body),
+    regenerate:        (id: string, body: unknown)  => api.post(`/proposals/${id}/regenerate`, body),
+    switchVersion:     (id: string, body: unknown)  => api.post(`/proposals/${id}/switch-version`, body),
     update:            (id: string, b: unknown)     => api.patch(`/proposals/${id}`, b),
     saveTemplate:      (id: string, name: string)   => api.post(`/proposals/${id}/save-template`, { name }),
     duplicate:         (id: string)                 => api.post(`/proposals/${id}/duplicate`, {}),
     delete:            (id: string)                 => api.delete(`/proposals/${id}`),
+    pitchDeck: {
+      get:      (id: string)                        => api.get(`/proposals/${id}/pitch-deck`),
+      generate: (id: string, body: unknown)         => api.post(`/proposals/${id}/pitch-deck`, body),
+      save:     (id: string, body: unknown)         => api.post(`/proposals/${id}/pitch-deck`, body),
+    },
   },
 
   billing: {

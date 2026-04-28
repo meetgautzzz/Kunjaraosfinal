@@ -143,6 +143,12 @@ export type ProposalData = {
   regenerationsUsed?:  number;        // 0–5
   activeVersionLabel?: string;        // e.g. "v1", "v2"
   originalBrief?:      OriginalBrief; // captured on first generation, replayable
+  // Batch generation — links proposals created together from the same brief
+  batchId?:    string;  // shared UUID across all proposals in a batch
+  batchIndex?: number;  // 0-based position within the batch (0, 1, 2)
+  isLocked?:   boolean; // planner has locked this version from further edits
+  // Pitch deck generated from this proposal
+  pitchDeck?:  PitchDeck;
 };
 
 export type OriginalBrief = {
@@ -175,6 +181,25 @@ export type ProposalVersionSnapshot = {
   stageDesign?:       ProposalData["stageDesign"];
   decorPlan?:         ProposalData["decorPlan"];
   experienceElements?:ProposalData["experienceElements"];
+};
+
+// ── Pitch Deck ────────────────────────────────────────────────────────────────
+
+export type PitchSlide = {
+  title:         string;
+  bullets:       string[];
+  speaker_notes: string;
+  image_prompt?: string;
+};
+
+export type PitchDeck = {
+  deckId:     string;
+  slides:     PitchSlide[];
+  version:    number;
+  tone:       string;
+  slideCount: number;
+  createdAt:  string;
+  updatedAt:  string;
 };
 
 export const MAX_REGENERATIONS = 5;

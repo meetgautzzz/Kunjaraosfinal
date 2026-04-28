@@ -16,6 +16,7 @@ const NAV = [
     items: [
       { href: "/dashboard",  label: "Dashboard" },
       { href: "/proposals",  label: "Vision Board", badge: "AI" },
+      { href: "/brain",      label: "AI Brain",     badge: "AI" },
       { href: "/budget",     label: "Budget Builder" },
       { href: "/events",     label: "Events" },
       { href: "/vendors",    label: "Vendors" },

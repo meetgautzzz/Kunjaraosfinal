@@ -35,7 +35,7 @@ type FormState = {
   requirements: string;
 };
 
-type Step = "form" | "generating-ideas" | "ideas" | "generating-plan" | "output";
+type Step = "form" | "generating-ideas" | "ideas" | "generating-plan" | "generating-plans" | "output";
 
 const STEP_META = ["Define Event", "Choose Concept", "Full Plan"] as const;
 
@@ -49,6 +49,7 @@ export default function NewProposalPage() {
   const [proposalId,   setProposalId]   = useState<string>("");
   const [selectedIdea, setSelectedIdea] = useState<EventIdea | null>(null);
   const [error,        setError]        = useState("");
+  const [batchProgress, setBatchProgress] = useState<(0 | 1 | 2)[]>([]); // index of completed proposals in batch
 
   // If the API returns LIMIT_REACHED, surface the buy modal instead of a
   // dead error banner. lib/api throws Error(err.error), so the code lands
@@ -114,6 +115,65 @@ export default function NewProposalPage() {
     }
   }
 
+  async function handleGenerateAll() {
+    setError("");
+    setBatchProgress([]);
+    setStep("generating-plans");
+    const batchId = crypto.randomUUID();
+
+    const clientInfo = {
+      ...(form.clientName  ? { name:        form.clientName  } : {}),
+      ...(form.companyName ? { companyName: form.companyName } : {}),
+      ...(form.mobile      ? { mobile:      form.mobile      } : {}),
+      ...(form.email       ? { email:       form.email       } : {}),
+      ...(form.address     ? { address:     form.address     } : {}),
+    };
+
+    const baseParams = {
+      eventType:    form.eventType,
+      budget:       Number(form.budget),
+      location:     form.location,
+      requirements: form.requirements,
+      ...(form.guestCount ? { guestCount: Number(form.guestCount) } : {}),
+      ...(form.eventDate  ? { eventDate:  form.eventDate  } : {}),
+      ...(Object.keys(clientInfo).length ? { client: clientInfo } : {}),
+      venueByClient: form.venueByClient === "yes",
+      foodByClient:  form.foodByClient  === "yes",
+      batchId,
+    };
+
+    const settled = await Promise.allSettled(
+      eventIdeas.map((idea, index) =>
+        api.proposals.generateExperience({
+          ...baseParams,
+          proposalId:  crypto.randomUUID(),
+          selectedIdea: idea,
+          batchIndex:  index,
+        }).then((res) => {
+          setBatchProgress((prev) => [...prev, index as 0|1|2]);
+          if (typeof (res as any).credits_remaining === "number") {
+            credits.setRemaining((res as any).credits_remaining);
+          }
+          return res;
+        })
+      )
+    );
+
+    const successes = settled.filter((r) => r.status === "fulfilled");
+    if (successes.length === 0) {
+      const firstErr = settled.find((r) => r.status === "rejected") as PromiseRejectedResult | undefined;
+      if (firstErr && maybeOpenBuyModal(firstErr.reason)) {
+        setStep("ideas");
+        return;
+      }
+      setError("All proposals failed to generate. Please try again.");
+      setStep("ideas");
+      return;
+    }
+
+    router.push(`/proposals/batch/${batchId}`);
+  }
+
   async function handleSelectIdea(idea: EventIdea) {
     setSelectedIdea(idea);
     setError("");
@@ -159,7 +219,8 @@ export default function NewProposalPage() {
   // ── Render ───────────────────────────────────────────────────────────────────
 
   if (step === "generating-ideas") return <GeneratingScreen phase="ideas" />;
-  if (step === "generating-plan") return <GeneratingScreen phase="plan" idea={selectedIdea} />;
+  if (step === "generating-plan")  return <GeneratingScreen phase="plan" idea={selectedIdea} />;
+  if (step === "generating-plans") return <GeneratingScreen phase="batch" ideas={eventIdeas} progress={batchProgress} />;
 
   if (step === "output" && proposal) {
     return (
@@ -204,6 +265,37 @@ export default function NewProposalPage() {
         </div>
 
         {error && <ErrorBanner message={error} onDismiss={() => setError("")} />}
+
+        {/* "Generate All 3" CTA — primary batch path */}
+        <div
+          style={{
+            marginBottom: 24,
+            padding: "16px 20px",
+            borderRadius: 12,
+            border: "1px solid rgba(99,102,241,0.25)",
+            background: "rgba(99,102,241,0.06)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          <p style={{ fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.55 }}>
+            <strong style={{ color: "var(--text-1)" }}>Build all 3 as independent proposals</strong>
+            {" "}— each stored separately so you can edit, regenerate, or share them individually. Costs 3 credits.
+          </p>
+          <button
+            onClick={handleGenerateAll}
+            className="btn-primary"
+            style={{ alignSelf: "flex-start", padding: "10px 20px", fontSize: 13.5 }}
+          >
+            <SparkIcon />
+            Generate All 3 Proposals
+          </button>
+        </div>
+
+        <p className="t-caption" style={{ marginBottom: 12, color: "var(--text-3)" }}>
+          Or expand just one concept:
+        </p>
 
         <IdeaCards ideas={eventIdeas} onSelect={handleSelectIdea} />
 
@@ -641,10 +733,21 @@ function ErrorBanner({ message, onDismiss }: { message: string; onDismiss: () =>
 }
 
 // ── Generating screen ─────────────────────────────────────────────────────────
-function GeneratingScreen({ phase, idea }: { phase: "ideas" | "plan"; idea?: EventIdea | null }) {
+function GeneratingScreen({
+  phase, idea, ideas, progress,
+}: {
+  phase:    "ideas" | "plan" | "batch";
+  idea?:    EventIdea | null;
+  ideas?:   EventIdea[];
+  progress?: (0 | 1 | 2)[];
+}) {
   const isIdeas = phase === "ideas";
+  const isBatch = phase === "batch";
+
   const steps = isIdeas
     ? ["Analysing brief & budget", "Designing 3 distinct concepts", "Scoring each concept", "Finalising wow factors"]
+    : isBatch
+    ? ["Expanding all 3 concepts in parallel", "Crafting budget breakdowns", "Building timelines & activations", "Finalising visual directions", "Saving all 3 proposals"]
     : ["Expanding selected concept", "Crafting budget breakdown", "Building execution timeline", "Designing visual direction", "Planning experience activations"];
 
   const [activeStep, setActiveStep] = useState(0);
@@ -652,7 +755,7 @@ function GeneratingScreen({ phase, idea }: { phase: "ideas" | "plan"; idea?: Eve
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveStep((s) => Math.min(s + 1, steps.length - 1));
-    }, isIdeas ? 2800 : 2200);
+    }, isIdeas ? 2800 : 3500);
     return () => clearInterval(interval);
   }, [steps.length, isIdeas]);
 
@@ -698,8 +801,36 @@ function GeneratingScreen({ phase, idea }: { phase: "ideas" | "plan"; idea?: Eve
         </div>
       </div>
 
-      {/* Selected idea badge */}
-      {idea && !isIdeas && (
+      {/* Batch progress indicators */}
+      {isBatch && ideas && (
+        <div style={{ display: "flex", gap: 10 }}>
+          {ideas.map((idea, i) => {
+            const done = (progress ?? []).includes(i as 0|1|2);
+            return (
+              <div
+                key={idea.id}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: 10,
+                  border: `1px solid ${done ? "rgba(34,197,94,0.35)" : "rgba(99,102,241,0.22)"}`,
+                  background: done ? "rgba(34,197,94,0.08)" : "rgba(99,102,241,0.08)",
+                  color: done ? "#4ade80" : "#a5b4fc",
+                  fontSize: 12.5,
+                  fontWeight: 500,
+                  maxWidth: 160,
+                  textAlign: "center",
+                  transition: "all 0.4s",
+                }}
+              >
+                {done ? "✓ " : ""}{idea.title}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Selected idea badge (single proposal) */}
+      {idea && !isIdeas && !isBatch && (
         <div
           style={{
             padding: "9px 18px",
@@ -720,11 +851,13 @@ function GeneratingScreen({ phase, idea }: { phase: "ideas" | "plan"; idea?: Eve
       {/* Title */}
       <div className="text-center" style={{ maxWidth: 400 }}>
         <p className="t-heading" style={{ marginBottom: 8 }}>
-          {isIdeas ? "Crafting your concepts…" : "Building the full experience plan…"}
+          {isIdeas ? "Crafting your concepts…" : isBatch ? "Building all 3 proposals…" : "Building the full experience plan…"}
         </p>
         <p className="t-body">
           {isIdeas
             ? "Kunjara Core is designing 3 unique, scored event concepts"
+            : isBatch
+            ? "Generating 3 independent proposals simultaneously — each with its own concept, budget & timeline"
             : "Generating concept · budget · timeline · visuals · activations"}
         </p>
       </div>

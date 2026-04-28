@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PLANS, getPlan, formatPrice, type PlanId, type Plan } from "@/lib/plans";
+import { CREDIT_PACKS } from "@/lib/creditPacks";
 import { createClient } from "@/lib/supabase/client";
 
 type UsageRow = {
@@ -54,11 +55,6 @@ export default function BillingPage() {
   useEffect(() => { refreshUsage(); }, []);
 
   async function handleSubscribe(plan: Plan) {
-    if (plan.comingSoon) {
-      showToast("error", `${plan.name} is coming soon. Join the waitlist for early access.`);
-      return;
-    }
-
     setCheckoutPlan(plan.id);
     const sdkReady = await loadRazorpayScript();
     if (!sdkReady) {
@@ -118,8 +114,8 @@ export default function BillingPage() {
         const result = await verifyRes.json();
         if (result.success) {
           const msg = result.credited
-            ? `Payment successful — ${plan.name} plan activated with ${result.credits} proposal credits.`
-            : `Payment received — ${result.credits} ${plan.name} credits applying in a few seconds.`;
+            ? `Payment successful — ${plan.name} plan activated with ${result.credits} AI credits.`
+            : `Payment received — ${result.credits} AI credits applying in a few seconds.`;
           showToast("success", msg);
           await refreshUsage();
         } else {
@@ -143,7 +139,15 @@ export default function BillingPage() {
       <div>
         <h2 className="text-2xl font-bold text-[var(--text-1)]">Billing & Plans</h2>
         <p className="text-[var(--text-2)] text-sm mt-1">
-          Pay once per plan to unlock a batch of proposal credits. Razorpay + UPI supported.
+          Simple, transparent pricing. Razorpay + UPI supported.
+        </p>
+      </div>
+
+      {/* Launch offer banner */}
+      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 px-5 py-3 flex items-center gap-3">
+        <span className="text-xl shrink-0">🎉</span>
+        <p className="text-amber-300 text-sm font-semibold">
+          Launch Offer — 2× AI Credits on all plans. Limited time only.
         </p>
       </div>
 
@@ -186,7 +190,7 @@ export default function BillingPage() {
       </div>
 
       {/* Plan cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto w-full">
         {PLANS.filter((p) => !p.dev).map((plan) => (
           <PlanCard
             key={plan.id}
@@ -197,6 +201,39 @@ export default function BillingPage() {
             onSubscribe={() => handleSubscribe(plan)}
           />
         ))}
+      </div>
+
+      {/* Credit top-ups */}
+      <div>
+        <div className="mb-4">
+          <h3 className="text-[var(--text-1)] text-base font-bold">Need more AI power?</h3>
+          <p className="text-[var(--text-3)] text-sm mt-1">Top up credits any time — no plan change required.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {CREDIT_PACKS.map((pack) => (
+            <div key={pack.id} className={`rounded-2xl border p-4 flex items-center justify-between gap-4 ${
+              pack.id === "medium"
+                ? "border-indigo-500/30 bg-indigo-500/5"
+                : "border-[var(--border)] bg-[var(--bg-card)]"
+            }`}>
+              <div>
+                <p className="text-[var(--text-1)] font-bold text-lg tabular-nums">
+                  {pack.credits.toLocaleString("en-IN")}
+                  <span className="text-[var(--text-3)] text-xs font-normal ml-1">credits</span>
+                </p>
+                <p className="text-[var(--text-3)] text-xs mt-0.5">
+                  ₹{(pack.amountInr / pack.credits).toFixed(1)} per credit
+                </p>
+              </div>
+              <p className="text-[var(--text-1)] font-bold text-base tabular-nums shrink-0">
+                ₹{pack.amountInr.toLocaleString("en-IN")}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="text-[var(--text-3)] text-xs mt-3">
+          Buy credits from the ⚡ top-up button on any page.
+        </p>
       </div>
 
       <PaymentInfo />
@@ -250,8 +287,8 @@ function CurrentPlanBanner({ plan, creditsAdded, eventsUsed, creditsLeft }: {
           </div>
           <p className="text-[var(--text-3)] text-sm mt-0.5">
             {isFree
-              ? "Choose a plan below to unlock proposal credits."
-              : `${formatPrice(plan.price)}/month · ${creditsAdded} total credits purchased`}
+              ? "Choose a plan below to start generating proposals."
+              : `${formatPrice(plan.price)}/month · ${plan.proposals} proposals · ${plan.credits.toLocaleString("en-IN")} AI credits`}
           </p>
         </div>
       </div>
@@ -309,13 +346,6 @@ function PlanCard({ plan, annual, isCurrent, loading, onSubscribe }: {
           </span>
         </div>
       )}
-      {plan.comingSoon && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-amber-500 text-white whitespace-nowrap">
-            Coming Soon
-          </span>
-        </div>
-      )}
 
       <div>
         <div className="flex items-center justify-between">
@@ -338,7 +368,7 @@ function PlanCard({ plan, annual, isCurrent, loading, onSubscribe }: {
           )}
         </div>
         <p className="text-[var(--text-3)] text-xs mt-2">
-          {plan.events} proposals · {plan.users} user{plan.users > 1 ? "s" : ""} · {plan.storage}
+          {plan.proposals} proposals · {plan.credits.toLocaleString("en-IN")} AI credits · {plan.users} user
         </p>
       </div>
 
@@ -346,13 +376,6 @@ function PlanCard({ plan, annual, isCurrent, loading, onSubscribe }: {
         <div className="w-full py-2.5 rounded-xl text-sm font-medium text-center text-emerald-400 border border-emerald-500/20 bg-emerald-500/5">
           ✓ Current plan
         </div>
-      ) : plan.comingSoon ? (
-        <a
-          href="/site/waitlist.html"
-          className="w-full py-2.5 rounded-xl text-sm font-semibold text-center border border-amber-500/30 text-amber-400 bg-amber-500/5 hover:bg-amber-500/10 transition-colors"
-        >
-          Join Waitlist
-        </a>
       ) : (
         <button
           onClick={onSubscribe}
@@ -363,7 +386,7 @@ function PlanCard({ plan, annual, isCurrent, loading, onSubscribe }: {
               : "border border-[var(--border)] text-[var(--text-1)] hover:bg-[var(--bg-hover)]"
           } disabled:opacity-60 disabled:cursor-not-allowed`}
         >
-          {loading ? <SpinnerIcon /> : "Subscribe"}
+          {loading ? <SpinnerIcon /> : plan.highlighted ? "Upgrade to Pro" : "Subscribe"}
         </button>
       )}
 
@@ -404,7 +427,7 @@ function DevSection({ plans, loadingPlan, onSubscribe }: {
             disabled={loadingPlan === plan.id}
             className="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition-colors disabled:opacity-60"
           >
-            {loadingPlan === plan.id ? "Opening…" : `Pay ${formatPrice(plan.price)} — ${plan.name} (${plan.events} credit${plan.events === 1 ? "" : "s"})`}
+            {loadingPlan === plan.id ? "Opening…" : `Pay ${formatPrice(plan.price)} — ${plan.name} (${plan.credits} AI credits)`}
           </button>
         ))}
       </div>

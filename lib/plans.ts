@@ -1,68 +1,63 @@
-export type PlanId = "basic" | "pro" | "expert" | "test";
+export type PlanId = "basic" | "pro" | "test";
 
 export interface Plan {
-  id: PlanId;
-  name: string;
-  price: number;
-  annualPrice: number;
-  events: number;
-  users: number;
-  storage: string;
-  leads?: number;
-  overage: number;
+  id:           PlanId;
+  name:         string;
+  price:        number;
+  annualPrice:  number;
+  proposals:    number;   // proposals / month
+  credits:      number;   // AI credits granted on subscription
+  users:        number;
   highlighted?: boolean;
-  comingSoon?: boolean;
-  dev?: boolean;
-  features: string[];
+  dev?:         boolean;
+  features:     string[];
 }
 
 export const PLANS: Plan[] = [
   {
-    id: "basic",
-    name: "Basic",
-    price: 1999,
-    annualPrice: 1666,
-    events: 10,
-    users: 1,
-    storage: "5GB",
-    overage: 199,
-    features: ["10 proposals/month", "1 user", "5GB storage", "PDF export", "Email support"],
+    id:           "basic",
+    name:         "Basic",
+    price:        1999,
+    annualPrice:  1666,
+    proposals:    12,
+    credits:      2000,
+    users:        1,
+    features: [
+      "12 client-winning proposals",
+      "2,000 AI credits · 🎉 Launch offer",
+      "1 user",
+      "PDF export",
+      "Email support",
+    ],
   },
   {
-    id: "pro",
-    name: "Pro",
-    price: 3999,
-    annualPrice: 3332,
-    events: 20,
-    users: 1,
-    storage: "10GB",
-    overage: 199,
-    highlighted: true,
-    features: ["20 proposals/month", "1 user", "10GB storage", "PDF export", "Priority support"],
+    id:           "pro",
+    name:         "Pro",
+    price:        3999,
+    annualPrice:  3332,
+    proposals:    30,
+    credits:      6000,
+    users:        1,
+    highlighted:  true,
+    features: [
+      "30 client-winning proposals",
+      "6,000 AI credits · 🎉 2X launch offer",
+      "Advanced AI quality",
+      "1 user",
+      "PDF export",
+      "Priority support",
+    ],
   },
   {
-    id: "expert",
-    name: "Expert",
-    comingSoon: true,
-    price: 11999,
-    annualPrice: 9999,
-    events: 20,
-    users: 5,
-    storage: "50GB",
-    overage: 199,
-    features: ["20 proposals/month", "5 users", "50GB storage", "PDF export", "Priority support"],
-  },
-  {
-    id: "test",
-    name: "Test",
-    dev: true,
-    price: 10,
+    id:          "test",
+    name:        "Test",
+    dev:         true,
+    price:       10,
     annualPrice: 10,
-    events: 5,
-    users: 1,
-    storage: "—",
-    overage: 0,
-    features: ["End-to-end pay flow test", "5 proposal credits", "Not for production use"],
+    proposals:   5,
+    credits:     5,
+    users:       1,
+    features:    ["End-to-end pay flow test", "5 AI credits", "Not for production use"],
   },
 ];
 

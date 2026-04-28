@@ -13,9 +13,9 @@ export interface CreditPack {
 }
 
 export const CREDIT_PACKS: CreditPack[] = [
-  { id: "small",  credits: 10,  amountInr: 499,  amountInPaise: 49900,  label: "10 credits"  },
-  { id: "medium", credits: 25,  amountInr: 999,  amountInPaise: 99900,  label: "25 credits"  },
-  { id: "large",  credits: 60,  amountInr: 1999, amountInPaise: 199900, label: "60 credits"  },
+  { id: "small",  credits: 500,  amountInr: 499,  amountInPaise: 49900,  label: "500 credits"   },
+  { id: "medium", credits: 1200, amountInr: 999,  amountInPaise: 99900,  label: "1,200 credits" },
+  { id: "large",  credits: 3000, amountInr: 1999, amountInPaise: 199900, label: "3,000 credits" },
 ];
 
 export function getCreditPack(id: string): CreditPack | null {

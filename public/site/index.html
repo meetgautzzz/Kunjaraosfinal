@@ -497,7 +497,7 @@ footer{background:#0D0804;border-top:1px solid rgba(251,233,208,.07);padding:62p
           <tr><td class="fl">Social Media AI</td><td class="k"><span class="chk">✓</span> All Platforms</td><td><span class="crs">✕</span> Manual</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
           <tr><td class="fl">Hindi + English</td><td class="k"><span class="chk">✓</span> Native</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
           <tr><td class="fl">Razorpay + UPI</td><td class="k"><span class="chk">✓</span> Native</td><td><span class="crs">✕</span> Manual</td><td>Partial</td><td><span class="crs">✕</span> None</td></tr>
-          <tr><td class="fl">Monthly Cost</td><td class="k" style="color:var(--kgold);font-weight:700;">₹1,999 – ₹24,999</td><td>Free (but broken)</td><td>₹0–₹5,000</td><td>₹50,000+</td></tr>
+          <tr><td class="fl">Monthly Cost</td><td class="k" style="color:var(--kgold);font-weight:700;">₹1,999 – ₹3,999</td><td>Free (but broken)</td><td>₹0–₹5,000</td><td>₹50,000+</td></tr>
         </tbody>
       </table>
     </div>
@@ -552,40 +552,67 @@ footer{background:#0D0804;border-top:1px solid rgba(251,233,208,.07);padding:62p
 <!-- PRICING -->
 <section id="prx" class="sp">
   <div class="c">
-    <div class="slabel reveal">Subscription Architecture</div>
-    <h2 class="sh2 reveal d1">No free tier. No trial.<br>Just the complete OS.</h2>
-    <p class="ssub reveal d2">No setup fee. No onboarding charge. Every plan delivers the complete Kunjara OS™ from day one.</p>
+    <div class="slabel reveal">Simple, Transparent Pricing</div>
+    <h2 class="sh2 reveal d1">Create client-winning<br>event proposals in minutes.</h2>
+    <p class="ssub reveal d2">🎉 Launch Offer — every plan ships with 2× AI credits. No free tier. No hidden fees. Just the complete OS from day one.</p>
     <div class="btog reveal d2">
       <div class="bopt act" id="bm" onclick="setBill('m')">Monthly</div>
       <div class="bopt" id="ba" onclick="setBill('a')">Annual <span class="bsave">Save 17%</span></div>
     </div>
-    <div class="prgrid reveal d3">
+    <div class="prgrid reveal d3" style="grid-template-columns:repeat(2,1fr);max-width:760px;margin:0 auto;">
       <!-- Basic -->
       <div class="prc">
         <div class="pname">Basic</div>
         <div class="pamnt" id="pb"><sub>₹</sub>1,999</div><div class="pper">per month</div><div class="pann" id="ab">₹19,990 billed annually</div>
         <div class="pdiv"></div>
-        <ul class="pfl"><li><span class="chk">✓</span>5 Events / month</li><li><span class="chk">✓</span>1 User seat</li><li><span class="chk">✓</span>5 GB storage</li><li><span class="chk">✓</span>Complete AI suite</li><li><span class="chk">✓</span>All 4 pillars</li><li><span class="chk">✓</span>GST auto-calculation</li></ul>
-        <div class="pbw"><a href="/signup?plan=basic" class="btn btn-ol">Get started</a></div>
+        <ul class="pfl">
+          <li><span class="chk">✓</span>12 client-winning proposals</li>
+          <li><span class="chk">✓</span>2,000 AI credits</li>
+          <li><span class="chk">✓</span>1 user</li>
+          <li><span class="chk">✓</span>PDF export</li>
+          <li><span class="chk">✓</span>Email support</li>
+        </ul>
+        <div class="pbw"><a href="/signup?plan=basic" class="btn btn-ol">Get Started</a></div>
       </div>
       <!-- Pro - Featured -->
       <div class="prc feat" style="margin-top:-8px;">
-        <div class="ppop">Most Popular</div>
-        <div class="pname" style="margin-top:28px;">Professional</div>
+        <div class="ppop">Most Popular · 🎉 2× Credits</div>
+        <div class="pname" style="margin-top:28px;">Pro</div>
         <div class="pamnt" id="pp"><sub>₹</sub>3,999</div><div class="pper">per month</div><div class="pann" id="ap">₹39,990 billed annually</div>
         <div class="pdiv"></div>
-        <ul class="pfl"><li><span class="chk">✓</span>10 Events / month</li><li><span class="chk">✓</span>1 User seat</li><li><span class="chk">✓</span>10 GB storage</li><li><span class="chk">✓</span>Complete AI suite</li><li><span class="chk">✓</span>Proposal Intelligence</li><li><span class="chk">✓</span>Branded Event Room</li></ul>
-        <div class="pbw"><a href="/signup?plan=pro" class="btn btn-wh">Get started</a></div>
+        <ul class="pfl">
+          <li><span class="chk">✓</span>30 client-winning proposals</li>
+          <li><span class="chk">✓</span>6,000 AI credits</li>
+          <li><span class="chk">✓</span>Advanced AI quality</li>
+          <li><span class="chk">✓</span>1 user</li>
+          <li><span class="chk">✓</span>PDF export</li>
+          <li><span class="chk">✓</span>Priority support</li>
+        </ul>
+        <div class="pbw"><a href="/signup?plan=pro" class="btn btn-wh">Upgrade to Pro</a></div>
       </div>
-      <!-- Expert - Coming Soon -->
-      <div class="prc" style="opacity:.82;">
-        <div class="csb">Coming Soon</div>
-        <div class="pname">Expert</div>
-        <div class="pamnt" id="pe"><sub>₹</sub>11,999</div><div class="pper">per month</div><div class="pann" id="ae">₹1,19,990 billed annually</div>
-        <div class="pdiv"></div>
-        <ul class="pfl"><li><span class="chk">✓</span>20 Events / month</li><li><span class="chk">✓</span>5 User seats</li><li><span class="chk">✓</span>50 GB storage</li><li><span class="chk">✓</span>Complete AI suite</li><li><span class="chk">✓</span>All Pro features</li><li><span class="chk">✓</span>Priority support</li></ul>
-        <div class="pbw"><a href="/waitlist?plan=expert" class="btn btn-coming">Join Waitlist</a></div>
+    </div>
+    <!-- Credit top-ups -->
+    <div style="margin-top:52px;text-align:center;">
+      <div class="slabel" style="margin-bottom:16px;">Need more AI power?</div>
+      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+        <div style="background:var(--cream);border:1px solid var(--border);border-radius:14px;padding:16px 24px;min-width:160px;">
+          <div style="font-size:20px;font-weight:800;color:var(--ink);">500</div>
+          <div style="font-size:12px;color:var(--muted);margin:2px 0 8px;">AI credits</div>
+          <div style="font-size:15px;font-weight:700;color:var(--accent);">₹499</div>
+        </div>
+        <div style="background:var(--cream);border:2px solid var(--accent);border-radius:14px;padding:16px 24px;min-width:160px;position:relative;">
+          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--white);font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap;">Best Value</div>
+          <div style="font-size:20px;font-weight:800;color:var(--ink);">1,200</div>
+          <div style="font-size:12px;color:var(--muted);margin:2px 0 8px;">AI credits</div>
+          <div style="font-size:15px;font-weight:700;color:var(--accent);">₹999</div>
+        </div>
+        <div style="background:var(--cream);border:1px solid var(--border);border-radius:14px;padding:16px 24px;min-width:160px;">
+          <div style="font-size:20px;font-weight:800;color:var(--ink);">3,000</div>
+          <div style="font-size:12px;color:var(--muted);margin:2px 0 8px;">AI credits</div>
+          <div style="font-size:15px;font-weight:700;color:var(--accent);">₹1,999</div>
+        </div>
       </div>
+      <p style="margin-top:14px;font-size:12px;color:var(--muted);">Top up any time from inside the app. Instant credit via Razorpay + UPI.</p>
     </div>
   </div>
 </section>
@@ -878,17 +905,15 @@ window.addEventListener('load',()=>setTimeout(()=>document.querySelectorAll('#he
 window.addEventListener('scroll',()=>{const v=document.querySelector('.hvis');if(v)v.style.transform=`translateY(${window.scrollY*.07}px)`;});
 
 // Billing toggle
-const prices={m:{b:'1,999',p:'3,999',e:'11,999',en:'24,999'},a:{b:'1,666',p:'3,332',e:'9,999',en:'20,832'}};
-const anns={m:{b:'₹19,990 billed annually',p:'₹39,990 billed annually',e:'₹1,19,990 billed annually',en:'₹2,49,990 billed annually'},a:{b:'₹19,990/yr — Save ₹3,998',p:'₹39,990/yr — Save ₹7,998',e:'₹1,19,990/yr — Save ₹24,000',en:'₹2,49,990/yr — Save ₹50,000'}};
+const prices={m:{b:'1,999',p:'3,999'},a:{b:'1,666',p:'3,332'}};
+const anns={m:{b:'₹19,990 billed annually',p:'₹39,990 billed annually'},a:{b:'₹19,990/yr — Save ₹3,998',p:'₹39,990/yr — Save ₹7,998'}};
 function setBill(m){
   document.getElementById('bm').classList.toggle('act',m==='m');
   document.getElementById('ba').classList.toggle('act',m==='a');
   const p=prices[m],a=anns[m];
   document.getElementById('pb').innerHTML=`<sub>₹</sub>${p.b}`;
   document.getElementById('pp').innerHTML=`<sub>₹</sub>${p.p}`;
-  document.getElementById('pe').innerHTML=`<sub>₹</sub>${p.e}`;
-  document.getElementById('pen').innerHTML=`<sub>₹</sub>${p.en}`;
-  ['b','p','e','en'].forEach(k=>{document.getElementById('a'+k).textContent=a[k];});
+  ['b','p'].forEach(k=>{document.getElementById('a'+k).textContent=a[k];});
 }
 
 // Demo tabs

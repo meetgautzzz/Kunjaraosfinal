@@ -61,9 +61,9 @@ export default function ProposalGenerator() {
         const plan = getPlan((data.plan as PlanId) ?? "basic");
         setUsage({
           events_used: data.events_used,
-          limit: plan.events,
+          limit: plan.proposals,
           plan: plan.name,
-          overage: data.events_used >= plan.events,
+          overage: data.events_used >= plan.proposals,
         });
       }
     }

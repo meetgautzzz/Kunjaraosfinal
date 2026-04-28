@@ -22,12 +22,12 @@ const WebhookEventSchema = z.object({
 });
 
 function resolvePlan(plan: string): PlanId {
-  return (["basic", "pro", "expert", "test"] as const).includes(plan as PlanId)
+  return (["basic", "pro", "test"] as const).includes(plan as PlanId)
     ? (plan as PlanId)
     : "basic";
 }
 
-const VALID_PLANS = new Set<PlanId>(["basic", "pro", "expert", "test"]);
+const VALID_PLANS = new Set<PlanId>(["basic", "pro", "test"]);
 
 // Timing-safe HMAC comparison. A naive === leaks signature length and
 // position of the first mismatched byte via response-time variance, which
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
   if (!VALID_PLANS.has(resolvedPlan)) {
     console.warn("[webhook] Unknown plan in order notes — defaulting to basic", { eventDeliveryId, orderPlan });
   }
-  const creditsToAdd = getPlan(resolvedPlan).events;
+  const creditsToAdd = getPlan(resolvedPlan).credits;
 
   const result = await applyPaymentCredits({
     userId,

@@ -57,10 +57,10 @@ export async function POST(req: NextRequest) {
     const order = await razorpay.orders.fetch(razorpay_order_id);
     const orderNotes = order.notes as Record<string, string> | null;
     const orderPlan = orderNotes?.plan ?? "basic";
-    const resolvedPlan: PlanId = (["basic", "pro", "expert", "test"] as const).includes(orderPlan as PlanId)
+    const resolvedPlan: PlanId = (["basic", "pro", "test"] as const).includes(orderPlan as PlanId)
       ? (orderPlan as PlanId)
       : "basic";
-    const creditsToAdd = getPlan(resolvedPlan).events;
+    const creditsToAdd = getPlan(resolvedPlan).credits;
 
     // Brief poll so the frontend's refreshUsage() sees the webhook's write.
     const supabase = await createClient();

@@ -53,9 +53,9 @@ Produce a JSON response that matches EXACTLY this shape (all fields required exc
   },
   "visualDirection": {
     "palette": [
-      { "name": "Deep Navy",  "hex": "#1a2f5c", "usage": "Primary backdrops" },
-      { "name": "Antique Gold","hex": "#b08d57","usage": "Accents and typography" },
-      { "name": "Ivory",      "hex": "#f4efe6", "usage": "Tablecloths and soft surfaces" }
+      { "name": "string — colour name that fits this event", "hex": "#xxxxxx", "usage": "string — which surfaces/elements use this colour" },
+      { "name": "string — second colour", "hex": "#xxxxxx", "usage": "string" },
+      { "name": "string — third colour",  "hex": "#xxxxxx", "usage": "string" }
     ],
     "lighting":         "string — lighting style and key fixtures",
     "overallAesthetic": "string — one-sentence mood summary",
@@ -96,7 +96,8 @@ Rules:
 - Every field is required — do not omit any. Use empty arrays only if truly nothing applies.
 - Be concrete and India-first. Name specific vendors, venues, fabrics, songs, dishes where relevant.
 - No filler words like "world-class", "state-of-the-art", "premium quality".
-- No markdown inside JSON values.`;
+- No markdown inside JSON values.
+- visualDirection.palette MUST be derived from the specific event type, theme, vibe, and location — never reuse a generic palette. A Holi festival palette should be vibrant and multicoloured; a corporate gala should be understated and sophisticated; a beach wedding should use ocean and sand tones; a Diwali event should use deep jewel tones and gold. The hex codes must be real, saturated, event-appropriate colours — not placeholder greys.`;
 
 export type ExperienceInputs = {
   selectedIdea:  Pick<EventIdea, "title" | "headline" | "concept" | "experienceType" | "vibe" | "wowFactor" | "brandIntegration">;

@@ -21,7 +21,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || "Request failed");
+    // Prefer the human-readable message; fall back to the code, then status.
+    // Suffix with HTTP status so the toast shows e.g. "All models failed... (HTTP 502)".
+    const detail = err.message || err.error || "Request failed";
+    throw new Error(`${detail} (HTTP ${res.status})`);
   }
 
   if (res.status === 204) return undefined as T;

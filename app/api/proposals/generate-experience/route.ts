@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { parseJson } from "@/lib/validate";
 import { requireAiCredits } from "@/lib/ai/middleware";
 import { aiError, aiSuccess } from "@/lib/ai/responses";
+import { chatWithFallback } from "@/lib/ai/fallback";
 import type { EventIdea, OriginalBrief, ProposalData } from "@/lib/proposals";
 import {
   EXPERIENCE_SYSTEM_PROMPT,
@@ -76,22 +77,26 @@ export async function POST(req: NextRequest) {
   const { ctx } = pre;
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  let response;
-  try {
-    response = await openai.chat.completions.create({
-      model:           ctx.model,
-      temperature:     0.6,
-      messages: [
-        { role: "system", content: EXPERIENCE_SYSTEM_PROMPT },
-        { role: "user",   content: userMessage },
-      ],
-      response_format: { type: "json_object" },
-    });
-  } catch (aiErr) {
-    console.error("[generate-experience] OpenAI error:", aiErr);
+  const fb = await chatWithFallback(openai, {
+    temperature: 0.6,
+    messages: [
+      { role: "system", content: EXPERIENCE_SYSTEM_PROMPT },
+      { role: "user",   content: userMessage },
+    ],
+    response_format: { type: "json_object" },
+  }, "generate-experience");
+
+  if (!fb.ok) {
     await ctx.refund("openai_error");
-    return aiError("AI_ERROR", "Kunjara Core failed. Try again in a minute.", 502);
+    return aiError(
+      "AI_ERROR",
+      `All models failed. Last error: ${fb.lastError.message ?? "unknown"} (status ${fb.lastError.status ?? "?"})`,
+      502,
+      { triedModels: fb.triedModels, lastError: fb.lastError },
+    );
   }
+  const response = fb.response;
+  const modelUsed = fb.modelUsed;
 
   const content = response.choices[0]?.message?.content;
   if (!content) {
@@ -164,5 +169,5 @@ export async function POST(req: NextRequest) {
     eventId:    proposalId,
   });
 
-  return aiSuccess(proposal, ctx.creditsCharged, remaining);
+  return aiSuccess({ ...proposal, modelUsed }, ctx.creditsCharged, remaining);
 }

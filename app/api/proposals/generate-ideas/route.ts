@@ -4,6 +4,7 @@ import { z } from "zod";
 import { parseJson } from "@/lib/validate";
 import { requireAiCredits } from "@/lib/ai/middleware";
 import { aiError, aiSuccess } from "@/lib/ai/responses";
+import { chatWithFallback } from "@/lib/ai/fallback";
 import type { EventIdea } from "@/lib/proposals";
 import { randomUUID } from "crypto";
 
@@ -109,30 +110,29 @@ export async function POST(req: NextRequest) {
   }
   const client = new OpenAI({ apiKey });
 
-  let response;
-  try {
-    response = await client.chat.completions.create({
-      model:           ctx.model,
-      temperature:     0.85,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user",   content: userMessage },
-      ],
-      response_format: { type: "json_object" },
-    });
-  } catch (aiErr) {
-    // Surface granular detail across multiple log lines so Vercel's
-    // truncated runtime logs still tell us what actually broke.
-    const e = aiErr as { name?: string; message?: string; status?: number; code?: string; type?: string };
-    console.error("[generate-ideas] OpenAI failed | model=", ctx.model);
-    console.error("[generate-ideas] OpenAI failed | name=", e.name);
-    console.error("[generate-ideas] OpenAI failed | status=", e.status);
-    console.error("[generate-ideas] OpenAI failed | code=", e.code);
-    console.error("[generate-ideas] OpenAI failed | type=", e.type);
-    console.error("[generate-ideas] OpenAI failed | message=", e.message);
+  // Try gpt-4o-mini → gpt-3.5-turbo → gpt-4o in order. First model that
+  // succeeds wins. If all three fail, surface the last error to the client
+  // with status code so we can diagnose without digging through Vercel logs.
+  const fb = await chatWithFallback(client, {
+    temperature: 0.85,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user",   content: userMessage },
+    ],
+    response_format: { type: "json_object" },
+  }, "generate-ideas");
+
+  if (!fb.ok) {
     await ctx.refund("openai_error");
-    return aiError("AI_ERROR", `Kunjara Core failed: ${e.message ?? "unknown"} (status ${e.status ?? "?"})`, 502);
+    return aiError(
+      "AI_ERROR",
+      `All models failed. Last error: ${fb.lastError.message ?? "unknown"} (status ${fb.lastError.status ?? "?"})`,
+      502,
+      { triedModels: fb.triedModels, lastError: fb.lastError },
+    );
   }
+  const response = fb.response;
+  const modelUsed = fb.modelUsed;
 
   const content = response.choices[0]?.message?.content;
   if (!content) {
@@ -167,5 +167,5 @@ export async function POST(req: NextRequest) {
     eventId:    proposalId,
   });
 
-  return aiSuccess({ proposalId, ideas }, ctx.creditsCharged, remaining);
+  return aiSuccess({ proposalId, ideas, modelUsed }, ctx.creditsCharged, remaining);
 }

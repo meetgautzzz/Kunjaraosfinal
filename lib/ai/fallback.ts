@@ -3,12 +3,20 @@
 // (status / code / type / message — one console line each so Vercel's
 // truncated log viewer still shows the cause), then moves to the next.
 // Returns the successful response plus the model that won.
+//
+// Model strings are sourced from lib/ai/router.ts so the chain follows
+// whatever AI_MODEL_* env vars Vercel is configured with — no hardcoding.
 
 import type OpenAI from "openai";
 import type { ChatCompletion, ChatCompletionCreateParamsNonStreaming } from "openai/resources/chat/completions";
+import { CHEAP_MODEL, PRIMARY_MODEL } from "@/lib/ai/router";
 
-export const FALLBACK_MODELS = ["gpt-4o-mini", "gpt-3.5-turbo", "gpt-4o"] as const;
-export type FallbackModel = (typeof FALLBACK_MODELS)[number];
+// CHEAP_MODEL first (fast + cheap), PRIMARY_MODEL as the high-quality
+// fallback. De-duplicated in case both env vars resolve to the same string.
+export const FALLBACK_MODELS: readonly string[] = Array.from(
+  new Set([CHEAP_MODEL, PRIMARY_MODEL])
+);
+export type FallbackModel = string;
 
 export interface FallbackSuccess {
   ok: true;

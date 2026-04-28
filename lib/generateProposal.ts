@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { PRIMARY_MODEL } from "@/lib/ai/router";
 
 export interface ProposalInput {
   eventType: string;
@@ -40,7 +41,7 @@ export async function generateProposal(
   let response;
   try {
     response = await client.chat.completions.create({
-      model: "gpt-4o",
+      model: PRIMARY_MODEL,
       temperature: 0.7,
       messages: [
         {

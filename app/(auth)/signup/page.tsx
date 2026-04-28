@@ -2,20 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setInfo(null);
 
     const trimmed = email.trim();
     if (!trimmed || !password || !confirm) {
@@ -32,35 +29,21 @@ export default function SignupPage() {
     }
 
     setLoading(true);
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email: trimmed,
-      password,
-      options: {
-        emailRedirectTo: `${location.origin}/auth/callback`,
-      },
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: trimmed, password }),
     });
 
-    if (error) {
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      setError(json.error ?? "Could not create account. Try again.");
       setLoading(false);
-      if (error.message.toLowerCase().includes("registered")) {
-        setError("That email is already registered. Sign in instead.");
-      } else {
-        setError("Could not create account. Try again.");
-      }
       return;
     }
 
-    // If email confirmation is enabled on the Supabase project, session is
-    // null and the user must click the link in their inbox. If confirmation
-    // is disabled, session is populated and we can redirect straight in.
-    if (data.session) {
-      window.location.href = "/dashboard";
-      return;
-    }
-
-    setLoading(false);
-    setInfo("Account created. Check your inbox to confirm your email, then sign in.");
+    // Session cookie is set server-side; do a hard reload into the app.
+    window.location.href = "/dashboard";
   }
 
   return (
@@ -116,12 +99,6 @@ export default function SignupPage() {
         {error && (
           <p className="mt-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-xs text-red-400">
             {error}
-          </p>
-        )}
-
-        {info && (
-          <p className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-xs text-emerald-400">
-            {info}
           </p>
         )}
 

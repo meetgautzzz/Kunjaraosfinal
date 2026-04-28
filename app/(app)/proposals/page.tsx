@@ -5,15 +5,17 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import { formatINR, STATUS_STYLES, type ProposalData } from "@/lib/proposals";
 
+type ProposalRow = { id: string; data: Partial<ProposalData>; created_at: string };
+
 export default function ProposalsPage() {
-  const [proposals, setProposals] = useState<Partial<ProposalData>[]>([]);
+  const [proposals, setProposals] = useState<ProposalRow[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState("");
   const [search,    setSearch]    = useState("");
 
   useEffect(() => {
     api.proposals.list()
-      .then((data) => setProposals(data as Partial<ProposalData>[]))
+      .then((data) => setProposals(Array.isArray(data) ? data as ProposalRow[] : []))
       .catch((err) => setError(err.message ?? "Failed to load proposals"))
       .finally(() => setLoading(false));
   }, []);
@@ -21,14 +23,14 @@ export default function ProposalsPage() {
   const filtered = proposals.filter(
     (p) =>
       !search ||
-      p.title?.toLowerCase().includes(search.toLowerCase()) ||
-      p.eventType?.toLowerCase().includes(search.toLowerCase()) ||
-      p.location?.toLowerCase().includes(search.toLowerCase()),
+      p.data?.title?.toLowerCase().includes(search.toLowerCase()) ||
+      p.data?.eventType?.toLowerCase().includes(search.toLowerCase()) ||
+      p.data?.location?.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const totalBudget    = proposals.reduce((s, p) => s + Number(p.budget ?? 0), 0);
+  const totalBudget    = proposals.reduce((s, p) => s + Number(p.data?.budget ?? 0), 0);
   const generatedCount = proposals.filter(
-    (p) => p.status === "GENERATED" || p.status === "SAVED" || p.status === "SENT"
+    (p) => p.data?.status === "GENERATED" || p.data?.status === "SAVED" || p.data?.status === "SENT"
   ).length;
 
   return (
@@ -205,7 +207,7 @@ export default function ProposalsPage() {
       {!loading && filtered.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((p) => (
-            <ProposalCard key={p.id} proposal={p} />
+            <ProposalCard key={p.id} id={p.id} data={p.data} created_at={p.created_at} />
           ))}
         </div>
       )}
@@ -215,17 +217,17 @@ export default function ProposalsPage() {
 
 // ── Proposal Card ─────────────────────────────────────────────────────────────
 
-function ProposalCard({ proposal: p }: { proposal: Partial<ProposalData> }) {
-  const date = p.createdAt
-    ? new Date(p.createdAt).toLocaleDateString("en-IN", {
+function ProposalCard({ id, data: p, created_at }: { id: string; data: Partial<ProposalData>; created_at: string }) {
+  const date = created_at
+    ? new Date(created_at).toLocaleDateString("en-IN", {
         day: "numeric", month: "short", year: "numeric",
       })
     : "";
-  const isGenerated = p.status === "GENERATED" || p.status === "SAVED" || p.status === "SENT";
+  const isGenerated = p?.status === "GENERATED" || p?.status === "SAVED" || p?.status === "SENT";
 
   return (
     <Link
-      href={`/proposals/${p.id}`}
+      href={`/proposals/${id}`}
       className="group card overflow-hidden flex flex-col transition-all duration-200"
       style={{ textDecoration: "none" }}
       onMouseEnter={(e) => {
@@ -273,10 +275,10 @@ function ProposalCard({ proposal: p }: { proposal: Partial<ProposalData> }) {
           </div>
           <span
             className={`text-[10.5px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest shrink-0 ${
-              STATUS_STYLES[p.status ?? "DRAFT"]
+              STATUS_STYLES[p?.status ?? "DRAFT"]
             }`}
           >
-            {p.status}
+            {p?.status}
           </span>
         </div>
 
@@ -286,10 +288,10 @@ function ProposalCard({ proposal: p }: { proposal: Partial<ProposalData> }) {
             className="t-title line-clamp-2 group-hover:text-indigo-200 transition-colors"
             style={{ marginBottom: 6 }}
           >
-            {p.title}
+            {p?.title ?? "Untitled"}
           </h3>
           <p className="t-caption">
-            {[p.eventType, p.location].filter(Boolean).join("  ·  ")}
+            {[p?.eventType, p?.location].filter(Boolean).join("  ·  ")}
           </p>
         </div>
 
@@ -302,7 +304,7 @@ function ProposalCard({ proposal: p }: { proposal: Partial<ProposalData> }) {
             className="t-num font-bold"
             style={{ fontSize: "14px", color: "var(--text-1)" }}
           >
-            {formatINR(Number(p.budget) ?? 0)}
+            {formatINR(Number(p?.budget) ?? 0)}
           </span>
           <span className="t-caption">{date}</span>
         </div>

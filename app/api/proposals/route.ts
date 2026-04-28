@@ -42,8 +42,9 @@ export async function GET() {
   }
 
   const proposals = (data ?? []).map((row) => ({
-    ...(row.data as Record<string, unknown>),
-    id: row.id,
+    id:         row.id,
+    data:       row.data,
+    created_at: row.created_at,
   }));
   return NextResponse.json(proposals);
 }

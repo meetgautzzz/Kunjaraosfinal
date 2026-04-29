@@ -1,31 +1,63 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0E1116;
-  --color-surface: #161B22;
-  --color-card: #1C2128;
+  /* ── Backgrounds ── */
+  --color-bg:      #0A0A0C;
+  --color-surface: #0F0E14;
+  --color-card:    #141220;
 
-  --color-text-primary: #E6EDF3;
-  --color-text-secondary: #9DA7B3;
+  /* ── Text ── */
+  --color-text-primary:   #F4F1EA;
+  --color-text-secondary: #9B9080;
 
-  --color-accent-purple: #6C5CE7;
-  --color-accent-blue: #3A86FF;
-  --color-accent-cyan: #4CC9F0;
+  /* ── Brand palette ── */
+  --color-accent-gold:  #D4A85F;
+  --color-accent-teal:  #2F7A78;
+  --color-accent-terra: #C9785F;
+
+  /* Backward-compat aliases — old class names still work */
+  --color-accent-purple: #D4A85F;
+  --color-accent-blue:   #2F7A78;
+  --color-accent-cyan:   #C9785F;
+
+  /* ── Remap Tailwind's indigo → brand gold ──────────────────────────────
+     Every component that uses bg-indigo-*/text-indigo-* now renders gold
+     without touching any of those 37 files individually.              ── */
+  --color-indigo-50:  #FDF8EE;
+  --color-indigo-100: #F7EDD5;
+  --color-indigo-200: #EDD9A8;
+  --color-indigo-300: #E5C07B;
+  --color-indigo-400: #D4A85F;
+  --color-indigo-500: #C49348;
+  --color-indigo-600: #A87A38;
+  --color-indigo-700: #8A6028;
+  --color-indigo-800: #6B4A1E;
+  --color-indigo-900: #4D3414;
+  --color-indigo-950: #2E1D0A;
+
+  /* ── Remap violet → brand teal ── */
+  --color-violet-400: #3A8F8C;
+  --color-violet-500: #339490;
+  --color-violet-600: #2F7A78;
+  --color-violet-700: #256462;
+  --color-violet-800: #1C4E4C;
 }
 
-/* ── Design tokens (old frontend compat) ─────────────────────────────────── */
+/* ── Design tokens ───────────────────────────────────────────────────────── */
 :root {
-  --bg-base:    #09090d;
-  --bg-surface: #0f1015;
-  --bg-card:    #13151c;
-  --bg-hover:   #191c26;
-  --border:     #1e2130;
-  --border-mid: #252840;
-  --accent:     #6366f1;
-  --accent-dim: #6366f118;
-  --text-1:     #eeeef2;
-  --text-2:     #8b92a8;
-  --text-3:     #454966;
+  --bg-base:    #080810;
+  --bg-surface: #0F0E14;
+  --bg-card:    #141220;
+  --bg-hover:   #1A1828;
+  --border:     #1E1B2E;
+  --border-mid: #2A2640;
+  --accent:     #D4A85F;
+  --accent-dim: #D4A85F18;
+  --teal:       #2F7A78;
+  --terra:      #C9785F;
+  --text-1:     #F4F1EA;
+  --text-2:     #9B9080;
+  --text-3:     #4A4535;
 }
 
 html, body {
@@ -36,24 +68,24 @@ html, body {
 }
 
 body {
-  background-color: #09090d;
-  color: #eeeef2;
+  background-color: #08080A;
+  color: #F4F1EA;
 }
 
 ::selection {
-  background: #6366f130;
-  color: #eeeef2;
+  background: #D4A85F30;
+  color: #F4F1EA;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar        { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track  { background: transparent; }
 ::-webkit-scrollbar-thumb  { background: var(--border-mid); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: #454966; }
+::-webkit-scrollbar-thumb:hover { background: #5C5448; }
 
 /* ── Focus ───────────────────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid #6366f160;
+  outline: 2px solid rgba(212,168,95,0.5);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -80,7 +112,7 @@ body {
 }
 .input::placeholder { color: var(--text-3); }
 .input:hover  { border-color: var(--border-mid); }
-.input:focus  { border-color: rgba(99,102,241,0.5); background: var(--bg-hover); }
+.input:focus  { border-color: rgba(212,168,95,0.5); background: var(--bg-hover); }
 textarea.input { min-height: 96px; padding: 12px 14px; resize: vertical; line-height: 1.55; }
 
 .field-label {
@@ -108,9 +140,10 @@ textarea.input { min-height: 96px; padding: 12px 14px; resize: vertical; line-he
   cursor: pointer;
   transition: all 0.15s;
   text-decoration: none;
-  box-shadow: 0 2px 12px rgba(99,102,241,0.25);
+  color: #08080A;
+  box-shadow: 0 2px 16px rgba(212,168,95,0.3);
 }
-.btn-primary:hover:not(:disabled) { background: #4f46e5; transform: translateY(-1px); }
+.btn-primary:hover:not(:disabled) { background: #C49348; transform: translateY(-1px); }
 .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .btn-ghost {
@@ -246,7 +279,7 @@ html, body { overflow-x: hidden; }
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, rgba(99,102,241,0.3), transparent);
+  background: linear-gradient(to right, rgba(212,168,95,0.3), transparent);
 }
 
 /* ── A4 Invoice / Estimate print ────────────────────────────────────────────

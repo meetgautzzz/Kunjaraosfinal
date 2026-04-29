@@ -56,15 +56,15 @@ export default function Sidebar() {
     <aside className="hidden md:flex flex-col w-58 shrink-0 h-screen sticky top-0 border-r border-[var(--border)] bg-[var(--bg-surface)]">
 
       {/* Brand */}
-      <div className="flex items-center gap-3 px-5 h-16 border-b border-[var(--border)] shrink-0">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-black text-white text-sm select-none shadow-lg shadow-indigo-500/20">
-          K
-        </div>
+      <div className="flex items-center gap-3 px-4 h-16 border-b border-[var(--border)] shrink-0">
+        <KunjaraMark size={34} />
         <div>
-          <p className="text-[var(--text-1)] text-sm font-semibold tracking-tight leading-none">
-            Kunjara OS<sup className="text-[8px] font-semibold text-[var(--text-3)]">™</sup>
+          <p className="leading-none" style={{ fontFamily: '"Instrument Serif", serif', fontStyle: "italic", fontSize: 17, color: "#F4F1EA", letterSpacing: "-0.01em" }}>
+            Kunjara
+            <span style={{ fontFamily: "Geist, sans-serif", fontStyle: "normal", fontWeight: 600, fontSize: 13, letterSpacing: "0.04em", marginLeft: 3 }}>OS</span>
+            <sup style={{ fontFamily: "Geist, sans-serif", fontStyle: "normal", fontSize: 7, fontWeight: 600, color: "#4A4535", marginLeft: 1, verticalAlign: "super" }}>™</sup>
           </p>
-          <p className="text-[var(--text-3)] text-[10px] leading-none mt-0.5 tracking-wide">Event Intelligence</p>
+          <p className="text-[var(--text-3)] text-[10px] leading-none mt-1 tracking-wide" style={{ fontFamily: '"JetBrains Mono", monospace', letterSpacing: "0.08em" }}>EVENT INTELLIGENCE</p>
         </div>
       </div>
 
@@ -84,16 +84,16 @@ export default function Sidebar() {
                       href={item.href}
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
                         active
-                          ? "bg-indigo-500/12 text-indigo-300 border border-indigo-500/20"
+                          ? "border border-[var(--accent)]/20 text-[var(--accent)]"
                           : "text-[var(--text-2)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-1)] border border-transparent"
                       }`}
                     >
-                      <span className={`w-4 h-4 shrink-0 ${active ? "text-indigo-400" : "text-[var(--text-3)]"}`}>
+                      <span className={`w-4 h-4 shrink-0 ${active ? "text-[var(--accent)]" : "text-[var(--text-3)]"}`}>
                         {item.icon}
                       </span>
                       <span className="flex-1">{item.label}</span>
                       {"badge" in item && item.badge && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 tracking-wide">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full tracking-wide" style={{ background: "rgba(212,168,95,0.12)", color: "#D4A85F", border: "1px solid rgba(212,168,95,0.25)" }}>
                           {item.badge}
                         </span>
                       )}
@@ -112,7 +112,7 @@ export default function Sidebar() {
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--border-mid)] cursor-pointer transition-all text-left"
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ background: "linear-gradient(135deg, #D4A85F, #C9785F)", color: "#08080A" }}>
             {userInitial}
           </div>
           <div className="flex-1 min-w-0">
@@ -123,6 +123,22 @@ export default function Sidebar() {
         </button>
       </div>
     </aside>
+  );
+}
+
+function KunjaraMark({ size = 34 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" style={{ flexShrink: 0 }}>
+      <circle cx="32" cy="32" r="29" stroke="#D4A85F" strokeWidth="1.25" opacity="0.35" />
+      <circle cx="32" cy="32" r="29" stroke="#D4A85F" strokeWidth="1.25" strokeDasharray="2 6" opacity="0.55" transform="rotate(-30 32 32)" />
+      <g stroke="#D4A85F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
+        <path d="M16 38 C 16 22, 48 22, 48 38" />
+        <path d="M22 38 C 22 48, 32 50, 34 42 C 35 38, 30 36, 30 40" />
+        <path d="M40 40 L 44 46" />
+        <circle cx="40" cy="32" r="1.4" fill="#D4A85F" stroke="none" />
+      </g>
+      <circle cx="58" cy="22" r="1.6" fill="#D4A85F" />
+    </svg>
   );
 }
 

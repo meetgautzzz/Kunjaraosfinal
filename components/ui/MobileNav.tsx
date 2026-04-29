@@ -85,16 +85,16 @@ export default function MobileNav({
         aria-hidden={!open}
       >
         {/* Brand + close */}
-        <div className="flex items-center justify-between px-5 h-16 border-b border-[var(--border)] shrink-0">
+        <div className="flex items-center justify-between px-4 h-16 border-b border-[var(--border)] shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-black text-white text-sm shadow-lg shadow-indigo-500/20">
-              K
-            </div>
+            <KunjaraMark size={32} />
             <div>
-              <p className="text-[var(--text-1)] text-sm font-semibold leading-none">
-                Kunjara OS<sup className="text-[8px] font-semibold text-[var(--text-3)]">™</sup>
+              <p className="leading-none" style={{ fontFamily: '"Instrument Serif", serif', fontStyle: "italic", fontSize: 16, color: "#F4F1EA", letterSpacing: "-0.01em" }}>
+                Kunjara
+                <span style={{ fontFamily: "Geist, sans-serif", fontStyle: "normal", fontWeight: 600, fontSize: 12, letterSpacing: "0.04em", marginLeft: 3 }}>OS</span>
+                <sup style={{ fontFamily: "Geist, sans-serif", fontStyle: "normal", fontSize: 7, fontWeight: 600, color: "#4A4535", marginLeft: 1, verticalAlign: "super" }}>™</sup>
               </p>
-              <p className="text-[var(--text-3)] text-[10px] mt-0.5 tracking-wide">Event Intelligence</p>
+              <p className="text-[var(--text-3)] text-[10px] mt-1 leading-none" style={{ fontFamily: '"JetBrains Mono", monospace', letterSpacing: "0.08em" }}>EVENT INTELLIGENCE</p>
             </div>
           </div>
           <button
@@ -125,13 +125,13 @@ export default function MobileNav({
                         // 44px min height per touch-target spec.
                         className={`flex items-center gap-3 px-3 min-h-[44px] rounded-lg text-sm font-medium transition-all ${
                           active
-                            ? "bg-indigo-500/12 text-indigo-300 border border-indigo-500/20"
+                            ? "border border-[var(--accent)]/20 text-[var(--accent)]"
                             : "text-[var(--text-2)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-1)] border border-transparent"
                         }`}
                       >
                         <span className="flex-1">{item.label}</span>
                         {"badge" in item && item.badge && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 tracking-wide">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full tracking-wide" style={{ background: "rgba(212,168,95,0.12)", color: "#D4A85F", border: "1px solid rgba(212,168,95,0.25)" }}>
                             {item.badge}
                           </span>
                         )}

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { parseJson, parseParams } from "@/lib/validate";
 import { apiLimiter, limit } from "@/lib/ratelimit";
+import { saveExample } from "@/lib/ai/examples";
 
 const ParamsSchema = z.object({ id: z.string().uuid() });
 
@@ -121,6 +122,23 @@ export async function PATCH(
   if (writeErr) {
     console.error("[proposals/PATCH] write failed:", writeErr.message);
     return NextResponse.json({ error: "Could not save." }, { status: 500 });
+  }
+
+  // Promote to few-shot example pool when a planner approves or shares a proposal.
+  const newStatus = parsedBody.data.status;
+  if (newStatus === "APPROVED" || newStatus === "SHARED" || newStatus === "SAVED") {
+    const p = next as Record<string, unknown>;
+    const eventType = p.eventType as string | undefined;
+    const budget    = Number(p.budget ?? 0);
+    if (eventType && budget > 0 && p.originalBrief) {
+      saveExample({
+        eventType,
+        budget,
+        location:        (p.location as string) ?? "",
+        originalBrief:   p.originalBrief as Record<string, unknown>,
+        generatedOutput: p as Record<string, unknown>,
+      }).catch(() => {});
+    }
   }
 
   return NextResponse.json({ success: true, id: parsedParams.data.id, updatedAt });

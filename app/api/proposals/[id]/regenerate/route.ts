@@ -11,6 +11,7 @@ import {
   buildExperienceUserMessage,
   sanitizeExperiencePayload,
 } from "@/lib/experiencePrompt";
+import { fetchExamples } from "@/lib/ai/examples";
 import {
   MAX_REGENERATIONS,
   type ProposalData,
@@ -86,6 +87,8 @@ export async function POST(
     budget:       parsedBody.data.budget       ?? current.originalBrief.budget,
   };
 
+  const examples = await fetchExamples(brief.eventType, brief.budget);
+
   const userMessage = buildExperienceUserMessage({
     selectedIdea:        brief.selectedIdea,
     eventType:           brief.eventType,
@@ -98,7 +101,7 @@ export async function POST(
     venueByClient:       brief.venueByClient,
     foodByClient:        brief.foodByClient,
     regenerationGuidance: parsedBody.data.guidance,
-  });
+  }, examples);
 
   // Now run the standard pre-flight (auth re-resolved, rate limit, atomic
   // credit consume). Edit is the cheap-tier action.

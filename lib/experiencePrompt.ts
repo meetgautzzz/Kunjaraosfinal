@@ -3,6 +3,7 @@
 // any wording changes in one place.
 
 import type { EventIdea } from "@/lib/proposals";
+import type { ProposalExample } from "@/lib/ai/examples";
 
 export const EXPERIENCE_SYSTEM_PROMPT = `You are a senior event director at a premium Indian event agency. You have been given a chosen creative concept for an event — your job is to expand it into a fully executable luxury event plan.
 
@@ -114,7 +115,7 @@ export type ExperienceInputs = {
   regenerationGuidance?: string;
 };
 
-export function buildExperienceUserMessage(args: ExperienceInputs): string {
+export function buildExperienceUserMessage(args: ExperienceInputs, examples?: ProposalExample[]): string {
   return [
     `Chosen creative concept:`,
     `- Title:           ${args.selectedIdea.title}`,
@@ -148,6 +149,26 @@ export function buildExperienceUserMessage(args: ExperienceInputs): string {
     args.regenerationGuidance ? `\nAdditional guidance for THIS regeneration (override prior choices where in conflict):\n${args.regenerationGuidance}` : null,
     ``,
     `Expand this chosen concept into a fully executable Indian luxury event plan. Respect the budget. Be specific.`,
+    // Inject approved examples as few-shot style guides when available.
+    ...(examples?.length
+      ? [
+          ``,
+          `--- APPROVED REFERENCE EXAMPLES (same event type + budget range, accepted by real planners without changes) ---`,
+          `Match or exceed this quality level. Use them as style and specificity guides — do NOT copy names or venues.`,
+          ...examples.map((ex, i) =>
+            [
+              ``,
+              `Example ${i + 1} · ${ex.eventType} · ₹${Number(ex.budget).toLocaleString("en-IN")} · ${ex.location}`,
+              `Concept: ${JSON.stringify(ex.concept ?? {})}`,
+              `Event concept: ${JSON.stringify(ex.eventConcept ?? {})}`,
+              `Budget breakdown: ${JSON.stringify(ex.budgetBreakdown ?? [])}`,
+              `Pro tips: ${JSON.stringify(ex.tips ?? [])}`,
+            ].join("\n")
+          ),
+          ``,
+          `--- END REFERENCE EXAMPLES ---`,
+        ]
+      : []),
   ].filter(Boolean).join("\n");
 }
 

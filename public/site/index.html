@@ -1,973 +1,852 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kunjara OS™ — The AI-Powered Event Operating System for India</title>
-<meta name="description" content="India's first complete AI-powered event operating system. Replace Excel and scattered tools with one unified, intelligent, India-first platform.">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kunjara OS™ — Events run intelligently.</title>
+<meta name="description" content="India's first AI-powered event operating system. Replace Excel, WhatsApp and six other tools with one intelligent platform. Built by Indigo EP, Mumbai." />
+<meta property="og:title" content="Kunjara OS™ — Events run intelligently." />
+<meta property="og:description" content="Client-ready event proposals in 2 minutes. GST-compliant. Made in Bharat." />
+<meta property="og:type" content="website" />
+
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
-<script type="text/javascript">function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:'en',includedLanguages:'hi,en',layout:google.translate.TranslateElement.InlineLayout.SIMPLE,autoDisplay:false},'gte');}</script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
-:root{
-  /* ── Prometheus Vintage Palette ── */
-  --cream:#FBE9D0;--cream-d:#F2D8B4;--cream-m:#E8C99A;
-  --saffron:#E64833;--saffron-p:#FAEAE7;
-  --rose:#E64833;--rose-p:#FAEAE7;
-  --marigold:#874F41;--marigold-p:#F2E8E5;
-  --peacock:#90AEAD;--peacock-p:#E8F0F0;
-  --lotus:#874F41;--lotus-p:#F2E8E5;
-  --sage:#244855;--sage-p:#E2ECED;
-  --indigo:#244855;--indigo-p:#E2ECED;
-  --kblue:#244855;--kblue-p:#E2ECED;
-  --kgold:#874F41;
-  --ink:#1A0F0A;--body:#2C1A12;--muted:#7A6355;--light:#A89080;
-  --white:#FBE9D0;--border:rgba(36,72,85,.14);--border-s:rgba(36,72,85,.07);
-  --accent:#E64833;--teal:#90AEAD;--brown:#874F41;--deep:#244855;
-  --fd:'Fraunces',Georgia,serif;--fb:'DM Sans',sans-serif;--fh:'Noto Sans Devanagari',sans-serif;
-  --ease:cubic-bezier(.16,1,.3,1);
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;font-size:17px}
-body{background:var(--cream);color:var(--body);font-family:var(--fb);font-weight:400;line-height:1.6;overflow-x:hidden;cursor:none}
-#cur{width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transition:transform .12s var(--ease),background .2s;mix-blend-mode:multiply}
-#cur-r{width:30px;height:30px;border:1.5px solid var(--deep);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transition:transform .35s var(--ease);opacity:.45}
-body.ch #cur{transform:scale(3);background:var(--deep);mix-blend-mode:normal}
-body.ch #cur-r{opacity:0}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--cream)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
-.c{max-width:1220px;margin:0 auto;padding:0 36px}
-.sp{padding:108px 0}
-.reveal{opacity:0;transform:translateY(30px);transition:opacity .85s var(--ease),transform .85s var(--ease)}
-.reveal.v{opacity:1;transform:translateY(0)}
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
-h1,h2,h3,h4{font-family:var(--fd);line-height:1.07}
-.slabel{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.slabel::before{content:'';display:inline-block;width:18px;height:2px;background:var(--accent);border-radius:1px}
-.sh2{font-size:clamp(28px,3.6vw,50px);font-weight:700;letter-spacing:-1.2px;color:var(--ink)}
-.ssub{font-size:17px;color:var(--muted);line-height:1.72;max-width:540px;margin-top:16px;font-weight:300}
-/* Apple-style icons */
-.ai{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:14px;flex-shrink:0}
-.ai svg{width:26px;height:26px;stroke-width:1.7}
-.ai-sm{width:40px;height:40px;border-radius:11px}
-.ai-sm svg{width:20px;height:20px}
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;font-size:15px;font-weight:600;font-family:var(--fb);cursor:none;text-decoration:none;border:none;transition:all .22s var(--ease);border-radius:50px;letter-spacing:-.2px}
-.btn-dark{background:var(--deep);color:var(--cream)}.btn-dark:hover{background:#1a3540;transform:translateY(-2px);box-shadow:0 12px 28px rgba(36,72,85,.22)}
-.btn-ghost{background:transparent;color:var(--body);border:1.5px solid var(--border)}.btn-ghost:hover{border-color:rgba(36,72,85,.25);color:var(--ink)}
-.btn-blue{background:var(--accent);color:#fff}.btn-blue:hover{background:#cc3020;transform:translateY(-2px);box-shadow:0 12px 28px rgba(230,72,51,.28)}
-.btn-outline-w{background:rgba(251,233,208,.12);border:1.5px solid rgba(251,233,208,.28);color:var(--cream);backdrop-filter:blur(8px)}.btn-outline-w:hover{background:rgba(251,233,208,.22)}
-.btn-coming{background:var(--marigold-p);color:var(--brown);border:1.5px solid rgba(135,79,65,.22);cursor:default}.btn-coming:hover{transform:none;box-shadow:none}
-/* Google Translate hidden */
-#gte{display:none}
-.skiptranslate{display:none!important}
-body{top:0!important}
-/* === NAV === */
-#nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 0;transition:all .4s var(--ease)}
-#nav.sc{padding:12px 0;background:rgba(251,233,208,.94);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--border);box-shadow:0 1px 0 var(--border-s)}
-.ni{display:flex;align-items:center;justify-content:space-between;max-width:1220px;margin:0 auto;padding:0 36px}
-.nlogo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nwm{font-family:var(--fd);font-weight:700;font-size:19px;color:var(--ink);letter-spacing:-.5px}
-.nwm em{font-style:normal;color:var(--accent)}
-.nlinks{display:flex;align-items:center;gap:30px;list-style:none}
-.nlinks a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
-.nlinks a:hover{color:var(--ink)}
-.nright{display:flex;align-items:center;gap:8px}
-.nlang{display:flex;align-items:center;gap:6px;background:var(--white);border:1.5px solid var(--border);padding:7px 13px;border-radius:50px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);transition:all .2s}
-.nlang:hover{border-color:var(--accent);color:var(--ink)}
-.nlogin{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;padding:9px 17px;border-radius:50px;transition:all .2s}
-.nlogin:hover{color:var(--ink);background:var(--cream-d)}
-.nsignup{background:var(--deep);color:var(--cream)!important;text-decoration:none;font-size:14px;font-weight:600;padding:9px 20px;border-radius:50px;cursor:none;transition:all .22s;display:inline-block}
-.nsignup:hover{background:#1a3540;transform:translateY(-1px);box-shadow:0 8px 18px rgba(36,72,85,.22)}
-/* === HERO === */
-#hero{min-height:100vh;padding-top:88px;display:flex;align-items:center;position:relative;overflow:hidden}
-#hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 620px 420px at 78% 32%,rgba(230,72,51,.09) 0%,transparent 60%),radial-gradient(ellipse 520px 520px at 18% 72%,rgba(144,174,173,.10) 0%,transparent 60%),radial-gradient(ellipse 400px 300px at 58% 82%,rgba(36,72,85,.07) 0%,transparent 60%);pointer-events:none}
-#hero::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(36,72,85,.06) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
-.hi{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1}
-.hpill{display:inline-flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);padding:7px 16px;border-radius:50px;margin-bottom:26px;font-size:12.5px;font-weight:600;color:var(--accent);letter-spacing:.4px;box-shadow:0 2px 8px rgba(36,72,85,.06)}
-.hdot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pdot 2s infinite}
-@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.6)}}
-.hh1{font-size:clamp(42px,5.6vw,80px);font-weight:900;letter-spacing:-3px;color:var(--ink);margin-bottom:22px}
-.hh1 .bi{font-style:italic;color:var(--deep);display:block}
-.hsub{font-size:18px;color:var(--muted);line-height:1.72;max-width:460px;margin-bottom:38px;font-weight:300}
-.hact{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.hstats{display:flex;gap:34px;margin-top:50px;padding-top:34px;border-top:1px solid var(--border)}
-.hsv{font-family:var(--fd);font-size:30px;font-weight:700;color:var(--ink);line-height:1}
-.hsl{font-size:12px;color:var(--light);font-weight:500;margin-top:4px}
-/* Hero visual */
-.hvis{position:relative;height:560px}
-.hglow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:340px;height:340px;background:radial-gradient(circle,rgba(144,174,173,.15) 0%,transparent 70%);border-radius:50%;animation:breathe 5s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}}
-.hsvg{width:300px;height:300px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:fl 7s ease-in-out infinite;z-index:2}
-@keyframes fl{0%,100%{margin-top:0}50%{margin-top:-16px}}
-.fc{position:absolute;background:var(--cream);border:1px solid var(--border);border-radius:16px;padding:13px 17px;box-shadow:0 8px 24px rgba(36,72,85,.11);z-index:3;animation:cfl 4s ease-in-out infinite;font-size:13px}
-.fc1{top:58px;right:0;animation-delay:0s}.fc2{top:195px;right:-18px;animation-delay:1s}.fc3{bottom:118px;right:18px;animation-delay:2s}.fc4{bottom:68px;left:18px;animation-delay:1.5s}.fc5{top:88px;left:-8px;animation-delay:.5s}
-@keyframes cfl{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.fct{font-weight:600;color:var(--ink);font-size:13px}
-.fcs{font-size:11.5px;color:var(--muted);margin-top:2px}
-.fcb{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;margin-top:6px;padding:3px 8px;border-radius:20px}
-/* === MARQUEE === */
-.tb{background:var(--ink);overflow:hidden;padding:17px 0}
-.mw{display:flex;width:max-content;animation:mq 28s linear infinite}
-.mw:hover{animation-play-state:paused}
-@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.mi{display:flex;align-items:center;gap:9px;padding:0 32px;font-size:12.5px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap;letter-spacing:.8px;text-transform:uppercase}
-.md{width:4px;height:4px;background:var(--accent);border-radius:50%;flex-shrink:0}
-/* === PILLARS === */
-#features{background:var(--white)}
-.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:62px}
-.pc{background:var(--cream);border:1px solid var(--border);border-radius:24px;padding:34px 30px;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
-.pc:hover{transform:translateY(-5px);box-shadow:0 18px 44px rgba(36,72,85,.10)}
-.pnum{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--light);margin-bottom:14px;text-transform:uppercase}
-.ph3{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:9px;letter-spacing:-.3px;margin-top:16px}
-.pd{font-size:14px;color:var(--muted);line-height:1.65}
-.ptags{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
-.ptag{font-size:12px;font-weight:500;padding:4px 11px;border-radius:20px;background:var(--cream-d);border:1px solid var(--border);color:var(--muted)}
-.p1 .ai{background:var(--saffron-p)}.p1 .ai svg{color:var(--accent)}
-.p2 .ai{background:var(--peacock-p)}.p2 .ai svg{color:var(--deep)}
-.p3 .ai{background:var(--rose-p)}.p3 .ai svg{color:var(--accent)}
-.p4 .ai{background:var(--lotus-p)}.p4 .ai svg{color:var(--brown)}
-.p5 .ai{background:var(--sage-p)}.p5 .ai svg{color:var(--deep)}
-.p6 .ai{background:var(--indigo-p)}.p6 .ai svg{color:var(--deep)}
-/* === AI SECTION === */
-#ais{background:linear-gradient(145deg,#1A0F0A 0%,#0D2130 100%);position:relative;overflow:hidden}
-#ais::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 500px 400px at 18% 50%,rgba(230,72,51,.10) 0%,transparent 60%),radial-gradient(ellipse 400px 400px at 80% 28%,rgba(144,174,173,.12) 0%,transparent 60%);pointer-events:none}
-.ain{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1}
-.amock{background:rgba(251,233,208,.04);border:1px solid rgba(251,233,208,.09);border-radius:20px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.38)}
-.atb{background:rgba(251,233,208,.05);border-bottom:1px solid rgba(251,233,208,.07);padding:13px 20px;display:flex;align-items:center;gap:8px}
-.tbd{width:11px;height:11px;border-radius:50%}
-.ab{padding:26px}
-.mkl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(251,233,208,.38);margin-bottom:5px}
-.mki{background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.09);border-radius:10px;padding:10px 13px;font-size:13.5px;color:rgba(251,233,208,.7);width:100%;margin-bottom:13px;font-family:var(--fb)}
-.mkbtn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;font-family:var(--fb);display:flex;align-items:center;justify-content:center;gap:8px;cursor:default}
-.mko{margin-top:22px;padding-top:22px;border-top:1px solid rgba(251,233,208,.07)}
-.mkoh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.lbadge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#22c55e;background:rgba(34,197,94,.12);padding:4px 10px;border-radius:20px}
-.ldot{width:5px;height:5px;background:#22c55e;border-radius:50%;animation:pdot 1.5s infinite}
-.mkls{display:flex;flex-direction:column;gap:7px}
-.mkl2{height:9px;border-radius:4px;background:rgba(251,233,208,.08);animation:sh 2s infinite}
-.mkl2:nth-child(2){width:83%;animation-delay:.3s}.mkl2:nth-child(3){width:67%;animation-delay:.6s}.mkl2:nth-child(4){width:88%;animation-delay:.9s}.mkl2:nth-child(5){width:54%;animation-delay:1.2s}
-@keyframes sh{0%,100%{opacity:.22}50%{opacity:.58}}
-.ac .slabel{color:var(--accent)}.ac .sh2{color:var(--cream)}.ac .ssub{color:rgba(251,233,208,.52)}
-.atpill{display:inline-flex;align-items:center;gap:8px;background:rgba(34,197,94,.11);border:1px solid rgba(34,197,94,.2);padding:7px 15px;border-radius:50px;margin-bottom:26px;font-size:12.5px;font-weight:600;color:#22c55e}
-.afs{display:flex;flex-direction:column;gap:18px;margin-top:30px}
-.afi{display:flex;gap:16px;align-items:flex-start}
-.afic{background:rgba(251,233,208,.06);border:1px solid rgba(251,233,208,.09)}
-.aft{font-size:15px;font-weight:600;color:var(--cream);margin-bottom:3px}
-.afd{font-size:13.5px;color:rgba(251,233,208,.48);line-height:1.6;font-weight:300}
-/* === COMPARE === */
-#cmp{background:var(--cream-d)}
-.ctbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:16px;overflow:hidden;border:1px solid var(--border);min-width:760px}
-.ctbl th{padding:13px 20px;font-size:11.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;text-align:left;background:var(--cream-m);color:var(--muted);border-bottom:1px solid var(--border)}
-.ctbl th.k{background:var(--deep);color:var(--cream)}
-.ctbl td{padding:13px 20px;font-size:13.5px;border-bottom:1px solid var(--border-s);color:var(--muted);background:var(--white)}
-.ctbl td.k{background:rgba(36,72,85,.05);color:var(--ink);font-weight:500}
-.ctbl tr:last-child td{border-bottom:none}
-.ctbl tr:hover td{background:var(--cream)}.ctbl tr:hover td.k{background:rgba(36,72,85,.08)}
-.chk{color:var(--deep)}.crs{color:var(--light)}.fl{color:var(--light)!important;font-size:13px!important}
-/* === PRINCIPLE === */
-#pr{background:linear-gradient(135deg,#F2E8D8 0%,#FBE9D0 40%,#F0E4D4 100%);text-align:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.pq{font-family:var(--fd);font-size:clamp(19px,2.6vw,36px);font-style:italic;font-weight:400;color:var(--ink);line-height:1.45;max-width:820px;margin:0 auto}
-.pc2{margin-top:26px;font-size:12.5px;font-weight:600;color:var(--accent);letter-spacing:1px;text-transform:uppercase}
-/* === PRICING === */
-#prx{background:var(--white)}
-.btog{display:flex;align-items:center;gap:12px;background:var(--cream);border:1px solid var(--border);border-radius:50px;padding:5px;margin:38px auto 0;width:fit-content}
-.bopt{padding:8px 20px;border-radius:50px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--muted);transition:all .2s}
-.bopt.act{background:var(--white);color:var(--ink);box-shadow:0 2px 8px rgba(36,72,85,.09)}
-.bsave{font-size:11px;font-weight:700;color:var(--deep);background:var(--sage-p);padding:3px 7px;border-radius:20px;margin-left:2px}
-.prgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px}
-.prc{border-radius:22px;padding:30px 24px;border:1.5px solid var(--border);background:var(--cream);position:relative;overflow:hidden;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
-.prc:hover{transform:translateY(-5px);box-shadow:0 22px 48px rgba(36,72,85,.10)}
-.prc.feat{background:var(--deep);border-color:var(--deep);color:#fff}
-.ppop{position:absolute;top:0;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:5px 18px;border-radius:0 0 10px 10px}
-.csb{position:absolute;top:13px;right:13px;background:var(--marigold-p);border:1px solid rgba(135,79,65,.22);color:var(--brown);font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px}
-.pname{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--light);margin-bottom:18px;margin-top:10px}
-.feat .pname{color:rgba(251,233,208,.45)}
-.pamnt{font-family:var(--fd);font-size:44px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px}
-.feat .pamnt{color:var(--cream)}
-.pamnt sub{font-size:19px;font-weight:500;vertical-align:.15em;font-family:var(--fb)}
-.pper{font-size:13px;color:var(--light);margin-bottom:4px}
-.feat .pper{color:rgba(251,233,208,.38)}
-.pann{font-size:12.5px;color:var(--deep);font-weight:600;margin-bottom:22px}
-.feat .pann{color:var(--teal)}
-.pdiv{height:1px;background:var(--border);margin-bottom:20px}
-.feat .pdiv{background:rgba(251,233,208,.10)}
-.pfl{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:26px}
-.pfl li{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
-.feat .pfl li{color:rgba(251,233,208,.58)}
-.pbw .btn{width:100%;justify-content:center;padding:12px;border-radius:13px;font-size:14px}
-.btn-dk{background:var(--ink);color:var(--cream)}.btn-dk:hover{background:#0D0704}
-.btn-wh{background:var(--cream);color:var(--ink)}.btn-wh:hover{background:var(--cream-d)}
-.btn-ol{background:transparent;color:var(--muted);border:1.5px solid var(--border)}.btn-ol:hover{border-color:rgba(36,72,85,.25);color:var(--ink)}
-/* === TESTIMONIALS === */
-#tst{background:var(--cream-d)}
-.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:52px}
-.tc{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:30px 26px}
-.tstars{margin-bottom:16px;display:flex;gap:3px}
-.st{width:15px;height:15px}
-.tq{font-family:var(--fd);font-size:16.5px;font-style:italic;color:var(--ink);line-height:1.55;margin-bottom:20px}
-.ta{display:flex;align-items:center;gap:11px}
-.tav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
-.tname{font-size:13px;font-weight:600;color:var(--ink)}.trole{font-size:12px;color:var(--muted);margin-top:2px}
-/* === PRIVACY === */
-#pvx{background:var(--white)}
-.prvg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.prvc{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:26px 22px}
-.prvi{font-size:26px;margin-bottom:12px}
-.prvt{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px}
-.prvd{font-size:13px;color:var(--muted);line-height:1.6}
-/* === DEMO SECTION === */
-#demo{background:linear-gradient(160deg,#1A0F0A 0%,#0D2130 60%,#1A0F0A 100%);position:relative;overflow:hidden}
-#demo::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 700px 500px at 50% 0%,rgba(144,174,173,.10) 0%,transparent 55%),radial-gradient(ellipse 400px 300px at 10% 80%,rgba(230,72,51,.09) 0%,transparent 55%);pointer-events:none}
-.demo-inner{position:relative;z-index:1}
-.demo-tabs{display:flex;gap:4px;background:rgba(251,233,208,.07);border:1px solid rgba(251,233,208,.12);border-radius:50px;padding:5px;width:fit-content;margin:40px auto 0}
-.demo-tab{padding:9px 22px;border-radius:50px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(251,233,208,.45);transition:all .22s;border:none;background:transparent;font-family:var(--fb)}
-.demo-tab.act{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(230,72,51,.35)}
-/* Video placeholder */
-.video-wrap{margin:40px 0;position:relative;border-radius:20px;overflow:hidden;border:1px solid rgba(251,233,208,.12);background:rgba(251,233,208,.04);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
-.video-placeholder{text-align:center}
-.vp-icon{width:80px;height:80px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;cursor:pointer;transition:transform .22s var(--ease),box-shadow .22s;box-shadow:0 0 0 0 rgba(230,72,51,.4)}
-.vp-icon:hover{transform:scale(1.08);box-shadow:0 0 0 12px rgba(230,72,51,.15)}
-.vp-icon svg{width:30px;height:30px;margin-left:4px}
-.vp-title{font-family:var(--fd);font-size:22px;font-weight:700;color:var(--cream);margin-bottom:8px}
-.vp-sub{font-size:14px;color:rgba(251,233,208,.45);font-weight:300}
-.vp-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(251,233,208,.08);border:1px solid rgba(251,233,208,.15);padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;color:rgba(251,233,208,.55);margin-top:14px}
-/* How-to steps */
-.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px}
-.step-card{background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.10);border-radius:18px;padding:28px 22px;text-align:center;position:relative;transition:background .3s}
-.step-card:hover{background:rgba(251,233,208,.09)}
-.step-num{width:40px;height:40px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:17px;font-weight:700;color:#fff;margin:0 auto 18px}
-.step-icon-wrap{font-size:28px;margin-bottom:14px}
-.step-title{font-size:15px;font-weight:700;color:var(--cream);margin-bottom:8px;font-family:var(--fd)}
-.step-desc{font-size:13px;color:rgba(251,233,208,.45);line-height:1.6;font-weight:300}
-.step-connector{position:absolute;top:44px;right:-8px;width:16px;height:2px;background:rgba(251,233,208,.15);z-index:1}
-/* Interactive demo */
-.interactive-demo{background:rgba(251,233,208,.04);border:1px solid rgba(251,233,208,.10);border-radius:20px;padding:32px;margin-top:40px}
-.idemo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
-.idemo-title{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--cream)}
-.idemo-live{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#22c55e;background:rgba(34,197,94,.12);padding:5px 12px;border-radius:20px}
-.idemo-live-dot{width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pdot 1.5s infinite}
-.demo-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.df-field{display:flex;flex-direction:column;gap:6px}
-.df-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(251,233,208,.38)}
-.df-select,.df-input{background:rgba(251,233,208,.07);border:1px solid rgba(251,233,208,.14);border-radius:10px;padding:11px 14px;font-size:14px;color:rgba(251,233,208,.8);font-family:var(--fb);outline:none;transition:border-color .2s;width:100%}
-.df-select:focus,.df-input:focus{border-color:var(--accent);outline:none}
-.df-select option{background:#1A0F0A;color:rgba(251,233,208,.9)}
-.demo-gen-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;font-family:var(--fd);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .22s;letter-spacing:.2px}
-.demo-gen-btn:hover{background:#cc3020;transform:translateY(-2px);box-shadow:0 10px 28px rgba(230,72,51,.35)}
-.demo-output{margin-top:24px;padding:22px;background:rgba(251,233,208,.04);border:1px solid rgba(251,233,208,.08);border-radius:14px;display:none}
-.demo-output.show{display:block}
-.do-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.do-title{font-size:15px;font-weight:700;color:var(--cream);font-family:var(--fd)}
-.do-badge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--teal);background:rgba(144,174,173,.14);padding:4px 10px;border-radius:20px}
-.do-sections{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.do-section{background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.08);border-radius:10px;padding:14px 16px}
-.do-sec-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(251,233,208,.35);margin-bottom:6px}
-.do-sec-val{font-size:13.5px;color:rgba(251,233,208,.8);font-weight:500;line-height:1.5}
-.do-lines{display:flex;flex-direction:column;gap:6px;margin-top:6px}
-.do-line{height:8px;border-radius:3px;background:rgba(251,233,208,.12)}
-.do-line-s{width:72%}.do-line-m{width:88%}.do-line-l{width:60%}
-/* === CTA === */
-#cta{background:linear-gradient(150deg,#1A0F0A 0%,#0D2130 100%);text-align:center;overflow:hidden;position:relative}
-#cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 50% 100%,rgba(230,72,51,.11) 0%,transparent 60%),radial-gradient(ellipse 500px 300px at 20% 0%,rgba(144,174,173,.09) 0%,transparent 60%);pointer-events:none}
-.ci{position:relative;z-index:1}
-.ch2{font-size:clamp(32px,4.8vw,64px);font-weight:900;letter-spacing:-2.5px;color:var(--cream);line-height:1.04;max-width:740px;margin:0 auto 20px}
-.ch2 em{font-style:italic;color:var(--accent)}
-.csub{font-size:17px;color:rgba(251,233,208,.48);max-width:460px;margin:0 auto 38px;font-weight:300;line-height:1.7}
-.cact{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-.cind{margin-top:34px;font-size:12px;color:rgba(251,233,208,.18);letter-spacing:1.5px;text-transform:uppercase}
-/* === FOOTER === */
-footer{background:#0D0804;border-top:1px solid rgba(251,233,208,.07);padding:62px 0 34px}
-.fg{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:52px;padding-bottom:46px;border-bottom:1px solid rgba(251,233,208,.07);margin-bottom:30px}
-.flt{font-family:var(--fd);font-size:18px;font-weight:700;color:var(--cream);letter-spacing:-.5px}
-.flt em{font-style:normal;color:var(--teal)}
-.ftag{font-size:13px;color:rgba(251,233,208,.33);line-height:1.65;margin:14px 0 18px;font-weight:300}
-.fib{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(251,233,208,.22);border:1px solid rgba(251,233,208,.10);padding:5px 11px;border-radius:20px}
-.fct{font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:rgba(251,233,208,.32);margin-bottom:16px}
-.flinks{list-style:none;display:flex;flex-direction:column;gap:9px}
-.flinks a{font-size:13px;color:rgba(251,233,208,.32);text-decoration:none;transition:color .2s}
-.flinks a:hover{color:rgba(251,233,208,.72)}
-.fb2{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.fcopy{font-size:12px;color:rgba(251,233,208,.16)}
-.fleg{display:flex;gap:16px}
-.fleg a{font-size:12px;color:rgba(251,233,208,.16);text-decoration:none;transition:color .2s}
-.fleg a:hover{color:rgba(251,233,208,.38)}
-@media(max-width:1024px){.hi,.ain{grid-template-columns:1fr;gap:44px}.hvis{height:400px}.pg{grid-template-columns:1fr 1fr}.prgrid{grid-template-columns:1fr 1fr}.fg{grid-template-columns:1fr 1fr;gap:32px}.nlinks{display:none}.tg{grid-template-columns:1fr 1fr}.steps-grid{grid-template-columns:1fr 1fr}.demo-form{grid-template-columns:1fr}.do-sections{grid-template-columns:1fr}}
-@media(max-width:640px){.c{padding:0 20px}.sp{padding:78px 0}.pg,.prgrid,.tg,.prvg{grid-template-columns:1fr}.fg{grid-template-columns:1fr;gap:24px}.hstats{gap:18px;flex-wrap:wrap}body{cursor:auto}#cur,#cur-r{display:none}.fc4,.fc5{display:none}.steps-grid{grid-template-columns:1fr}.step-connector{display:none}}
+  :root {
+    --bg:       #0A0A0C;
+    --bg-2:     #08080A;
+    --ink:      #F4F1EA;
+    --ink-dim:  rgba(244,241,234,0.7);
+    --accent:   #D4A85F;
+    --teal:     #2F7A78;
+    --terra:    #C9785F;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Geist", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-2); }
+  ::-webkit-scrollbar-thumb { background: rgba(212,168,95,0.22); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(212,168,95,0.45); }
+
+  /* Film grain texture */
+  .grain {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    pointer-events: none;
+  }
+
+  @keyframes slowZoom {
+    from { transform: scale(1.02) translate(0,0); }
+    to   { transform: scale(1.12) translate(-1%,-1.5%); }
+  }
+
+  .particles { position: absolute; inset: 0; pointer-events: none; }
+  .particles span {
+    position: absolute;
+    left: var(--x);
+    bottom: -10px;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 999px;
+    background: radial-gradient(circle, #FFD89B 0%, rgba(255,200,120,0.2) 60%, transparent 100%);
+    box-shadow: 0 0 12px rgba(255,200,120,0.7);
+    animation: floatUp var(--duration) linear var(--delay) infinite;
+    opacity: 0;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) translateX(0); opacity: 0; }
+    10%  { opacity: 0.9; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(-110vh) translateX(40px); opacity: 0; }
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(180deg, transparent 0%, rgba(244,241,234,0.6) 50%, transparent 100%);
+    background-size: 100% 200%;
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%   { background-position: 0% 100%; }
+    100% { background-position: 0% -100%; }
+  }
+
+  .fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1.2s cubic-bezier(0.2,0.8,0.2,1) forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1s cubic-bezier(0.2,0.8,0.2,1), transform 1s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  .cta-primary:hover { background-position: 100% 100% !important; transform: translateY(-2px) !important; }
+  .cta-primary:hover .arrow { transform: translateX(4px); }
+
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    padding: 22px 6vw;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 400ms ease, backdrop-filter 400ms ease, border-color 400ms, padding 400ms;
+    border-bottom: 1px solid transparent;
+  }
+  .nav.scrolled {
+    background: rgba(10,10,12,0.75);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom-color: rgba(255,255,255,0.06);
+    padding: 14px 6vw;
+  }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a {
+    color: var(--ink-dim); text-decoration: none; font-size: 13px;
+    letter-spacing: 0.02em; transition: color 200ms;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .pillars-grid  { grid-template-columns: 1fr !important; }
+    .privacy-grid  { grid-template-columns: repeat(2,1fr) !important; }
+    .compare-grid  { grid-template-columns: 1fr !important; }
+    .testimonial-grid { grid-template-columns: 1fr !important; }
+    .pricing-grid  { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto !important; }
+    .pricing-grid > div { transform: none !important; }
+  }
+  @media (max-width: 900px) {
+    .product-grid  { grid-template-columns: 1fr !important; gap: 60px !important; }
+    .events-grid   { grid-template-columns: repeat(2,1fr) !important; }
+    .footer-grid   { grid-template-columns: 1fr 1fr !important; gap: 40px !important; }
+    .philosophy-grid { grid-template-columns: 1fr !important; gap: 30px !important; }
+    .nav-links     { display: none !important; }
+    .privacy-grid  { grid-template-columns: 1fr !important; }
+    .pillar-img    { display: none !important; }
+  }
+  @media (max-width: 560px) {
+    .events-grid   { grid-template-columns: 1fr !important; }
+    .footer-grid   { grid-template-columns: 1fr !important; }
+    .trust-grid    { grid-template-columns: 1fr !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 </style>
 </head>
 <body>
-<div id="gte"></div>
-<div id="cur"></div>
-<div id="cur-r"></div>
+<div id="root"></div>
 
-<!-- NAV -->
-<nav id="nav">
-  <div class="ni">
-    <a href="#" class="nlogo">
-      <svg width="38" height="38" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="40" cy="40" r="38" fill="#E2ECED" stroke="#244855" stroke-width="1.5" stroke-opacity=".45"/>
-        <ellipse cx="36" cy="50" rx="20" ry="17" fill="#90AEAD" fill-opacity=".22" stroke="#244855" stroke-width="1.3"/>
-        <ellipse cx="52" cy="34" rx="14" ry="13" fill="#90AEAD" fill-opacity=".22" stroke="#244855" stroke-width="1.3"/>
-        <ellipse cx="42" cy="30" rx="8" ry="10" fill="#E8F0F0" stroke="#244855" stroke-width="1.1"/>
-        <ellipse cx="42" cy="32" rx="5" ry="7" fill="#C8D8D8" fill-opacity=".6"/>
-        <circle cx="56" cy="30" r="2.8" fill="#244855"/>
-        <circle cx="57" cy="29" r=".9" fill="#E2ECED"/>
-        <path d="M61 40 Q70 47 67 58 Q64 65 58 63" stroke="#244855" stroke-width="2.8" stroke-linecap="round" fill="none"/>
-        <path d="M57 42 L66 50" stroke="#874F41" stroke-width="2.2" stroke-linecap="round"/>
-        <circle cx="66" cy="50" r="2.2" fill="#874F41"/>
-        <path d="M51 15 L57 9 L63 15" stroke="#874F41" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="57" y1="9" x2="57" y2="22" stroke="#874F41" stroke-width="2.2" stroke-linecap="round"/>
-        <rect x="20" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".48"/>
-        <rect x="30" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".38"/>
-        <rect x="40" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".3"/>
-        <rect x="50" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".24"/>
-      </svg>
-      <span class="nwm">Kunjara <em>OS</em>™</span>
-    </a>
-    <ul class="nlinks">
-      <li><a href="#features">Platform</a></li>
-      <li><a href="#ais">AI Engine</a></li>
-      <li><a href="#demo">Demo</a></li>
-      <li><a href="#cmp">Compare</a></li>
-      <li><a href="#prx">Pricing</a></li>
-    </ul>
-    <div class="nright">
-      <button class="nlang" onclick="trigLang()" title="Translate page">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-        <span id="ll">हिंदी</span>
-      </button>
-      <a href="/login" class="nlogin">Log in</a>
-      <a href="/signup" class="nsignup">Sign up free</a>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useEffect, useRef, useState } = React;
+const ACCENT = "#D4A85F";
+
+/* ── SVG Logo ──────────────────────────────────────────────────────────────── */
+const KunjaraMark = ({ size = 40, color = "currentColor", glow = false }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none"
+    style={{ filter: glow ? `drop-shadow(0 0 18px ${color}88)` : "none" }}>
+    <circle cx="32" cy="32" r="29" stroke={color} strokeWidth="1.25" opacity="0.35" />
+    <circle cx="32" cy="32" r="29" stroke={color} strokeWidth="1.25" strokeDasharray="2 6" opacity="0.5" transform="rotate(-30 32 32)" />
+    <g stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
+      <path d="M16 38 C 16 22, 48 22, 48 38" />
+      <path d="M22 38 C 22 48, 32 50, 34 42 C 35 38, 30 36, 30 40" />
+      <path d="M40 40 L 44 46" />
+      <circle cx="40" cy="32" r="1.4" fill={color} stroke="none" />
+    </g>
+    <circle cx="58" cy="22" r="1.6" fill={color} />
+  </svg>
+);
+
+const KunjaraLogo = ({ size = 28, color = "currentColor" }) => (
+  <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: size * 0.55, color, textDecoration: "none" }}>
+    <KunjaraMark size={size * 1.5} color={color} />
+    <div style={{ display: "flex", alignItems: "baseline", gap: 4, lineHeight: 1 }}>
+      <span style={{ fontFamily: '"Instrument Serif",serif', fontSize: size, fontStyle: "italic", letterSpacing: "-0.01em", fontWeight: 400 }}>Kunjara</span>
+      <span style={{ fontFamily: '"Geist",sans-serif', fontSize: size * 0.78, fontWeight: 500, letterSpacing: "0.04em" }}>OS</span>
+      <span style={{ fontFamily: '"Geist",sans-serif', fontSize: size * 0.32, fontWeight: 500, opacity: 0.6, marginLeft: 2, alignSelf: "flex-start", marginTop: size * 0.1 }}>™</span>
     </div>
-  </div>
-</nav>
+  </a>
+);
 
-<!-- HERO -->
-<section id="hero">
-  <div class="c">
-    <div class="hi">
-      <div>
-        <div class="hpill reveal"><span class="hdot"></span>India's First AI Event Operating System</div>
-        <h1 class="hh1 reveal d1">Events run<span class="bi">intelligently.</span></h1>
-        <p class="hsub reveal d2">Kunjara OS™ replaces Excel and scattered tools with one unified, AI-powered platform — built by a planner with 20+ years on the ground.</p>
-        <div class="hact reveal d3">
-          <a href="/signup" class="btn btn-dark">Start for free <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-          <a href="#features" class="btn btn-ghost">See all features</a>
-        </div>
-        <div class="hstats reveal d4">
-          <div><div class="hsv">4</div><div class="hsl">OS Pillars</div></div>
-          <div><div class="hsv">40+</div><div class="hsl">Modules</div></div>
-          <div><div class="hsv">₹1,999</div><div class="hsl">Starting / mo</div></div>
-          <div><div class="hsv">20+</div><div class="hsl">Yrs experience</div></div>
-        </div>
-      </div>
-      <div class="hvis reveal d2">
-        <div class="hglow"></div>
-        <!-- Hero elephant SVG -->
-        <svg class="hsvg" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="g1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#90AEAD" stop-opacity=".16"/><stop offset="100%" stop-color="#90AEAD" stop-opacity="0"/></radialGradient>
-            <radialGradient id="g2" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#E8F0F0" stop-opacity=".85"/><stop offset="100%" stop-color="#C8D8D8" stop-opacity=".3"/></radialGradient>
-          </defs>
-          <circle cx="160" cy="160" r="150" fill="url(#g1)"/>
-          <ellipse cx="160" cy="282" rx="68" ry="11" fill="rgba(144,174,173,.07)"/>
-          <ellipse cx="148" cy="196" rx="78" ry="68" fill="url(#g2)" stroke="#90AEAD" stroke-width="1.4" stroke-opacity=".45"/>
-          <ellipse cx="212" cy="134" rx="56" ry="52" fill="url(#g2)" stroke="#90AEAD" stroke-width="1.4" stroke-opacity=".45"/>
-          <ellipse cx="174" cy="120" rx="32" ry="38" fill="white" fill-opacity=".55" stroke="#90AEAD" stroke-width="1.1" stroke-opacity=".35"/>
-          <ellipse cx="174" cy="122" rx="20" ry="26" fill="#E8F0F0" fill-opacity=".55" stroke="#90AEAD" stroke-width=".7" stroke-opacity=".28"/>
-          <circle cx="225" cy="118" r="8" fill="#244855" fill-opacity=".88"/>
-          <circle cx="225" cy="118" r="4" fill="white"/>
-          <circle cx="226.5" cy="116.5" r="1.5" fill="#244855"/>
-          <path d="M236 158 Q278 178 270 218 Q264 248 244 245" stroke="#90AEAD" stroke-width="9" stroke-linecap="round" fill="none" stroke-opacity=".45"/>
-          <path d="M236 158 Q278 178 270 218 Q264 248 244 245" stroke="#E8F0F0" stroke-width="6" stroke-linecap="round" fill="none" stroke-opacity=".8"/>
-          <path d="M236 158 Q278 178 270 218 Q264 248 244 245" stroke="#90AEAD" stroke-width="1.6" stroke-linecap="round" fill="none" stroke-opacity=".55"/>
-          <path d="M228 162 L264 192" stroke="#874F41" stroke-width="4.2" stroke-linecap="round"/>
-          <circle cx="264" cy="192" r="3" fill="#874F41"/>
-          <rect x="82" y="250" width="30" height="44" rx="8" fill="#244855" fill-opacity=".22" stroke="#244855" stroke-width=".9" stroke-opacity=".38"/>
-          <rect x="118" y="254" width="30" height="40" rx="8" fill="#244855" fill-opacity=".18" stroke="#244855" stroke-width=".9" stroke-opacity=".32"/>
-          <rect x="156" y="254" width="30" height="40" rx="8" fill="#244855" fill-opacity=".15" stroke="#244855" stroke-width=".9" stroke-opacity=".26"/>
-          <rect x="192" y="250" width="30" height="44" rx="8" fill="#244855" fill-opacity=".13" stroke="#244855" stroke-width=".9" stroke-opacity=".22"/>
-          <path d="M76 200 Q58 208 62 225 Q66 238 78 234" stroke="#90AEAD" stroke-width="2.8" stroke-linecap="round" fill="none" stroke-opacity=".38"/>
-          <path d="M210 64 L226 46 L242 64" stroke="#874F41" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="226" y1="46" x2="226" y2="86" stroke="#874F41" stroke-width="3.2" stroke-linecap="round"/>
-          <circle cx="66" cy="80" r="3" fill="#E64833" fill-opacity=".48"/>
-          <circle cx="280" cy="100" r="2" fill="#90AEAD" fill-opacity=".48"/>
-          <circle cx="78" cy="162" r="2.5" fill="#874F41" fill-opacity=".4"/>
-          <circle cx="290" cy="200" r="2" fill="#E64833" fill-opacity=".48"/>
-        </svg>
-        <!-- Float cards -->
-        <div class="fc fc1">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:28px;height:28px;background:var(--peacock-p);border-radius:8px;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#244855" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg></div>
-            <div><div class="fct">AI Proposal</div><div class="fcs">Generating…</div></div>
-          </div>
-          <div class="fcb" style="background:var(--sage-p);color:var(--deep);">⏱ 7 min left</div>
-        </div>
-        <div class="fc fc2">
-          <div style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pdot 1.5s infinite;display:inline-block;"></span><div class="fct">Event Day Live</div></div>
-          <div class="fcs" style="margin-top:4px;">247 guests checked in</div>
-        </div>
-        <div class="fc fc3">
-          <div class="fct">₹4,72,000</div><div class="fcs">GST auto-calculated</div>
-          <div class="fcb" style="background:var(--sage-p);color:var(--deep);margin-top:6px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg> 18% GST applied</div>
-        </div>
-        <div class="fc fc4">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:28px;height:28px;background:var(--marigold-p);border-radius:8px;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#874F41" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></div>
-            <div><div class="fct">347 RSVPs</div><div class="fcs">QR check-in ready</div></div>
-          </div>
-        </div>
-        <div class="fc fc5"><div class="fct">Proposal Opened 🔥</div><div class="fcs">3× · High intent</div><div class="fcb" style="background:var(--saffron-p);color:var(--accent);margin-top:6px;">Call now</div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- MARQUEE -->
-<div class="tb"><div class="mw" id="mq">
-  <span class="mi"><span class="md"></span>AI Proposal Builder</span><span class="mi"><span class="md"></span>GST Auto-Calculation</span><span class="mi"><span class="md"></span>Run-of-Show AI</span><span class="mi"><span class="md"></span>WhatsApp Business API</span><span class="mi"><span class="md"></span>Razorpay + UPI Native</span><span class="mi"><span class="md"></span>DPDP Act 2023 Compliant</span><span class="mi"><span class="md"></span>QR Guest Check-in</span><span class="mi"><span class="md"></span>Hindi + English Toggle</span><span class="mi"><span class="md"></span>Event Room — Branded URL</span><span class="mi"><span class="md"></span>Made in Bharat 🇮🇳</span>
-  <span class="mi"><span class="md"></span>AI Proposal Builder</span><span class="mi"><span class="md"></span>GST Auto-Calculation</span><span class="mi"><span class="md"></span>Run-of-Show AI</span><span class="mi"><span class="md"></span>WhatsApp Business API</span><span class="mi"><span class="md"></span>Razorpay + UPI Native</span><span class="mi"><span class="md"></span>DPDP Act 2023 Compliant</span><span class="mi"><span class="md"></span>QR Guest Check-in</span><span class="mi"><span class="md"></span>Hindi + English Toggle</span><span class="mi"><span class="md"></span>Event Room — Branded URL</span><span class="mi"><span class="md"></span>Made in Bharat 🇮🇳</span>
-</div></div>
-
-<!-- PILLARS -->
-<section id="features" class="sp">
-  <div class="c">
-    <div class="slabel reveal">Complete OS Architecture</div>
-    <h2 class="sh2 reveal d1">Four pillars. Every event need.</h2>
-    <p class="ssub reveal d2">Every module built, owned and operated exclusively on Kunjara OS infrastructure. No competitor can see any subscriber's data.</p>
-    <div class="pg">
-      <div class="pc p1 reveal"><div class="pnum">01 — Plan</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9.5 13.5l.5-1.5 1.5-.5-1.5-.5-.5-1.5-.5 1.5-1.5.5 1.5.5z"/></svg></div><h3 class="ph3">Plan</h3><p class="pd">From zero to complete proposal in minutes. AI generates your entire event plan — concept, budget, timeline and vendors.</p><div class="ptags"><span class="ptag">AI Proposal Builder</span><span class="ptag">Budget + GST</span><span class="ptag">Run-of-Show AI</span><span class="ptag">Vendor Mgmt</span></div></div>
-      <div class="pc p2 reveal d1"><div class="pnum">02 — Execute</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg></div><h3 class="ph3">Execute</h3><p class="pd">Real-time event day operations on mobile. Every task, every guest, every check-in — tracked live from your pocket.</p><div class="ptags"><span class="ptag">Client Portal</span><span class="ptag">RSVP + Reg</span><span class="ptag">QR Check-in</span><span class="ptag">Event Day Live</span></div></div>
-      <div class="pc p3 reveal d2"><div class="pnum">03 — Market</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h3 class="ph3">Market</h3><p class="pd">AI-generated captions for every platform, one-click publishing, event microsites and sponsorship management.</p><div class="ptags"><span class="ptag">Social Media AI</span><span class="ptag">Microsite</span><span class="ptag">5 Deck Templates</span><span class="ptag">Sponsorship</span></div></div>
-      <div class="pc p4 reveal"><div class="pnum">04 — Communicate</div><div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="12" y2="13"/></svg></div><h3 class="ph3">Communicate</h3><p class="pd">Email-first client communication. Post-event surveys auto-sent. Branded reports generated the moment the event ends.</p><div class="ptags"><span class="ptag">Email</span><span class="ptag">Post-Event Survey</span><span class="ptag">Auto Reports</span></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- AI SECTION -->
-<section id="ais" class="sp">
-  <div class="c">
-    <div class="ain">
-      <div class="amock reveal">
-        <div class="atb"><div class="tbd" style="background:#ff5f57"></div><div class="tbd" style="background:#febc2e"></div><div class="tbd" style="background:#28c840"></div><span style="margin-left:10px;font-size:12px;color:rgba(255,255,255,.38)">Kunjara OS — Proposal Architect™</span></div>
-        <div class="ab">
-          <div class="mkl">Event Type</div><div class="mki">Corporate Annual Gala — 500 Pax</div>
-          <div class="mkl">Budget Range</div><div class="mki">₹ 25,00,000 — ₹ 35,00,000</div>
-          <div class="mkl">Location</div><div class="mki">Mumbai — Grand Hyatt / ITC Maratha</div>
-          <div class="mkl">Theme Preference</div><div class="mki">Modern India — Heritage + Technology</div>
-          <div class="mkbtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>Architect Proposal — ~7 minutes</div>
-          <div class="mko">
-            <div class="mkoh"><span style="font-size:10.5px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:1px;text-transform:uppercase">Output</span><div class="lbadge"><span class="ldot"></span>Generating</div></div>
-            <div class="mkls"><div class="mkl2"></div><div class="mkl2"></div><div class="mkl2"></div><div class="mkl2"></div><div class="mkl2"></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="ac reveal d2">
-        <div class="slabel">Bespoke AI Architecture™</div>
-        <h2 class="sh2">Proposals that close.<br>Not templates.</h2>
-        <p class="ssub">Our AI gathers your brief through intelligent conversation, then generates a complete, client-ready proposal — not a generic template.</p>
-        <div class="atpill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Proposal Architect™ delivers in 5–10 minutes</div>
-        <div class="afs">
-          <div class="afi"><div class="ai ai-sm afic"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4"/></svg></div><div><div class="aft">Event Concept + Visual Direction</div><div class="afd">Theme, color palette, lighting, stage design and mood board — from your brief.</div></div></div>
-          <div class="afi"><div class="ai ai-sm afic"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></div><div><div class="aft">Budget Allocation + GST</div><div class="afd">Smart cost split with 18% GST auto-calculated. Toggle off for sub-₹19L threshold.</div></div></div>
-          <div class="afi"><div class="ai ai-sm afic"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div><div class="aft">Proposal Intelligence</div><div class="afd">See when your client opens the proposal and get AI signals: "High Intent — Call Now."</div></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- COMPARE -->
-<section id="cmp" class="sp">
-  <div class="c">
-    <div class="slabel reveal">Competitive Landscape</div>
-    <h2 class="sh2 reveal d1">We're not competing.<br>We're replacing.</h2>
-    <p class="ssub reveal d2">No Indian-built, India-first, AI-powered Event OS exists. Kunjara OS operates in a blue ocean.</p>
-    <div style="overflow-x:auto;margin-top:52px;" class="reveal d3">
-      <table class="ctbl">
-        <thead><tr><th>Feature</th><th class="k">Kunjara OS™</th><th>WhatsApp + Excel</th><th>Zoho Backstage</th><th>Cvent</th></tr></thead>
-        <tbody>
-          <tr><td class="fl">AI Proposal Builder</td><td class="k">✦ 5–10 Minutes</td><td>Manual — Hours</td><td>None</td><td>None</td></tr>
-          <tr><td class="fl">GST-Compliant Invoicing</td><td class="k"><span class="chk">✓</span> Auto 18%</td><td><span class="crs">✕</span> Manual</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
-          <tr><td class="fl">Event Room — Client Link</td><td class="k"><span class="chk">✓</span> Branded URL</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td><td>Basic</td></tr>
-          <tr><td class="fl">Proposal Intelligence</td><td class="k"><span class="chk">✓</span> AI Open Tracking</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
-          <tr><td class="fl">Run-of-Show AI</td><td class="k"><span class="chk">✓</span> AI Generated</td><td><span class="crs">✕</span> Manual</td><td><span class="crs">✕</span> None</td><td>Basic</td></tr>
-          <tr><td class="fl">Social Media AI</td><td class="k"><span class="chk">✓</span> All Platforms</td><td><span class="crs">✕</span> Manual</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
-          <tr><td class="fl">Hindi + English</td><td class="k"><span class="chk">✓</span> Native</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td><td><span class="crs">✕</span> None</td></tr>
-          <tr><td class="fl">Razorpay + UPI</td><td class="k"><span class="chk">✓</span> Native</td><td><span class="crs">✕</span> Manual</td><td>Partial</td><td><span class="crs">✕</span> None</td></tr>
-          <tr><td class="fl">Monthly Cost</td><td class="k" style="color:var(--kgold);font-weight:700;">₹1,999 – ₹3,999</td><td>Free (but broken)</td><td>₹0–₹5,000</td><td>₹50,000+</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="reveal d4" style="margin-top:72px;">
-      <div style="text-align:center;max-width:640px;margin:0 auto 28px;">
-        <div class="slabel" style="justify-content:center;">Research &amp; References</div>
-        <h3 style="font-family:var(--fd);font-size:26px;line-height:1.25;color:var(--ink);margin-top:14px;letter-spacing:-0.01em;">Every platform we studied. Why none fit Indian events.</h3>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="ctbl">
-          <thead><tr><th>Platform</th><th>What It Is</th><th>Threat Level</th><th class="k">Kunjara Advantage</th></tr></thead>
-          <tbody>
-            <tr><td class="fl">WhatsApp + Excel</td><td>What 80% of Indian planners use today</td><td><strong style="color:var(--rose);">Highest</strong> — status quo</td><td class="k">Replace both with one intelligent OS</td></tr>
-            <tr><td class="fl">Zoho Backstage</td><td>Event registration only</td><td>Medium — partial overlap</td><td class="k">10× more coverage in every direction</td></tr>
-            <tr><td class="fl">Eventbrite</td><td>Ticketing platform only</td><td>Low — different scope</td><td class="k">Full event management, not just tickets</td></tr>
-            <tr><td class="fl">Cvent</td><td>Enterprise conference platform</td><td>Low — ₹50,000+/year</td><td class="k">95% cheaper, India-native, AI-powered</td></tr>
-            <tr><td class="fl">Paperflite</td><td>B2B sales enablement (different market)</td><td>Zero competition</td><td class="k">Inspired our Event Room + Proposal Intelligence</td></tr>
-            <tr><td class="fl">Chronicle HQ</td><td>General AI presentation maker</td><td>Zero competition</td><td class="k">Presentation Engine built event-specific</td></tr>
-            <tr><td class="fl">Odoo</td><td>Generic ERP for any industry</td><td>Low — no event features</td><td class="k">Kunjara wins on every event-specific metric</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- MISSION -->
-<section id="mis" class="sp">
-  <div class="c">
-    <div style="max-width:820px;margin:0 auto;text-align:center;">
-      <div class="slabel reveal" style="justify-content:center;">Mission</div>
-      <h2 class="sh2 reveal d1">Enterprise-grade event tools,<br>finally in every planner's hands.</h2>
-      <p class="ssub reveal d2" style="margin-top:22px;">
-        To give every Indian event professional — from the solo freelancer to the large agency —
-        access to enterprise-grade tools previously available only to the largest players in the
-        industry.
-      </p>
-    </div>
-  </div>
-</section>
-
-<!-- PRINCIPLE -->
-<section id="pr" class="sp">
-  <div class="c">
-    <div class="slabel reveal" style="justify-content:center;">Lex Mercatoria — Founding Principle</div>
-    <blockquote class="pq reveal d1">"We grow only when you grow. The planner succeeds, the client gets a better event, the vendor gets more work — and the entire ecosystem lifts. That is the only business model we believe in."</blockquote>
-    <div class="pc2 reveal d2">— Gautam Shah, Founder · Kunjara OS™ · Indigo EP · Mumbai</div>
-  </div>
-</section>
-
-<!-- PRICING -->
-<section id="prx" class="sp">
-  <div class="c">
-    <div class="slabel reveal">Simple, Transparent Pricing</div>
-    <h2 class="sh2 reveal d1">Create client-winning<br>event proposals in minutes.</h2>
-    <p class="ssub reveal d2">🎉 Launch Offer — every plan ships with 2× AI credits. No free tier. No hidden fees. Just the complete OS from day one.</p>
-    <div class="btog reveal d2">
-      <div class="bopt act" id="bm" onclick="setBill('m')">Monthly</div>
-      <div class="bopt" id="ba" onclick="setBill('a')">Annual <span class="bsave">Save 17%</span></div>
-    </div>
-    <div class="prgrid reveal d3" style="grid-template-columns:repeat(2,1fr);max-width:760px;margin:0 auto;">
-      <!-- Basic -->
-      <div class="prc">
-        <div class="pname">Basic</div>
-        <div class="pamnt" id="pb"><sub>₹</sub>1,999</div><div class="pper">per month</div><div class="pann" id="ab">₹19,990 billed annually</div>
-        <div class="pdiv"></div>
-        <ul class="pfl">
-          <li><span class="chk">✓</span>12 client-winning proposals</li>
-          <li><span class="chk">✓</span>2,000 AI credits</li>
-          <li><span class="chk">✓</span>1 user</li>
-          <li><span class="chk">✓</span>PDF export</li>
-          <li><span class="chk">✓</span>Email support</li>
-        </ul>
-        <div class="pbw"><a href="/signup?plan=basic" class="btn btn-ol">Get Started</a></div>
-      </div>
-      <!-- Pro - Featured -->
-      <div class="prc feat" style="margin-top:-8px;">
-        <div class="ppop">Most Popular · 🎉 2× Credits</div>
-        <div class="pname" style="margin-top:28px;">Pro</div>
-        <div class="pamnt" id="pp"><sub>₹</sub>3,999</div><div class="pper">per month</div><div class="pann" id="ap">₹39,990 billed annually</div>
-        <div class="pdiv"></div>
-        <ul class="pfl">
-          <li><span class="chk">✓</span>30 client-winning proposals</li>
-          <li><span class="chk">✓</span>6,000 AI credits</li>
-          <li><span class="chk">✓</span>Advanced AI quality</li>
-          <li><span class="chk">✓</span>1 user</li>
-          <li><span class="chk">✓</span>PDF export</li>
-          <li><span class="chk">✓</span>Priority support</li>
-        </ul>
-        <div class="pbw"><a href="/signup?plan=pro" class="btn btn-wh">Upgrade to Pro</a></div>
-      </div>
-    </div>
-    <!-- Credit top-ups -->
-    <div style="margin-top:52px;text-align:center;">
-      <div class="slabel" style="margin-bottom:16px;">Need more AI power?</div>
-      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
-        <div style="background:var(--cream);border:1px solid var(--border);border-radius:14px;padding:16px 24px;min-width:160px;">
-          <div style="font-size:20px;font-weight:800;color:var(--ink);">500</div>
-          <div style="font-size:12px;color:var(--muted);margin:2px 0 8px;">AI credits</div>
-          <div style="font-size:15px;font-weight:700;color:var(--accent);">₹499</div>
-        </div>
-        <div style="background:var(--cream);border:2px solid var(--accent);border-radius:14px;padding:16px 24px;min-width:160px;position:relative;">
-          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--white);font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap;">Best Value</div>
-          <div style="font-size:20px;font-weight:800;color:var(--ink);">1,200</div>
-          <div style="font-size:12px;color:var(--muted);margin:2px 0 8px;">AI credits</div>
-          <div style="font-size:15px;font-weight:700;color:var(--accent);">₹999</div>
-        </div>
-        <div style="background:var(--cream);border:1px solid var(--border);border-radius:14px;padding:16px 24px;min-width:160px;">
-          <div style="font-size:20px;font-weight:800;color:var(--ink);">3,000</div>
-          <div style="font-size:12px;color:var(--muted);margin:2px 0 8px;">AI credits</div>
-          <div style="font-size:15px;font-weight:700;color:var(--accent);">₹1,999</div>
-        </div>
-      </div>
-      <p style="margin-top:14px;font-size:12px;color:var(--muted);">Top up any time from inside the app. Instant credit via Razorpay + UPI.</p>
-    </div>
-  </div>
-</section>
-
-<!-- TESTIMONIALS -->
-<section id="tst" class="sp">
-  <div class="c">
-    <div class="slabel reveal">Early Adopters</div>
-    <h2 class="sh2 reveal d1">Built by planners.<br>For planners.</h2>
-    <div class="tg">
-      <div class="tc reveal d1"><div class="tstars"><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div><p class="tq">"The GST automation alone saved me 3 hours per proposal. Finally a tool that understands how Indian events actually work."</p><div class="ta"><div class="tav" style="background:var(--rose-p);color:var(--rose);">RS</div><div><div class="tname">Radhika Sharma</div><div class="trole">Event Director · Mumbai</div></div></div></div>
-      <div class="tc reveal d2"><div class="tstars"><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div><p class="tq">"The AI proposal builder is witchcraft. I described a 400-pax gala and got a complete, client-ready deck in under 10 minutes."</p><div class="ta"><div class="tav" style="background:var(--peacock-p);color:var(--peacock);">AK</div><div><div class="tname">Arjun Kapoor</div><div class="trole">MICE Agency Owner · Delhi</div></div></div></div>
-      <div class="tc reveal d3"><div class="tstars"><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg><svg class="st" viewBox="0 0 24 24" fill="#B8820E"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div><p class="tq">"We replaced 6 different tools with Kunjara OS. Entire team on one platform. No more WhatsApp group chaos at 2am."</p><div class="ta"><div class="tav" style="background:var(--sage-p);color:var(--sage);">PD</div><div><div class="tname">Priya Desai</div><div class="trole">Corporate Events Head · Bangalore</div></div></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- PRIVACY -->
-<section id="pvx" class="sp">
-  <div class="c">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
-      <div>
-        <div class="slabel reveal">Data Privacy Promise</div>
-        <h2 class="sh2 reveal d1">Your client data is<br>never shared. Ever.</h2>
-        <p class="ssub reveal d2">Complete database-level isolation. Full compliance with IT Act 2000, IT Rules 2011, and DPDP Act 2023. Mumbai jurisdiction exclusively.</p>
-        <a href="#" class="btn btn-ghost reveal d3" style="margin-top:26px;display:inline-flex;">Read Privacy Policy →</a>
-      </div>
-      <div class="prvg reveal d2">
-        <div class="prvc"><div class="prvi">🔒</div><div class="prvt">Zero Data Sharing</div><div class="prvd">Client names and event data never shared with any third party, ever.</div></div>
-        <div class="prvc"><div class="prvi">🧱</div><div class="prvt">No Cross-User Visibility</div><div class="prvd">Complete database-level isolation between all subscriber accounts.</div></div>
-        <div class="prvc"><div class="prvi">🚫</div><div class="prvt">No Commercial Use</div><div class="prvd">We do not mine, analyse, sell or commercially use your business data.</div></div>
-        <div class="prvc"><div class="prvi">🛡️</div><div class="prvt">DPDP Act 2023</div><div class="prvd">Full compliance with IT Act 2000, IT Rules 2011, and DPDP Act 2023.</div></div>
-        <div class="prvc"><div class="prvi">⚖️</div><div class="prvt">Mumbai Jurisdiction</div><div class="prvd">All disputes under exclusive jurisdiction of Mumbai courts.</div></div>
-        <div class="prvc"><div class="prvi">🗑️</div><div class="prvt">Data Deletion on Exit</div><div class="prvd">Account data fully deleted within 90 days of cancellation.</div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- DEMO SECTION -->
-<section id="demo" class="sp">
-  <div class="c">
-    <div class="demo-inner">
-      <div class="slabel reveal" style="color:var(--teal);">See It In Action</div>
-      <h2 class="sh2 reveal d1" style="color:var(--cream);">Watch. Learn.<br>Then try it yourself.</h2>
-      <p class="ssub reveal d2" style="color:rgba(251,233,208,.50);">Everything from proposal to post-event report — shown in 6 minutes. Then build your own proposal right here, for free.</p>
-
-      <!-- Tabs -->
-      <div class="demo-tabs reveal d2">
-        <button class="demo-tab act" onclick="demoTab('video',this)">Watch Demo</button>
-        <button class="demo-tab" onclick="demoTab('howto',this)">How It Works</button>
-        <button class="demo-tab" onclick="demoTab('try',this)">Try It Now</button>
-      </div>
-
-      <!-- === TAB: VIDEO === -->
-      <div id="tab-video">
-        <div class="video-wrap reveal d3">
-          <div class="video-placeholder">
-            <div class="vp-icon" onclick="this.style.background='var(--teal)'">
-              <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-            <div class="vp-title">Kunjara OS™ — Full Platform Walkthrough</div>
-            <div class="vp-sub">6-minute demo · AI Proposal → Budget → Event Day → Report</div>
-            <div class="vp-badge">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Video loading soon — check back shortly
-            </div>
-          </div>
-        </div>
-        <!-- Video chapters -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:0;" class="reveal d3">
-          <div style="background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.09);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:12px;">
-            <span style="font-size:22px;">🗂️</span>
-            <div><div style="font-size:13.5px;font-weight:700;color:var(--cream);">0:00 — Plan</div><div style="font-size:12px;color:rgba(251,233,208,.4);margin-top:2px;">AI Proposal Builder in action</div></div>
-          </div>
-          <div style="background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.09);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:12px;">
-            <span style="font-size:22px;">⚙️</span>
-            <div><div style="font-size:13.5px;font-weight:700;color:var(--cream);">2:10 — Execute</div><div style="font-size:12px;color:rgba(251,233,208,.4);margin-top:2px;">Event Day Live + QR check-in</div></div>
-          </div>
-          <div style="background:rgba(251,233,208,.05);border:1px solid rgba(251,233,208,.09);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:12px;">
-            <span style="font-size:22px;">📊</span>
-            <div><div style="font-size:13.5px;font-weight:700;color:var(--cream);">4:30 — Report</div><div style="font-size:12px;color:rgba(251,233,208,.4);margin-top:2px;">Auto-generated post-event report</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- === TAB: HOW IT WORKS === -->
-      <div id="tab-howto" style="display:none;">
-        <div class="steps-grid reveal d2">
-          <div class="step-card">
-            <div class="step-num">1</div>
-            <div class="step-icon-wrap">🗂️</div>
-            <div class="step-title">Describe Your Event</div>
-            <div class="step-desc">Tell Kunjara OS the event type, budget, location, and theme. Takes 2 minutes.</div>
-            <div class="step-connector"></div>
-          </div>
-          <div class="step-card">
-            <div class="step-num">2</div>
-            <div class="step-icon-wrap">✦</div>
-            <div class="step-title">AI Architects the Plan</div>
-            <div class="step-desc">Proposal Architect™ generates a complete, branded proposal in 5–10 minutes. Not a template.</div>
-            <div class="step-connector"></div>
-          </div>
-          <div class="step-card">
-            <div class="step-num">3</div>
-            <div class="step-icon-wrap">📤</div>
-            <div class="step-title">Share with Client</div>
-            <div class="step-desc">Send via your own email. Track opens. AI tells you when to call: "High Intent — Call Now."</div>
-            <div class="step-connector"></div>
-          </div>
-          <div class="step-card">
-            <div class="step-num">4</div>
-            <div class="step-icon-wrap">📋</div>
-            <div class="step-title">Execute with Precision</div>
-            <div class="step-desc">Event Day Live module. Real-time run-of-show on mobile. QR check-in. Task tracking. All live.</div>
-          </div>
-        </div>
-        <!-- Feature deep-dive -->
-        <div style="margin-top:32px;background:rgba(251,233,208,.04);border:1px solid rgba(251,233,208,.09);border-radius:20px;padding:32px;" class="reveal d3">
-          <div style="font-family:var(--fd);font-size:18px;font-weight:700;color:var(--cream);margin-bottom:20px;">What happens in each step</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            <div style="padding:18px;background:rgba(251,233,208,.05);border-radius:12px;border:1px solid rgba(251,233,208,.07);">
-              <div style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Proposal Architect™</div>
-              <div style="font-size:13px;color:rgba(251,233,208,.5);line-height:1.65;">Discuss Mode gathers your brief through intelligent conversation — then fires the full generation. Event concept, visual direction, budget split, vendor list, GST, and run-of-show. All in one pass.</div>
-            </div>
-            <div style="padding:18px;background:rgba(251,233,208,.05);border-radius:12px;border:1px solid rgba(251,233,208,.07);">
-              <div style="font-size:12px;font-weight:700;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Budget Builder</div>
-              <div style="font-size:13px;color:rgba(251,233,208,.5);line-height:1.65;">Agency subtotal → Commission (% or fixed) → Taxable value → 18% GST → Grand Total. All calculated in real-time. Toggle GST off for sub-₹19L threshold planners.</div>
-            </div>
-            <div style="padding:18px;background:rgba(251,233,208,.05);border-radius:12px;border:1px solid rgba(251,233,208,.07);">
-              <div style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Event Room</div>
-              <div style="font-size:13px;color:rgba(251,233,208,.5);line-height:1.65;">One private branded URL per event. Your client sees everything — proposal, budget, approvals — from a single page. Like a Paperflite deal room, built for events.</div>
-            </div>
-            <div style="padding:18px;background:rgba(251,233,208,.05);border-radius:12px;border:1px solid rgba(251,233,208,.07);">
-              <div style="font-size:12px;font-weight:700;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Proposal Intelligence</div>
-              <div style="font-size:13px;color:rgba(251,233,208,.5);line-height:1.65;">Track every open. Every page view. AI scores engagement and surfaces "High Intent" signals so you know exactly when to call — and what to say.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- === TAB: TRY IT === -->
-      <div id="tab-try" style="display:none;">
-        <div class="interactive-demo reveal d2">
-          <div class="idemo-header">
-            <div class="idemo-title">Proposal Architect™ — Live Demo</div>
-            <div class="idemo-live"><span class="idemo-live-dot"></span>Interactive · No signup required</div>
-          </div>
-          <div class="demo-form">
-            <div class="df-field">
-              <label class="df-label">Event Type</label>
-              <select class="df-select" id="d-type">
-                <option value="">Select event type...</option>
-                <option value="corporate">Corporate Gala / Annual Day</option>
-                <option value="product">Product Launch</option>
-                <option value="conference">Conference / Summit</option>
-                <option value="wedding">Wedding Reception</option>
-                <option value="exhibition">Exhibition / Trade Show</option>
-              </select>
-            </div>
-            <div class="df-field">
-              <label class="df-label">Budget Range</label>
-              <select class="df-select" id="d-budget">
-                <option value="">Select budget...</option>
-                <option value="5">₹3L – ₹8L</option>
-                <option value="15">₹8L – ₹25L</option>
-                <option value="50">₹25L – ₹75L</option>
-                <option value="100">₹75L – ₹1.5Cr</option>
-                <option value="200">₹1.5Cr+</option>
-              </select>
-            </div>
-            <div class="df-field">
-              <label class="df-label">Location</label>
-              <select class="df-select" id="d-city">
-                <option value="">Select city...</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Delhi">Delhi / NCR</option>
-                <option value="Bangalore">Bangalore</option>
-                <option value="Chennai">Chennai</option>
-                <option value="Hyderabad">Hyderabad</option>
-                <option value="Pune">Pune</option>
-              </select>
-            </div>
-            <div class="df-field">
-              <label class="df-label">Expected Guests</label>
-              <select class="df-select" id="d-pax">
-                <option value="">Select count...</option>
-                <option value="50">Up to 50 pax</option>
-                <option value="150">50 – 200 pax</option>
-                <option value="500">200 – 600 pax</option>
-                <option value="1000">600 – 1,200 pax</option>
-                <option value="2000">1,200+ pax</option>
-              </select>
-            </div>
-          </div>
-          <button class="demo-gen-btn" onclick="runDemo()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 3l.75 2.25L22 6l-2.25.75L19 9l-.75-2.25L16 6l2.25-.75z"/></svg>
-            Architect My Proposal
-          </button>
-          <!-- Output -->
-          <div class="demo-output" id="demo-out">
-            <div class="do-header">
-              <div class="do-title" id="do-title">Corporate Gala — Mumbai</div>
-              <div class="do-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Proposal ready</div>
-            </div>
-            <div class="do-sections">
-              <div class="do-section">
-                <div class="do-sec-label">Event Concept</div>
-                <div class="do-sec-val" id="do-concept">Modern India — Heritage Meets Innovation</div>
-              </div>
-              <div class="do-section">
-                <div class="do-sec-label">Visual Direction</div>
-                <div class="do-sec-val" id="do-visual">Terracotta · Deep Teal · Champagne Gold</div>
-              </div>
-              <div class="do-section">
-                <div class="do-sec-label">Venue Shortlist</div>
-                <div class="do-sec-val" id="do-venue">Grand Hyatt Mumbai · ITC Maratha · Trident BKC</div>
-              </div>
-              <div class="do-section">
-                <div class="do-sec-label">Budget Split (18% GST incl.)</div>
-                <div class="do-sec-val" id="do-budget">Venue 35% · F&B 22% · Decor 18% · AV 12% · Team 8% · Misc 5%</div>
-              </div>
-            </div>
-            <div style="margin-top:14px;padding:14px 16px;background:rgba(144,174,173,.10);border:1px solid rgba(144,174,173,.18);border-radius:10px;">
-              <div style="font-size:11px;font-weight:700;color:var(--teal);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Run-of-Show (AI Draft)</div>
-              <div class="do-lines"><div class="do-line do-line-m"></div><div class="do-line do-line-s"></div><div class="do-line do-line-l"></div><div class="do-line do-line-m"></div></div>
-            </div>
-            <div style="margin-top:14px;text-align:center;">
-              <a href="/signup" class="btn" style="background:var(--accent);color:#fff;border-radius:12px;padding:12px 28px;font-size:14px;display:inline-flex;">Sign up to save & send this proposal →</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section id="cta" class="sp">
-  <div class="c"><div class="ci">
-    <div class="slabel reveal" style="justify-content:center;color:var(--accent);">Start Today</div>
-    <h2 class="ch2 reveal d1">Your events deserve<br><em>an operating system.</em></h2>
-    <p class="csub reveal d2">Join India's first wave of event professionals running their entire operation on one intelligent platform.</p>
-    <div class="cact reveal d3">
-      <a href="/signup" class="btn" style="background:var(--accent);color:#fff;padding:15px 34px;font-size:16px;">Create your account <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      <a href="/login" class="btn btn-outline-w">Log in to your account</a>
-    </div>
-    <div class="cind reveal d4">Made in Bharat 🇮🇳 · By Indigo EP · Mumbai, Maharashtra</div>
-  </div></div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="c">
-    <div class="fg">
-      <div>
-        <div style="display:flex;align-items:center;gap:10px;"><svg width="30" height="30" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="38" fill="rgba(144,174,173,.18)" stroke="#90AEAD" stroke-width="1.5" stroke-opacity=".35"/><ellipse cx="36" cy="50" rx="20" ry="17" fill="#90AEAD" fill-opacity=".18" stroke="#244855" stroke-width="1.2"/><ellipse cx="52" cy="34" rx="14" ry="13" fill="#90AEAD" fill-opacity=".18" stroke="#244855" stroke-width="1.2"/><ellipse cx="42" cy="30" rx="8" ry="10" fill="rgba(251,233,208,.1)" stroke="#244855" stroke-width="1"/><circle cx="56" cy="30" r="2.5" fill="#244855"/><path d="M61 40 Q70 47 67 58 Q64 65 58 63" stroke="#90AEAD" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M57 42 L66 50" stroke="#874F41" stroke-width="2" stroke-linecap="round"/><path d="M51 15 L57 9 L63 15" stroke="#874F41" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="57" y1="9" x2="57" y2="22" stroke="#874F41" stroke-width="2" stroke-linecap="round"/><rect x="20" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".45"/><rect x="30" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".35"/><rect x="40" y="63" width="8" height="10" rx="2.5" fill="#244855" opacity=".28"/><rect x="50" y="62" width="8" height="11" rx="2.5" fill="#244855" opacity=".22"/></svg><span class="flt">Kunjara <em>OS</em>™</span></div>
-        <p class="ftag">The AI-powered event operating system for India. Built by event planners, for event planners — with 20+ years of field intelligence.</p>
-        <div class="fib">🇮🇳 Made in Bharat · By Indigo EP</div>
-      </div>
-      <div><div class="fct">Platform</div><ul class="flinks"><li><a href="#features">All Features</a></li><li><a href="#ais">AI Proposal Builder</a></li><li><a href="#prx">Pricing</a></li><li><a href="#cmp">Compare</a></li></ul></div>
-      <div><div class="fct">Company</div><ul class="flinks"><li><a href="/about">About Us</a></li><li><a href="/contact">Contact</a></li><li><a href="/support">Support</a></li><li><a href="/cdn-cgi/l/email-protection#29414c45454669425c4743485b48465a074a4644"><span class="__cf_email__" data-cfemail="1179747d7d7e517a647f7b7063707e623f727e7c">[email&#160;protected]</span></a></li></ul></div>
-      <div><div class="fct">Legal</div><ul class="flinks"><li><a href="/privacy">Privacy Policy</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/dpdp">DPDP Compliance</a></li><li><a href="/data-deletion">Data Deletion</a></li></ul></div>
-    </div>
-    <div class="fb2">
-      <div class="fcopy">© 2025 Kunjara OS™ by Indigo Events & Promotions. All rights reserved. Mumbai, Maharashtra, India. IT Act 2000 · DPDP Act 2023.</div>
-      <div class="fleg"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/support">Support</a></div>
-    </div>
-  </div>
-</footer>
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// Cursor
-const cur=document.getElementById('cur'),curR=document.getElementById('cur-r');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.transform=`translate(${mx-5}px,${my-5}px)`;});
-(function a(){rx+=(mx-rx-15)*.1;ry+=(my-ry-15)*.1;curR.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(a);})();
-document.querySelectorAll('a,button,.pc,.prc').forEach(el=>{el.addEventListener('mouseenter',()=>document.body.classList.add('ch'));el.addEventListener('mouseleave',()=>document.body.classList.remove('ch'));});
-
-// Nav scroll
-const nav=document.getElementById('nav');
-window.addEventListener('scroll',()=>nav.classList.toggle('sc',window.scrollY>28));
-
-// Reveal
-const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v');}),{threshold:.07,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-window.addEventListener('load',()=>setTimeout(()=>document.querySelectorAll('#hero .reveal').forEach(el=>el.classList.add('v')),100));
-
-// Parallax
-window.addEventListener('scroll',()=>{const v=document.querySelector('.hvis');if(v)v.style.transform=`translateY(${window.scrollY*.07}px)`;});
-
-// Billing toggle
-const prices={m:{b:'1,999',p:'3,999'},a:{b:'1,666',p:'3,332'}};
-const anns={m:{b:'₹19,990 billed annually',p:'₹39,990 billed annually'},a:{b:'₹19,990/yr — Save ₹3,998',p:'₹39,990/yr — Save ₹7,998'}};
-function setBill(m){
-  document.getElementById('bm').classList.toggle('act',m==='m');
-  document.getElementById('ba').classList.toggle('act',m==='a');
-  const p=prices[m],a=anns[m];
-  document.getElementById('pb').innerHTML=`<sub>₹</sub>${p.b}`;
-  document.getElementById('pp').innerHTML=`<sub>₹</sub>${p.p}`;
-  ['b','p'].forEach(k=>{document.getElementById('a'+k).textContent=a[k];});
-}
-
-// Demo tabs
-function demoTab(tab, btn) {
-  ['video','howto','try'].forEach(t => {
-    const el = document.getElementById('tab-'+t);
-    if(el) el.style.display = t === tab ? 'block' : 'none';
-  });
-  document.querySelectorAll('.demo-tab').forEach(b => b.classList.remove('act'));
-  if(btn) btn.classList.add('act');
-}
-
-// Demo proposal generator
-const demoData = {
-  corporate: { concept:'Corporate Excellence — Power Meets Elegance', visual:'Deep Teal · Champagne Gold · Ivory White', venue:{Mumbai:'Grand Hyatt · ITC Maratha · Trident BKC',Delhi:'The Leela Palace · ITC Maurya · Taj Mahal Hotel',Bangalore:'The Oberoi · ITC Windsor · Taj West End',default:'5-star Hotel · Convention Centre · Heritage Property'}, budget:'Venue 35% · F&B 22% · Decor 18% · AV 12% · Team 8% · Misc 5%' },
-  product: { concept:'Launch Forward — The Moment That Matters', visual:'Electric Terracotta · Deep Navy · White', venue:{Mumbai:'NSCI Dome · BKC Exhibition · Nehru Centre',Delhi:'Pragati Maidan · Aerocity Hotels · Kingdom of Dreams',Bangalore:'KTPO · Lalit Ashok · Taj Vivanta',default:'Convention Centre · Hotel Ballroom · Outdoor Venue'}, budget:'AV/Tech 28% · Venue 22% · Decor 18% · F&B 15% · Marketing 12% · Misc 5%' },
-  conference: { concept:'Ideas That Move India Forward', visual:'Scholarly Deep Blue · Warm Stone · Gold Accents', venue:{Mumbai:'CIDCO Exhibition · ITC Grand · Hyatt Regency',Delhi:'ITPO Pragati · Le Meridien · The Ashok',Bangalore:'NIMHANS Convention · Sheraton Grand · ITC Gardenia',default:'Convention Centre · 5-star Hotel · University Auditorium'}, budget:'AV/Staging 30% · Venue 25% · Speakers 20% · F&B 15% · Marketing 7% · Misc 3%' },
-  wedding: { concept:'Shaadi Ki Raat — A Night of a Thousand Stars', visual:'Royal Burgundy · Marigold · Champagne Gold', venue:{Mumbai:'The Grand Ballroom · Turf Club · Hilton Ballroom',Delhi:'The Taj Palace · ITC Maurya · Ambience Creacions',Bangalore:'Golden Palms · ITC Windsor · Lalitha Mahal',default:'Five-Star Ballroom · Heritage Palace · Outdoor Garden'}, budget:'Decor/Flowers 35% · Catering 28% · Entertainment 15% · Photography 10% · Venue 8% · Misc 4%' },
-  exhibition: { concept:'India Connects — Your Brand, Centre Stage', visual:'Industrial Terracotta · Teal · Metallic Silver', venue:{Mumbai:'MMRDA BKC · Bombay Exhibition Centre · NSCI',Delhi:'Pragati Maidan · India Expo Centre · Aerocity',Bangalore:'BIEC · KTPO · Palace Grounds',default:'Exhibition Hall · Convention Centre · Trade Park'}, budget:'Stall Design 32% · Venue/Logistics 24% · Marketing 18% · Staff 12% · F&B 8% · Misc 6%' }
+/* ── Icons ─────────────────────────────────────────────────────────────────── */
+const Icon = ({ name, size = 32, color = "currentColor", strokeWidth = 1.4 }) => {
+  const p = { width: size, height: size, viewBox: "0 0 32 32", fill: "none", stroke: color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round" };
+  if (name === "shield") return <svg {...p}><path d="M16 3 L27 7 V16 C27 22 22 27 16 29 C10 27 5 22 5 16 V7 Z"/><path d="M11 16 L14.5 19.5 L21 13"/></svg>;
+  if (name === "lock")   return <svg {...p}><rect x="7" y="14" width="18" height="14" rx="2"/><path d="M11 14 V10 A5 5 0 0 1 21 10 V14"/><circle cx="16" cy="21" r="1.5" fill={color}/></svg>;
+  if (name === "wall")   return <svg {...p}><rect x="4" y="6" width="24" height="20" rx="1.5"/><path d="M4 12 H28 M4 20 H28 M12 6 V12 M20 12 V20 M12 20 V26"/></svg>;
+  if (name === "ban")    return <svg {...p}><circle cx="16" cy="16" r="11"/><path d="M8 8 L24 24"/></svg>;
+  if (name === "scale")  return <svg {...p}><path d="M16 4 V28"/><path d="M9 28 H23"/><path d="M16 8 L8 16 H14 L8 22 M16 8 L24 16 H18 L24 22"/></svg>;
+  if (name === "trash")  return <svg {...p}><path d="M5 9 H27"/><path d="M11 9 V6 A1 1 0 0 1 12 5 H20 A1 1 0 0 1 21 6 V9"/><path d="M8 9 L9.5 27 A1 1 0 0 0 10.5 28 H21.5 A1 1 0 0 0 22.5 27 L24 9"/><path d="M13 14 V23 M19 14 V23"/></svg>;
+  return null;
 };
 
-function runDemo() {
-  const type = document.getElementById('d-type').value;
-  const budget = document.getElementById('d-budget').value;
-  const city = document.getElementById('d-city').value;
-  const pax = document.getElementById('d-pax').value;
-  if (!type || !budget || !city || !pax) {
-    alert('Please fill all 4 fields to generate your proposal.');
-    return;
-  }
-  const d = demoData[type];
-  const venue = d.venue[city] || d.venue.default;
-  document.getElementById('do-title').textContent = (document.getElementById('d-type').options[document.getElementById('d-type').selectedIndex].text) + ' — ' + city;
-  document.getElementById('do-concept').textContent = d.concept;
-  document.getElementById('do-visual').textContent = d.visual;
-  document.getElementById('do-venue').textContent = venue;
-  document.getElementById('do-budget').textContent = d.budget;
-  const out = document.getElementById('demo-out');
-  out.classList.add('show');
-  out.scrollIntoView({behavior:'smooth', block:'nearest'});
+const IndianFlag = ({ width = 28 }) => (
+  <svg width={width} height={width * 0.66} viewBox="0 0 30 20" style={{ display: "inline-block", borderRadius: 2, boxShadow: "0 1px 3px rgba(0,0,0,0.15)", verticalAlign: "middle" }}>
+    <rect width="30" height="6.66" y="0" fill="#FF9933"/>
+    <rect width="30" height="6.66" y="6.66" fill="#FFFFFF"/>
+    <rect width="30" height="6.68" y="13.33" fill="#138808"/>
+    <circle cx="15" cy="10" r="2.4" fill="none" stroke="#000080" strokeWidth="0.4"/>
+    <g stroke="#000080" strokeWidth="0.18">
+      {Array.from({ length: 12 }).map((_, i) => {
+        const a = (i * Math.PI) / 6;
+        return <line key={i} x1={15} y1={10} x2={15 + 2.4 * Math.cos(a)} y2={10 + 2.4 * Math.sin(a)} />;
+      })}
+    </g>
+    <circle cx="15" cy="10" r="0.5" fill="#000080"/>
+  </svg>
+);
+
+/* ── Proposal Mock ─────────────────────────────────────────────────────────── */
+const ProposalMock = () => {
+  const [hover, setHover] = useState(false);
+  const transform = `perspective(1800px) rotateY(${hover ? -4 : -7}deg) rotateX(${hover ? 1 : 3}deg) translateZ(0)`;
+  return (
+    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{ transform, transition: "transform 700ms cubic-bezier(0.2,0.8,0.2,1)", transformStyle: "preserve-3d",
+        width: "100%", maxWidth: 640, borderRadius: 18, overflow: "hidden",
+        background: "linear-gradient(180deg,#0E0E10 0%,#15151A 100%)",
+        boxShadow: "0 60px 120px -40px rgba(0,0,0,0.8),0 30px 60px -30px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.06),inset 0 1px 0 rgba(255,255,255,0.05)",
+        color: "#E8E6E1", fontFamily: '"Geist",system-ui,sans-serif' }}>
+      {/* Window chrome */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
+        <div style={{ display: "flex", gap: 6 }}>
+          {["#FF5F57","#FEBC2E","#28C840"].map(c => <span key={c} style={{ width: 11, height: 11, borderRadius: 999, background: c }} />)}
+        </div>
+        <div style={{ marginLeft: 10, fontSize: 11, color: "rgba(232,230,225,0.5)", fontFamily: '"JetBrains Mono",monospace', letterSpacing: "0.02em" }}>
+          kunjaraos.com/event-room/aurora-corp-2026
+        </div>
+        <span style={{ marginLeft: "auto", fontSize: 10, padding: "3px 8px", borderRadius: 999, background: "rgba(193,154,91,0.15)", color: "#D4A85F", border: "1px solid rgba(193,154,91,0.3)", fontFamily: '"JetBrains Mono",monospace', letterSpacing: "0.06em" }}>DRAFT</span>
+      </div>
+      {/* Body */}
+      <div style={{ padding: "26px 28px 24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
+          <div>
+            <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "rgba(212,168,95,0.85)", fontFamily: '"JetBrains Mono",monospace', marginBottom: 8 }}>PROPOSAL · 0042</div>
+            <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 28, lineHeight: 1.05, fontStyle: "italic", color: "#F4F1EA", maxWidth: 360 }}>
+              Aurora Corp · Annual Gala<br/>
+              <span style={{ fontStyle: "normal", fontFamily: '"Geist",sans-serif', fontSize: 18, color: "rgba(244,241,234,0.7)", fontWeight: 400 }}>Mumbai · 500 pax · Mar 2026</span>
+            </div>
+          </div>
+          <div style={{ fontSize: 11, fontFamily: '"JetBrains Mono",monospace', color: "rgba(232,230,225,0.5)", textAlign: "right", lineHeight: 1.6 }}>
+            <div>500 pax</div><div>+18% GST</div><div style={{ color: "#7AD4A0" }}>● client viewing</div>
+          </div>
+        </div>
+        <div style={{ display: "grid", gap: 10, marginBottom: 16 }}>
+          {[
+            { label: "Venue · Grand Hyatt BKC", sub: "Ballroom + Pre-function", price: "₹ 12.2L", color: "#D4A85F" },
+            { label: "F&B · 500 pax · multi-cuisine", sub: "Live counters + dessert lounge", price: "₹ 7.7L", color: "#2F7A78" },
+            { label: "Decor · Modern India theme", sub: "Terracotta · Teal · Champagne", price: "₹ 6.3L", color: "#C9785F" },
+          ].map(row => (
+            <div key={row.label} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto auto", alignItems: "center", gap: 14, padding: "12px 14px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 10 }}>
+              <span style={{ width: 6, height: 24, background: row.color, borderRadius: 2 }} />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "#F4F1EA" }}>{row.label}</div>
+                <div style={{ fontSize: 11, color: "rgba(232,230,225,0.5)" }}>{row.sub}</div>
+              </div>
+              <div style={{ fontSize: 11, color: "rgba(232,230,225,0.4)", fontFamily: '"JetBrains Mono",monospace' }}>▦ moodboard</div>
+              <div style={{ fontSize: 13, fontFamily: '"JetBrains Mono",monospace', color: "#F4F1EA" }}>{row.price}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 14, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
+          <div style={{ fontSize: 11, color: "rgba(232,230,225,0.5)", fontFamily: '"JetBrains Mono",monospace', letterSpacing: "0.08em" }}>GRAND TOTAL · INCL. 18% GST</div>
+          <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 28, fontStyle: "italic", color: "#D4A85F" }}>₹ 30.84 L</div>
+        </div>
+        <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8, background: "linear-gradient(90deg,rgba(212,168,95,0.08),transparent)", border: "1px solid rgba(212,168,95,0.2)" }}>
+          <span style={{ width: 8, height: 8, borderRadius: 999, background: "#D4A85F", boxShadow: "0 0 12px #D4A85F", animation: "pulse-dot 1.6s ease-in-out infinite", flexShrink: 0 }} />
+          <span style={{ fontSize: 11, fontFamily: '"JetBrains Mono",monospace', color: "rgba(212,168,95,0.9)", letterSpacing: "0.04em" }}>architected in 6m 12s · proposal intelligence: high intent</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Reveal on scroll ──────────────────────────────────────────────────────── */
+const Reveal = ({ children, delay = 0 }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setTimeout(() => el.classList.add("in"), delay); obs.disconnect(); }
+    }, { threshold: 0.12 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [delay]);
+  return <div ref={ref} className="reveal">{children}</div>;
+};
+
+/* ── Nav ───────────────────────────────────────────────────────────────────── */
+const Nav = () => {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+  return (
+    <nav className={"nav" + (scrolled ? " scrolled" : "")}>
+      <KunjaraLogo size={24} color="#F4F1EA" />
+      <div className="nav-links">
+        <a href="#platform">Platform</a>
+        <a href="#events">Events</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#principle">Principle</a>
+      </div>
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <a href="/login" style={{ color: "var(--ink-dim)", textDecoration: "none", fontSize: 13 }}>Log in</a>
+        <a href="/signup" style={{ padding: "9px 16px", borderRadius: 999, background: "rgba(244,241,234,0.08)", border: "1px solid rgba(244,241,234,0.15)", color: "#F4F1EA", textDecoration: "none", fontSize: 13, fontWeight: 500, backdropFilter: "blur(8px)" }}>Sign up free</a>
+      </div>
+    </nav>
+  );
+};
+
+/* ── Scroll Stage (cinematic + product hero) ───────────────────────────────── */
+const ScrollStage = () => {
+  const wrapRef = useRef(null);
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const fn = () => {
+      const el = wrapRef.current; if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return;
+      setProgress(Math.max(0, Math.min(1, -rect.top / total)));
+    };
+    fn(); window.addEventListener("scroll", fn, { passive: true }); window.addEventListener("resize", fn);
+    return () => { window.removeEventListener("scroll", fn); window.removeEventListener("resize", fn); };
+  }, []);
+
+  const cinemaOpacity = progress < 0.5 ? 1 : Math.max(0, 1 - (progress - 0.5) / 0.5);
+  const cinemaScale   = 1 + progress * 0.08;
+  const cinemaBlur    = progress > 0.5 ? (progress - 0.5) * 12 : 0;
+
+  return (
+    <>
+      <div ref={wrapRef} style={{ position: "relative", height: "150vh" }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", width: "100%", overflow: "hidden",
+          opacity: cinemaOpacity, transform: `scale(${cinemaScale})`, filter: `blur(${cinemaBlur}px)`,
+          willChange: "opacity,transform,filter", pointerEvents: cinemaOpacity < 0.05 ? "none" : "auto" }}>
+          {/* Background image */}
+          <div style={{ position: "absolute", inset: 0,
+            backgroundImage: `url(https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=2400&q=85)`,
+            backgroundSize: "cover", backgroundPosition: "center",
+            animation: "slowZoom 22s ease-in-out infinite alternate" }} />
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 40%,rgba(120,60,20,0.25) 0%,rgba(0,0,0,0.65) 50%,rgba(0,0,0,0.95) 100%)", mixBlendMode: "multiply" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(0,0,0,0.4) 0%,rgba(0,0,0,0.15) 40%,rgba(10,10,12,0.85) 92%,#0A0A0C 100%)" }} />
+          <div className="particles" aria-hidden>
+            {Array.from({ length: 18 }).map((_, i) => (
+              <span key={i} style={{ "--delay": `${(i * 0.7) % 8}s`, "--duration": `${8 + (i % 5) * 2}s`, "--x": `${(i * 53) % 100}%`, "--size": `${2 + (i % 3)}px` }} />
+            ))}
+          </div>
+          <div className="grain" style={{ position: "absolute", inset: 0, opacity: 0.35, mixBlendMode: "overlay" }} />
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,0.6) 100%)" }} />
+
+          {/* Cinematic copy */}
+          <div style={{ position: "relative", zIndex: 2, height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "0 6vw", textAlign: "center", color: "#F4F1EA" }}>
+            <div className="fade-up" style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.4em", color: ACCENT, opacity: 0.9, marginBottom: 32, animationDelay: "0.2s" }}>
+              ◆ &nbsp;ACT&nbsp;I&nbsp; ◆
+            </div>
+            <h1 className="fade-up" style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(48px,7.5vw,120px)", lineHeight: 1.15, fontWeight: 400, margin: 0, maxWidth: 1100, letterSpacing: "-0.02em", animationDelay: "0.5s" }}>
+              Every great event<br/>
+              <span style={{ fontStyle: "italic", color: ACCENT }}>starts with a plan.</span>
+            </h1>
+            <div className="fade-up" style={{ marginTop: 60, fontFamily: '"Geist",sans-serif', fontSize: "clamp(16px,1.4vw,20px)", color: "rgba(244,241,234,0.75)", animationDelay: "0.9s" }}>
+              We help you create it in minutes.
+            </div>
+            <div className="fade-up" style={{ position: "absolute", bottom: 50, fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.3em", color: "rgba(244,241,234,0.5)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, animationDelay: "1.4s" }}>
+              <span>SCROLL</span>
+              <span className="scroll-line" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Product hero */}
+      <div style={{ position: "relative", background: "#0A0A0C", zIndex: 2, marginTop: "-50vh" }}>
+        <div style={{ position: "relative", minHeight: "100vh", padding: "120px 6vw 100px", display: "flex", alignItems: "center" }}>
+          <div className="product-grid" style={{ width: "100%", maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: 80, alignItems: "center" }}>
+            {/* Left copy */}
+            <div>
+              <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 26, display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ width: 28, height: 1, background: ACCENT }} />
+                ACT II · THE SOFTWARE
+              </div>
+              <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(44px,6.2vw,96px)", lineHeight: 0.98, margin: 0, fontWeight: 400, color: "#F4F1EA", letterSpacing: "-0.025em" }}>
+                Client-ready<br/>event proposals<br/>in <span style={{ fontStyle: "italic", color: ACCENT, position: "relative" }}>
+                  2 minutes
+                  <svg viewBox="0 0 200 12" style={{ position: "absolute", left: 0, bottom: -8, width: "100%", height: 12 }} preserveAspectRatio="none">
+                    <path d="M2 8 Q50 1,100 6 T198 5" stroke={ACCENT} strokeWidth="1.5" fill="none" opacity="0.6"/>
+                  </svg>
+                </span>.
+              </h2>
+              <p style={{ marginTop: 36, fontFamily: '"Geist",sans-serif', fontSize: 17, lineHeight: 1.55, color: "rgba(244,241,234,0.7)", maxWidth: 480 }}>
+                Proposal Architect™ gathers your brief, then drafts the entire deck — concept, venues, vendors, GST-correct budget, run-of-show. On your letterhead. In minutes.
+              </p>
+              <div style={{ marginTop: 42, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+                <a href="/signup" className="cta-primary" style={{ padding: "16px 28px", border: "none", borderRadius: 999, fontFamily: '"Geist",sans-serif', fontSize: 15, fontWeight: 500, cursor: "pointer", color: "#0A0A0C", background: `linear-gradient(135deg,${ACCENT} 0%,#E5C07B 50%,${ACCENT} 100%)`, backgroundSize: "200% 200%", boxShadow: `0 14px 40px -10px ${ACCENT}80,inset 0 1px 0 rgba(255,255,255,0.4)`, display: "inline-flex", alignItems: "center", gap: 10, transition: "all 400ms cubic-bezier(0.2,0.8,0.2,1)", textDecoration: "none" }}>
+                  Generate Proposal <span className="arrow" style={{ fontSize: 18, lineHeight: 1, transition: "transform 300ms", display: "inline-block" }}>→</span>
+                </a>
+              </div>
+              {/* Trust strip */}
+              <div className="trust-grid" style={{ marginTop: 60, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,0.08)", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 30 }}>
+                {[{ val: "12,400+", label: "proposals drafted" }, { val: "₹ 840 Cr", label: "events transacted" }, { val: "1m 47s", label: "median draft time" }].map(s => (
+                  <div key={s.label}>
+                    <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 30, fontStyle: "italic", color: ACCENT, lineHeight: 1 }}>{s.val}</div>
+                    <div style={{ marginTop: 6, fontFamily: '"Geist",sans-serif', fontSize: 12, color: "rgba(244,241,234,0.5)" }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Right — proposal mock */}
+            <div style={{ position: "relative" }}>
+              <div aria-hidden style={{ position: "absolute", inset: -40, background: `radial-gradient(ellipse at 70% 40%,${ACCENT}20 0%,transparent 60%)`, filter: "blur(40px)", pointerEvents: "none" }} />
+              <ProposalMock />
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+/* ── Pillars ───────────────────────────────────────────────────────────────── */
+const PillarsDetailed = () => {
+  const pillars = [
+    { n: "01", label: "Plan",        desc: "From zero to complete proposal in minutes. AI generates your entire event plan — concept, budget, timeline, vendors.", tags: ["AI Proposal Builder","Budget + GST","Run-of-Show AI","Vendor Mgmt"], img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80" },
+    { n: "02", label: "Execute",     desc: "Real-time event day operations on mobile. Every task, every guest, every check-in — tracked live from your pocket.", tags: ["Client Portal","RSVP + Reg","QR Check-in","Event Day Live"], img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80" },
+    { n: "03", label: "Market",      desc: "AI-generated captions for every platform, one-click publishing, event microsites and post-event narratives.", tags: ["Social Media AI","Microsite","Post-Event Story"], img: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80" },
+    { n: "04", label: "Communicate", desc: "Create, edit and share Estimates and Invoices straight from the Budget Builder. Post-event surveys auto-sent.", tags: ["Estimate + Invoice","Email","Post-Event Survey","Auto Reports"], img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80" },
+  ];
+  return (
+    <section id="platform" style={{ background: "#F5F1E8", color: "#1A1612", padding: "140px 6vw 160px", position: "relative" }}>
+      <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+        <Reveal>
+          <div style={{ marginBottom: 80, maxWidth: 920 }}>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 22 }}>◆ COMPLETE OS ARCHITECTURE</div>
+            <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(44px,6vw,84px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
+              Four pillars.<br/><span style={{ fontStyle: "italic", color: ACCENT }}>Every event need.</span>
+            </h2>
+            <p style={{ marginTop: 28, fontFamily: '"Geist",sans-serif', fontSize: 17, lineHeight: 1.6, color: "rgba(26,22,18,0.62)", maxWidth: 600 }}>
+              Every module built, owned and operated exclusively on Kunjara OS infrastructure. No competitor sees any subscriber's data.
+            </p>
+          </div>
+        </Reveal>
+        <div className="pillars-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 24 }}>
+          {pillars.map((p, i) => (
+            <Reveal key={p.n} delay={i * 80}>
+              <article style={{ position: "relative", background: "#FFFFFF", borderRadius: 18, overflow: "hidden", border: "1px solid rgba(26,22,18,0.06)", boxShadow: "0 1px 2px rgba(26,22,18,0.04)", display: "grid", gridTemplateColumns: "1fr 200px", minHeight: 280 }}>
+                <div style={{ padding: "36px 36px 32px", display: "flex", flexDirection: "column" }}>
+                  <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.18em", color: "#8B6F3D", marginBottom: 16 }}>{p.n} — PILLAR</div>
+                  <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 48, lineHeight: 1, marginBottom: 16, fontStyle: "italic" }}>{p.label}</div>
+                  <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, lineHeight: 1.55, color: "rgba(26,22,18,0.62)", marginBottom: 22 }}>{p.desc}</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "auto" }}>
+                    {p.tags.map(t => (
+                      <span key={t} style={{ fontFamily: '"Geist",sans-serif', fontSize: 11, padding: "5px 10px", borderRadius: 999, background: "rgba(212,168,95,0.1)", color: "#8B6F3D", border: "1px solid rgba(212,168,95,0.25)" }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="pillar-img" style={{ backgroundImage: `url(${p.img})`, backgroundSize: "cover", backgroundPosition: "center", position: "relative" }}>
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg,#FFFFFF 0%,transparent 25%)" }} />
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ── Events ────────────────────────────────────────────────────────────────── */
+const EventCard = ({ title, kicker, img, color }) => {
+  const [hover, setHover] = useState(false);
+  return (
+    <a href="/signup" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{ position: "relative", display: "block", aspectRatio: "3/4", borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit", background: "#0E0E10",
+        boxShadow: hover ? `0 30px 60px -25px rgba(0,0,0,0.7),0 0 0 1px ${color}4D` : "0 12px 30px -15px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.06)",
+        transform: hover ? "translateY(-6px)" : "translateY(0)",
+        transition: "transform 500ms cubic-bezier(0.2,0.8,0.2,1),box-shadow 500ms" }}>
+      <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${img})`, backgroundSize: "cover", backgroundPosition: "center",
+        transform: hover ? "scale(1.08)" : "scale(1.02)", transition: "transform 1200ms cubic-bezier(0.2,0.8,0.2,1)",
+        filter: hover ? "saturate(1.05) brightness(0.95)" : "saturate(0.9) brightness(0.8)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,0.85) 100%)" }} />
+      <div className="grain" style={{ position: "absolute", inset: 0, opacity: 0.25, mixBlendMode: "overlay" }} />
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "20px 22px", display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.2em", color, opacity: 0.9, marginBottom: 6 }}>{kicker}</div>
+        <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 30, fontStyle: "italic", lineHeight: 1, color: "#F4F1EA" }}>{title}</div>
+        <div style={{ marginTop: 8, height: 1, background: `linear-gradient(90deg,${color}aa,transparent)`, width: hover ? "60%" : "30%", transition: "width 600ms cubic-bezier(0.2,0.8,0.2,1)" }} />
+      </div>
+      <div style={{ position: "absolute", top: 14, right: 14, fontFamily: '"JetBrains Mono",monospace', fontSize: 10, color: "rgba(244,241,234,0.55)" }}>↗</div>
+    </a>
+  );
+};
+
+const EventsSection = () => {
+  const events = [
+    { title: "Wedding",      kicker: "01 / CEREMONY",    color: "#D4A85F", img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=900&q=80" },
+    { title: "Corporate",    kicker: "02 / ANNUAL GALA", color: "#2F7A78", img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80" },
+    { title: "Brand Launch", kicker: "03 / LAUNCH",      color: "#C9785F", img: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=900&q=80" },
+    { title: "Concert",      kicker: "04 / LIVE",        color: "#B89BD9", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&q=80" },
+    { title: "Social",       kicker: "05 / GATHERING",   color: "#7B8C5F", img: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=900&q=80" },
+  ];
+  return (
+    <section id="events" style={{ position: "relative", padding: "140px 6vw", background: "#F5F1E8", color: "#1A1612" }}>
+      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+        <Reveal>
+          <div style={{ marginBottom: 70 }}>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 22 }}>◆ COVERAGE · 05 CATEGORIES</div>
+            <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(44px,6vw,84px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
+              Proposals for <span style={{ fontStyle: "italic", color: "#8B6F3D" }}>every kind</span><br/>of celebration.
+            </h2>
+            <p style={{ marginTop: 24, fontFamily: '"Geist",sans-serif', fontSize: 16, lineHeight: 1.6, color: "rgba(26,22,18,0.62)", maxWidth: 580 }}>
+              From the most intimate gatherings to the largest stage productions — the OS reads each brief and drafts accordingly.
+            </p>
+          </div>
+        </Reveal>
+        <div className="events-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 18 }}>
+          {events.map((e, i) => <Reveal key={e.title} delay={i * 80}><EventCard {...e} /></Reveal>)}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ── Comparison ────────────────────────────────────────────────────────────── */
+const ComparisonSection = () => {
+  const features = [
+    { feat: "AI Proposal Builder",     us: "5–10 minutes",   them: "Manual — hours" },
+    { feat: "GST-Compliant Invoicing", us: "Auto 18%",       them: "Manual" },
+    { feat: "Branded Event Room",      us: "Native",         them: "None" },
+    { feat: "Proposal Intelligence",   us: "Native",         them: "None" },
+    { feat: "Run-of-Show AI",          us: "Native",         them: "None" },
+    { feat: "Estimate + Invoice",      us: "Native",         them: "None" },
+    { feat: "Razorpay + UPI",          us: "Native",         them: "None" },
+    { feat: "Monthly cost",            us: "₹1,999+",        them: "₹50,000+ / broken" },
+  ];
+  return (
+    <section style={{ background: "#0A0A0C", color: "#F4F1EA", padding: "140px 6vw", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+        <Reveal>
+          <div style={{ marginBottom: 70, maxWidth: 900 }}>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 22 }}>◆ COMPETITIVE LANDSCAPE</div>
+            <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(40px,5.5vw,76px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
+              We're not competing.<br/><span style={{ fontStyle: "italic", color: ACCENT }}>We're replacing.</span>
+            </h2>
+          </div>
+        </Reveal>
+        <div className="compare-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
+          {features.map((f, i) => (
+            <Reveal key={f.feat} delay={i * 50}>
+              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", alignItems: "center", gap: 16, padding: "20px 24px", background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 12 }}>
+                <div style={{ fontSize: 14, fontWeight: 500, color: "#F4F1EA" }}>{f.feat}</div>
+                <div style={{ fontSize: 13, color: ACCENT, fontFamily: '"JetBrains Mono",monospace' }}>✦ {f.us}</div>
+                <div style={{ fontSize: 13, color: "rgba(244,241,234,0.4)", fontFamily: '"JetBrains Mono",monospace', textDecoration: "line-through" }}>{f.them}</div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ── Testimonials ──────────────────────────────────────────────────────────── */
+const TestimonialsSection = () => {
+  const items = [
+    { q: "The GST automation alone saved me 3 hours per proposal. Finally a tool that understands how Indian events actually work.", name: "Radhika Sharma", role: "Event Director · Mumbai", ini: "RS" },
+    { q: "The AI proposal builder is witchcraft. I described a 400-pax gala and got a complete, client-ready deck in under 10 minutes.", name: "Arjun Kapoor", role: "MICE Agency Owner · Delhi", ini: "AK" },
+    { q: "We replaced 6 different tools with Kunjara OS. Entire team on one platform. No more WhatsApp group chaos at 2am.", name: "Priya Desai", role: "Corporate Events Head · Bangalore", ini: "PD" },
+  ];
+  return (
+    <section style={{ background: "#F5F1E8", color: "#1A1612", padding: "140px 6vw" }}>
+      <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: 80 }}>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 22 }}>◆ EARLY ADOPTERS</div>
+            <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(40px,5vw,72px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
+              Built by planners. <span style={{ fontStyle: "italic", color: ACCENT }}>For planners.</span>
+            </h2>
+          </div>
+        </Reveal>
+        <div className="testimonial-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
+          {items.map((t, i) => (
+            <Reveal key={t.ini} delay={i * 100}>
+              <figure style={{ margin: 0, padding: "36px 32px", background: "#FFFFFF", borderRadius: 18, border: "1px solid rgba(26,22,18,0.06)", display: "flex", flexDirection: "column", gap: 28 }}>
+                <div style={{ fontSize: 36, lineHeight: 0, color: ACCENT, fontFamily: '"Instrument Serif",serif' }}>"</div>
+                <blockquote style={{ margin: 0, fontFamily: '"Instrument Serif",serif', fontSize: 22, lineHeight: 1.35, color: "#1A1612", flex: 1 }}>{t.q}</blockquote>
+                <figcaption style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 999, background: `linear-gradient(135deg,${ACCENT},#8B6F3D)`, color: "#FFF", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: '"Geist",sans-serif', fontWeight: 600, fontSize: 13, letterSpacing: "0.04em", flexShrink: 0 }}>{t.ini}</div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 14, fontFamily: '"Geist",sans-serif' }}>{t.name}</div>
+                    <div style={{ fontSize: 12, color: "rgba(26,22,18,0.62)", fontFamily: '"Geist",sans-serif', marginTop: 2 }}>{t.role}</div>
+                  </div>
+                </figcaption>
+              </figure>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ── Pricing ───────────────────────────────────────────────────────────────── */
+const PricingSection = () => {
+  const [annual, setAnnual] = useState(false);
+  const plans = [
+    { name: "Basic",   monthly: 1999, yearly: 1666, desc: "12 proposals / month", credits: "2,000 AI credits", launch: true,
+      bullets: ["12 client-winning proposals","2,000 AI credits · 🎉 Launch offer","1 user seat","GST-compliant invoicing","PDF export","Email support"], cta: "Get started", popular: false },
+    { name: "Pro",     monthly: 3999, yearly: 3332, desc: "30 proposals / month", credits: "6,000 AI credits", launch: true,
+      bullets: ["30 client-winning proposals","6,000 AI credits · 🎉 2× launch offer","Advanced AI quality","1 user seat","All 4 pillars","Priority support"], cta: "Get started", popular: true },
+  ];
+  return (
+    <section id="pricing" style={{ background: "#0A0A0C", color: "#F4F1EA", padding: "140px 6vw" }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: 60, maxWidth: 800, marginInline: "auto" }}>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 22 }}>◆ SUBSCRIPTION ARCHITECTURE</div>
+            <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(40px,5.5vw,76px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
+              One platform.<br/><span style={{ fontStyle: "italic", color: ACCENT }}>Two commitments.</span>
+            </h2>
+            <p style={{ marginTop: 24, fontFamily: '"Geist",sans-serif', fontSize: 16, color: "rgba(244,241,234,0.65)" }}>
+              No setup fee. No onboarding charge. Every plan delivers the complete Kunjara OS™ from day one.
+            </p>
+          </div>
+        </Reveal>
+
+        {/* Billing toggle */}
+        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 48 }}>
+          {[{ v: false, l: "Monthly" }, { v: true, l: "Annual — Save 17%" }].map(({ v, l }) => (
+            <button key={l} onClick={() => setAnnual(v)} style={{ padding: "9px 20px", borderRadius: 999, border: "none", cursor: "pointer", fontFamily: '"Geist",sans-serif', fontSize: 13, fontWeight: 500, transition: "all 250ms",
+              background: annual === v ? ACCENT : "rgba(255,255,255,0.06)",
+              color: annual === v ? "#0A0A0C" : "#F4F1EA" }}>{l}</button>
+          ))}
+        </div>
+
+        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 20, maxWidth: 800, margin: "0 auto" }}>
+          {plans.map((p) => {
+            const price = annual ? p.yearly : p.monthly;
+            return (
+              <div key={p.name} style={{ position: "relative", padding: "40px 32px 36px",
+                background: p.popular ? `linear-gradient(180deg,rgba(212,168,95,0.06) 0%,rgba(255,255,255,0.02) 100%)` : "rgba(255,255,255,0.02)",
+                border: p.popular ? `1px solid ${ACCENT}66` : "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 18, transform: p.popular ? "translateY(-12px)" : "none",
+                boxShadow: p.popular ? `0 30px 60px -30px ${ACCENT}40` : "none" }}>
+                {p.popular && <div style={{ position: "absolute", top: -12, left: 32, padding: "5px 12px", borderRadius: 999, background: ACCENT, color: "#0A0A0C", fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.12em", fontWeight: 600 }}>MOST POPULAR</div>}
+                {p.launch && <div style={{ position: "absolute", top: -12, right: 32, padding: "5px 12px", borderRadius: 999, background: "rgba(52,211,153,0.15)", color: "#34D399", border: "1px solid rgba(52,211,153,0.3)", fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.1em" }}>🎉 LAUNCH OFFER</div>}
+                <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, color: "rgba(244,241,234,0.6)", letterSpacing: "0.04em", marginBottom: 18, textTransform: "uppercase" }}>{p.name}</div>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 6, marginBottom: 8 }}>
+                  <span style={{ fontFamily: '"Geist",sans-serif', fontSize: 22, color: "rgba(244,241,234,0.7)", marginBottom: 14 }}>₹</span>
+                  <span style={{ fontFamily: '"Instrument Serif",serif', fontSize: 64, lineHeight: 1, color: "#F4F1EA", fontWeight: 400 }}>{price.toLocaleString("en-IN")}</span>
+                  <span style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, color: "rgba(244,241,234,0.5)", marginLeft: 14, marginBottom: 14 }}>/ month</span>
+                </div>
+                {annual && <p style={{ fontSize: 13, color: "#34D399", marginBottom: 4, fontFamily: '"Geist",sans-serif' }}>₹{(p.yearly * 12).toLocaleString("en-IN")}/year</p>}
+                <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, color: ACCENT, marginBottom: 28 }}>{p.desc} · {p.credits}</div>
+                <div style={{ height: 1, background: "rgba(255,255,255,0.08)", marginBottom: 24 }} />
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
+                  {p.bullets.map(b => (
+                    <li key={b} style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: '"Geist",sans-serif', fontSize: 14, color: "rgba(244,241,234,0.85)" }}>
+                      <span style={{ color: ACCENT, fontSize: 14, flexShrink: 0 }}>✓</span>{b}
+                    </li>
+                  ))}
+                </ul>
+                <a href="/signup" style={{ display: "block", width: "100%", padding: "14px 20px", borderRadius: 999, cursor: "pointer", fontFamily: '"Geist",sans-serif', fontSize: 14, fontWeight: 500, textAlign: "center", textDecoration: "none", transition: "all 250ms",
+                  background: p.popular ? `linear-gradient(135deg,${ACCENT},#E5C07B)` : "rgba(255,255,255,0.06)",
+                  color: p.popular ? "#0A0A0C" : "#F4F1EA",
+                  border: p.popular ? "none" : "1px solid rgba(255,255,255,0.12)" }}>{p.cta}</a>
+              </div>
+            );
+          })}
+        </div>
+        <p style={{ textAlign: "center", marginTop: 40, fontFamily: '"Geist",sans-serif', fontSize: 13, color: "rgba(244,241,234,0.4)" }}>
+          All prices + 18% GST · Razorpay &amp; UPI · Cancel anytime
+        </p>
+      </div>
+    </section>
+  );
+};
+
+/* ── Privacy ───────────────────────────────────────────────────────────────── */
+const PrivacySection = () => {
+  const items = [
+    { icon: "lock",   title: "Zero Data Sharing",           desc: "Client names and event data never shared with any third party, ever." },
+    { icon: "wall",   title: "No Cross-User Visibility",    desc: "Complete database-level isolation between all subscriber accounts." },
+    { icon: "ban",    title: "No Commercial Use",           desc: "We do not mine, analyse, sell or commercially use your business data." },
+    { icon: "shield", title: "DPDP Act 2023",               desc: "Full compliance with IT Act 2000, IT Rules 2011, and DPDP Act 2023." },
+    { icon: "scale",  title: "Mumbai Jurisdiction",         desc: "All disputes under exclusive jurisdiction of Mumbai courts." },
+    { icon: "trash",  title: "Data Deletion on Exit",       desc: "Account data fully deleted within 90 days of cancellation." },
+  ];
+  return (
+    <section style={{ background: "#F5F1E8", color: "#1A1612", padding: "140px 6vw" }}>
+      <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+        <Reveal>
+          <div style={{ marginBottom: 70, maxWidth: 700 }}>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 22 }}>◆ DATA PRIVACY PROMISE</div>
+            <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(40px,5vw,72px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
+              Your client data is <span style={{ fontStyle: "italic", color: ACCENT }}>never shared.</span> Ever.
+            </h2>
+          </div>
+        </Reveal>
+        <div className="privacy-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+          {items.map((it, i) => (
+            <Reveal key={it.title} delay={i * 60}>
+              <div style={{ padding: "32px 28px", background: "#FFFFFF", border: "1px solid rgba(26,22,18,0.06)", borderRadius: 14 }}>
+                <div style={{ width: 52, height: 52, borderRadius: 12, background: `linear-gradient(135deg,${ACCENT}1A,${ACCENT}33)`, display: "flex", alignItems: "center", justifyContent: "center", color: "#8B6F3D", marginBottom: 18, border: `1px solid ${ACCENT}40` }}>
+                  <Icon name={it.icon} size={24} strokeWidth={1.5} />
+                </div>
+                <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 16, fontWeight: 600, marginBottom: 8, color: "#1A1612" }}>{it.title}</div>
+                <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, color: "rgba(26,22,18,0.62)", lineHeight: 1.55 }}>{it.desc}</div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ── Philosophy ────────────────────────────────────────────────────────────── */
+const PhilosophySection = () => (
+  <section id="principle" style={{ position: "relative", padding: "140px 6vw", background: "linear-gradient(180deg,#0A0A0C 0%,#15110A 100%)", color: "#F4F1EA", overflow: "hidden" }}>
+    <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
+      <Reveal>
+        <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 32 }}>◆ LEX MERCATORIA · FOUNDING PRINCIPLE</div>
+        <blockquote style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(28px,3.6vw,48px)", lineHeight: 1.25, margin: 0, color: "#F4F1EA", letterSpacing: "-0.01em", fontStyle: "italic" }}>
+          "We grow only when <span style={{ color: ACCENT }}>you</span> grow. The planner succeeds, the client gets a better event, the vendor gets more work — and the entire ecosystem lifts."
+        </blockquote>
+        <div style={{ marginTop: 40, fontFamily: '"Geist",sans-serif', fontSize: 13, color: "rgba(244,241,234,0.55)" }}>
+          <span style={{ color: "#F4F1EA", fontWeight: 500 }}>Gautam Shah</span> · Founder · Indigo EP · Mumbai
+        </div>
+      </Reveal>
+    </div>
+  </section>
+);
+
+/* ── Final CTA ─────────────────────────────────────────────────────────────── */
+const FinalCTA = () => (
+  <section style={{ background: "#F5F1E8", color: "#1A1612", padding: "160px 6vw", textAlign: "center" }}>
+    <div style={{ maxWidth: 900, margin: "0 auto" }}>
+      <Reveal>
+        <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 28 }}>◆ START TODAY</div>
+        <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(48px,6.5vw,92px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
+          Your events deserve<br/><span style={{ fontStyle: "italic", color: ACCENT }}>an operating system.</span>
+        </h2>
+        <p style={{ marginTop: 32, fontFamily: '"Geist",sans-serif', fontSize: 17, lineHeight: 1.6, color: "rgba(26,22,18,0.62)", maxWidth: 600, margin: "32px auto 0" }}>
+          Join India's first wave of event professionals running their entire operation on one intelligent platform.
+        </p>
+        <div style={{ marginTop: 44, display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          <a href="/signup" style={{ padding: "18px 32px", borderRadius: 999, border: "none", background: `linear-gradient(135deg,${ACCENT} 0%,#E5C07B 100%)`, color: "#0A0A0C", fontFamily: '"Geist",sans-serif', fontSize: 15, fontWeight: 500, cursor: "pointer", boxShadow: `0 14px 40px -10px ${ACCENT}80`, textDecoration: "none", display: "inline-block" }}>Create your account</a>
+          <a href="/login" style={{ padding: "18px 28px", borderRadius: 999, background: "transparent", color: "#1A1612", border: "1px solid rgba(26,22,18,0.2)", fontFamily: '"Geist",sans-serif', fontSize: 14, fontWeight: 500, cursor: "pointer", textDecoration: "none", display: "inline-block" }}>Log in to your account</a>
+        </div>
+        <div style={{ marginTop: 64, fontFamily: '"Instrument Serif",serif', fontStyle: "italic", fontSize: 20, color: "#8B6F3D", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 12 }}>Made in Bharat <IndianFlag width={28} /></div>
+          <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, fontStyle: "normal", color: "rgba(26,22,18,0.5)", letterSpacing: "0.04em" }}>By Indigo EP · Mumbai, Maharashtra</div>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+);
+
+/* ── Footer ────────────────────────────────────────────────────────────────── */
+const Footer = () => (
+  <footer style={{ position: "relative", padding: "100px 6vw 40px", background: "#08080A", color: "#F4F1EA", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+    <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+      <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 60, marginBottom: 80, alignItems: "start" }}>
+        <div>
+          <KunjaraLogo size={26} color="#F4F1EA" />
+          <p style={{ marginTop: 26, fontFamily: '"Geist",sans-serif', fontSize: 14, lineHeight: 1.65, color: "rgba(244,241,234,0.6)", maxWidth: 380 }}>
+            The AI-powered event operating system for India. Built by event planners, for event planners — with 20+ years of field intelligence.
+          </p>
+          <div style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 10, fontFamily: '"Instrument Serif",serif', fontStyle: "italic", fontSize: 16, color: ACCENT }}>
+            <IndianFlag width={22} /> Made in Bharat · By Indigo EP
+          </div>
+          <a href="mailto:hello@kunjaraos.com" style={{ display: "block", marginTop: 22, fontFamily: '"JetBrains Mono",monospace', fontSize: 12, color: "rgba(244,241,234,0.5)", textDecoration: "none", letterSpacing: "0.04em" }}>hello@kunjaraos.com</a>
+        </div>
+
+        {[
+          { title: "Platform", links: [{ l: "All Features", h: "/dashboard" }, { l: "AI Proposal Builder", h: "/proposals/new" }, { l: "Pricing", h: "#pricing" }, { l: "Budget & Invoicing", h: "/budget" }] },
+          { title: "Company",  links: [{ l: "About Us", h: "/about" }, { l: "Contact", h: "/contact" }, { l: "Support", h: "/support" }, { l: "Lex Mercatoria", h: "#principle" }] },
+          { title: "Legal",    links: [{ l: "Privacy Policy", h: "/privacy" }, { l: "Terms of Service", h: "/terms" }, { l: "DPDP Compliance", h: "/dpdp" }, { l: "Data Deletion", h: "/data-deletion" }] },
+        ].map(col => (
+          <div key={col.title}>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.2em", color: ACCENT, marginBottom: 20 }}>{col.title.toUpperCase()}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {col.links.map(({ l, h }) => (
+                <a key={l} href={h} style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, color: "rgba(244,241,234,0.7)", textDecoration: "none", transition: "color 200ms" }}
+                  onMouseEnter={e => e.currentTarget.style.color = "#F4F1EA"}
+                  onMouseLeave={e => e.currentTarget.style.color = "rgba(244,241,234,0.7)"}>{l}</a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ paddingTop: 28, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+        <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, color: "rgba(244,241,234,0.4)", letterSpacing: "0.06em", lineHeight: 1.7 }}>
+          © 2025 Kunjara OS™ by Indigo Events &amp; Promotions. All rights reserved.<br/>
+          Mumbai, Maharashtra, India · IT Act 2000 · DPDP Act 2023.
+        </div>
+        <div style={{ display: "flex", gap: 22 }}>
+          {[{ l: "Privacy", h: "/privacy" }, { l: "Terms", h: "/terms" }, { l: "Support", h: "/support" }].map(({ l, h }) => (
+            <a key={l} href={h} style={{ fontFamily: '"Geist",sans-serif', fontSize: 12, color: "rgba(244,241,234,0.5)", textDecoration: "none" }}>{l}</a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
+/* ── App ───────────────────────────────────────────────────────────────────── */
+function App() {
+  return (
+    <>
+      <Nav />
+      <ScrollStage />
+      <PillarsDetailed />
+      <EventsSection />
+      <ComparisonSection />
+      <TestimonialsSection />
+      <PricingSection />
+      <PrivacySection />
+      <PhilosophySection />
+      <FinalCTA />
+      <Footer />
+    </>
+  );
 }
 
-let translated=false;
-function trigLang(){
-  const el=document.getElementById('gte');
-  el.style.display='block';
-  if(!translated){
-    const trySelect=()=>{const s=el.querySelector('select');if(s){s.value='hi';s.dispatchEvent(new Event('change'));document.getElementById('ll').textContent='English';translated=true;el.style.display='none';}else{setTimeout(trySelect,300);}};
-    trySelect();
-  }  else {
-    const s=el.querySelector('select');if(s){s.value='en';s.dispatchEvent(new Event('change'));}
-    document.getElementById('ll').textContent='हिंदी';translated=false;el.style.display='none';
-  }
-}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 </body>
 </html>

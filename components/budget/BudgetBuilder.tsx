@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   calcItem, calcTotals, formatINR, newItem,
   GST_RATES, CATEGORIES, DEFAULT_META,
@@ -13,26 +13,50 @@ import BudgetClientView   from "./BudgetClientView";
 
 type View = "builder" | "client";
 
-export default function BudgetBuilder() {
-  const [meta,      setMeta]      = useState<BudgetMeta>(DEFAULT_META);
-  const [items,     setItems]     = useState<BudgetItem[]>([]);
+type Props = {
+  budgetId?:    string;
+  initialMeta?: BudgetMeta;
+  initialItems?: BudgetItem[];
+  onBack?:      () => void;
+  onSave?:      (meta: BudgetMeta, items: BudgetItem[]) => void;
+};
+
+export default function BudgetBuilder({ budgetId, initialMeta, initialItems, onBack, onSave }: Props = {}) {
+  const [meta,      setMeta]      = useState<BudgetMeta>(initialMeta ?? DEFAULT_META);
+  const [items,     setItems]     = useState<BudgetItem[]>(initialItems ?? []);
   const [view,      setView]      = useState<View>("builder");
   const [saved,     setSaved]     = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+
+  // Sync prop changes (e.g. when parent loads from API)
+  useEffect(() => { if (initialMeta)  setMeta(initialMeta);  }, [initialMeta]);
+  useEffect(() => { if (initialItems) setItems(initialItems); }, [initialItems]);
 
   const totals = useMemo(() => calcTotals(items, meta), [items, meta]);
 
   // ── item mutations ─────────────────────────────────────────────────────────
   function addItem(category?: string) {
-    setItems((prev) => [...prev, newItem({ category: category ?? "Venue" })]);
+    setItems((prev) => {
+      const next = [...prev, newItem({ category: category ?? "Venue" })];
+      onSave?.(meta, next);
+      return next;
+    });
   }
 
   function updateItem(id: string, patch: Partial<BudgetItem>) {
-    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+    setItems((prev) => {
+      const next = prev.map((it) => (it.id === id ? { ...it, ...patch } : it));
+      onSave?.(meta, next);
+      return next;
+    });
   }
 
   function removeItem(id: string) {
-    setItems((prev) => prev.filter((it) => it.id !== id));
+    setItems((prev) => {
+      const next = prev.filter((it) => it.id !== id);
+      onSave?.(meta, next);
+      return next;
+    });
   }
 
   function duplicateItem(id: string) {
@@ -42,6 +66,7 @@ export default function BudgetBuilder() {
       const copy = { ...prev[idx], id: crypto.randomUUID() };
       const next = [...prev];
       next.splice(idx + 1, 0, copy);
+      onSave?.(meta, next);
       return next;
     });
   }
@@ -50,7 +75,13 @@ export default function BudgetBuilder() {
     setCollapsed((prev) => ({ ...prev, [cat]: !prev[cat] }));
   }
 
+  function handleMetaChange(next: BudgetMeta) {
+    setMeta(next);
+    onSave?.(next, items);
+  }
+
   function handleSave() {
+    onSave?.(meta, items);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -80,11 +111,18 @@ export default function BudgetBuilder() {
     <div className="max-w-[1400px] mx-auto space-y-5">
       {/* Top bar */}
       <div className="flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-[var(--text-1)]">Budget Builder</h2>
-          <p className="text-[var(--text-2)] text-sm mt-0.5">
-            Build event budgets with GST, margins, and client-ready exports.
-          </p>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button onClick={onBack} className="text-[var(--text-3)] hover:text-[var(--text-1)] transition-colors text-sm">
+              ← Back
+            </button>
+          )}
+          <div>
+            <h2 className="text-2xl font-bold text-[var(--text-1)]">{meta.title || "Budget Builder"}</h2>
+            <p className="text-[var(--text-2)] text-sm mt-0.5">
+              {budgetId ? "Auto-saving · " : ""}Build event budgets with GST, margins, and client-ready exports.
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -103,7 +141,7 @@ export default function BudgetBuilder() {
       </div>
 
       {/* Meta bar */}
-      <BudgetMetaBar meta={meta} onChange={setMeta} />
+      <BudgetMetaBar meta={meta} onChange={handleMetaChange} />
 
       {/* Main grid: table + totals */}
       <div className="flex gap-5 items-start">

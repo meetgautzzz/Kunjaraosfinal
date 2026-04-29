@@ -11,7 +11,7 @@ const NAV = [
     items: [
       { href: "/dashboard",  icon: <GridIcon />,    label: "Dashboard" },
       { href: "/proposals",  icon: <SparkleIcon />, label: "Vision Board", badge: "AI" },
-      { href: "/brain",      icon: <AiIcon />,      label: "AI Brain",     badge: "AI" },
+      { href: "/brain",      icon: <AiIcon />,      label: "Atlas X",      badge: "AI" },
       { href: "/budget",     icon: <WalletIcon />,  label: "Budget Builder" },
       { href: "/events",     icon: <CalIcon />,     label: "Events" },
       { href: "/vendors",    icon: <StoreIcon />,   label: "Vendors" },

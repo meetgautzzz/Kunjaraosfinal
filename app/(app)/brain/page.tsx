@@ -247,7 +247,7 @@ export default function BrainPage() {
             >
               🧠
             </div>
-            <h2 className="t-heading" style={{ fontSize: 18, margin: 0 }}>AI Brain</h2>
+            <h2 className="t-heading" style={{ fontSize: 18, margin: 0 }}>Atlas X — your AI chatbot</h2>
             <span
               style={{
                 fontSize: 9,
@@ -541,7 +541,7 @@ function MessageBubble({ message, streaming }: { message: ChatMessage; streaming
           {isUser ? "Y" : "🧠"}
         </div>
         <span style={{ fontSize: 11, color: "var(--text-3)", fontWeight: 600 }}>
-          {isUser ? "You" : "AI Brain"}
+          {isUser ? "You" : "Atlas X"}
         </span>
       </div>
 

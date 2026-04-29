@@ -157,3 +157,19 @@ export default function MobileNav({
     </>
   );
 }
+
+function KunjaraMark({ size = 32 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" style={{ flexShrink: 0 }}>
+      <circle cx="32" cy="32" r="29" stroke="#D4A85F" strokeWidth="1.25" opacity="0.35" />
+      <circle cx="32" cy="32" r="29" stroke="#D4A85F" strokeWidth="1.25" strokeDasharray="2 6" opacity="0.55" transform="rotate(-30 32 32)" />
+      <g stroke="#D4A85F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
+        <path d="M16 38 C 16 22, 48 22, 48 38" />
+        <path d="M22 38 C 22 48, 32 50, 34 42 C 35 38, 30 36, 30 40" />
+        <path d="M40 40 L 44 46" />
+        <circle cx="40" cy="32" r="1.4" fill="#D4A85F" stroke="none" />
+      </g>
+      <circle cx="58" cy="22" r="1.6" fill="#D4A85F" />
+    </svg>
+  );
+}

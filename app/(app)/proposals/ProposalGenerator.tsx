@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import ProposalOutputPanel from "./ProposalOutput";
+import AtlasThinkingAnimation from "@/components/proposals/AtlasThinkingAnimation";
 import { createClient } from "@/lib/supabase/client";
 import { getPlan, type PlanId } from "@/lib/plans";
 import type { ProposalOutput } from "@/lib/generateProposal";
@@ -36,7 +37,6 @@ const defaultForm: FormData = {
   clientName: "",
 };
 
-const skeletonSections = ["Concept", "Event Flow", "Technical Setup", "Budget Breakdown", "Add-ons"];
 
 export default function ProposalGenerator() {
   const router = useRouter();
@@ -171,30 +171,8 @@ export default function ProposalGenerator() {
 
         {/* Loading */}
         {loading && (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 rounded-2xl border border-white/8 bg-gradient-to-br from-accent-purple/8 to-accent-blue/8 px-6 py-5">
-              <svg className="animate-spin shrink-0 text-accent-blue" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity={0.2} />
-                <path d="M21 12a9 9 0 00-9-9" />
-              </svg>
-              <div>
-                <p className="text-sm font-medium text-text-primary">Generating your proposal...</p>
-                <p className="mt-0.5 text-xs text-text-secondary">Kunjara Architect™ is crafting your event plan.</p>
-              </div>
-            </div>
-            {skeletonSections.map((s, i) => (
-              <div key={s} className="rounded-2xl border border-white/5 bg-surface px-6 py-5">
-                <div className="mb-4 flex items-center gap-2.5 border-b border-white/5 pb-4">
-                  <div className="h-3.5 w-3.5 animate-pulse rounded bg-white/10" />
-                  <div className="h-3 animate-pulse rounded-full bg-white/10" style={{ width: `${[80, 96, 112, 128, 88][i % 5]}px` }} />
-                </div>
-                <div className="flex flex-col gap-2.5">
-                  <div className="h-3 w-full animate-pulse rounded-full bg-white/8" />
-                  <div className="h-3 w-5/6 animate-pulse rounded-full bg-white/8" />
-                  {i !== 0 && <div className="h-3 w-4/6 animate-pulse rounded-full bg-white/6" />}
-                </div>
-              </div>
-            ))}
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+            <AtlasThinkingAnimation />
           </div>
         )}
 

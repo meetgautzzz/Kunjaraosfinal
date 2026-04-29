@@ -21,7 +21,7 @@
   --color-accent-cyan:   #C9785F;
 
   /* ── Remap Tailwind's indigo → brand gold ──────────────────────────────
-     Every component that uses bg-indigo-*/text-indigo-* now renders gold
+     Every component using bg-indigo-N or text-indigo-N now renders gold
      without touching any of those 37 files individually.              ── */
   --color-indigo-50:  #FDF8EE;
   --color-indigo-100: #F7EDD5;

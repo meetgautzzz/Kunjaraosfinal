@@ -64,7 +64,7 @@ export default function BrainPage() {
   const [input,            setInput]            = useState("");
   const [streaming,        setStreaming]         = useState(false);
   const [error,            setError]            = useState("");
-  const [proposals,        setProposals]        = useState<ProposalData[]>([]);
+  const [proposals,        setProposals]        = useState<{ id: string; data: ProposalData }[]>([]);
   const [activeProposalId, setActiveProposalId] = useState<string>("");
 
   const bottomRef  = useRef<HTMLDivElement>(null);
@@ -288,7 +288,7 @@ export default function BrainPage() {
               <option value="">No proposal context</option>
               {proposals.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.title.slice(0, 30)}{p.title.length > 30 ? "…" : ""}
+                  {(p.data?.title ?? "Untitled").slice(0, 30)}{(p.data?.title ?? "").length > 30 ? "…" : ""}
                 </option>
               ))}
             </select>

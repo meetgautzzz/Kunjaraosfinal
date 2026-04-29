@@ -22,12 +22,12 @@ const WebhookEventSchema = z.object({
 });
 
 function resolvePlan(plan: string): PlanId {
-  return (["basic", "pro", "test"] as const).includes(plan as PlanId)
+  return (["basic", "pro"] as const).includes(plan as PlanId)
     ? (plan as PlanId)
     : "basic";
 }
 
-const VALID_PLANS = new Set<PlanId>(["basic", "pro", "test"]);
+const VALID_PLANS = new Set<PlanId>(["basic", "pro"]);
 
 // Timing-safe HMAC comparison. A naive === leaks signature length and
 // position of the first mismatched byte via response-time variance, which

@@ -15,9 +15,24 @@ type Vendor = {
   notes:       string;
 };
 
+type AISuggestion = {
+  category:      string;
+  name:          string;
+  city:          string;
+  estimatedCost: number;
+  notes:         string;
+  rating:        number;
+};
+
 const CATEGORIES = [
   "Catering", "Venue", "AV & Sound", "Decoration", "Photography",
   "Entertainment", "Logistics", "Security", "Flowers", "Other",
+];
+
+const EVENT_TYPES = [
+  "Corporate Gala", "Conference", "Product Launch", "Wedding",
+  "Concert", "Brand Activation", "Awards Night", "Team Retreat",
+  "Exhibition", "Fundraiser", "Sports Event", "Workshop",
 ];
 
 export default function VendorsPage() {
@@ -25,9 +40,10 @@ export default function VendorsPage() {
   const [loading,   setLoading]   = useState(true);
   const [search,    setSearch]    = useState("");
   const [catFilter, setCatFilter] = useState("All");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [deleting,  setDeleting]  = useState<string | null>(null);
+  const [modalOpen,    setModalOpen]    = useState(false);
+  const [editingId,    setEditingId]    = useState<string | null>(null);
+  const [deleting,     setDeleting]     = useState<string | null>(null);
+  const [aiModalOpen,  setAiModalOpen]  = useState(false);
 
   async function load() {
     setLoading(true);
@@ -102,12 +118,20 @@ export default function VendorsPage() {
             {vendors.length} vendor{vendors.length === 1 ? "" : "s"} saved to your workspace.
           </p>
         </div>
-        <button
-          onClick={() => { setEditingId(null); setModalOpen(true); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-colors"
-        >
-          + Add Vendor
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setAiModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/10 text-sm font-semibold transition-colors"
+          >
+            <span className="text-base leading-none">⚡</span> AI Suggest
+          </button>
+          <button
+            onClick={() => { setEditingId(null); setModalOpen(true); }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-colors"
+          >
+            + Add Vendor
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -249,6 +273,25 @@ export default function VendorsPage() {
           onSubmit={handleAdd}
         />
       )}
+
+      {aiModalOpen && (
+        <AISuggestModal
+          onClose={() => setAiModalOpen(false)}
+          onImport={async (suggestion) => {
+            await handleAdd({
+              name:        suggestion.name,
+              city:        suggestion.city,
+              category:    suggestion.category,
+              notes:       `${suggestion.notes}\n\nEstimated cost: ₹${suggestion.estimatedCost.toLocaleString("en-IN")}`,
+              rating:      Math.round(Math.min(5, Math.max(1, suggestion.rating))),
+              email:       "",
+              phone:       "",
+              active:      true,
+              events_done: 0,
+            });
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -345,6 +388,204 @@ function VendorModal({
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function AISuggestModal({
+  onClose,
+  onImport,
+}: {
+  onClose: () => void;
+  onImport: (s: AISuggestion) => Promise<void>;
+}) {
+  const [eventType,  setEventType]  = useState("Corporate Gala");
+  const [location,   setLocation]   = useState("");
+  const [budget,     setBudget]     = useState("");
+  const [category,   setCategory]   = useState("All Categories");
+  const [loading,    setLoading]    = useState(false);
+  const [results,    setResults]    = useState<AISuggestion[]>([]);
+  const [adding,     setAdding]     = useState<string | null>(null);
+  const [added,      setAdded]      = useState<Set<string>>(new Set());
+  const [error,      setError]      = useState("");
+
+  async function handleGenerate() {
+    setLoading(true);
+    setError("");
+    setResults([]);
+    try {
+      const res = await fetch("/api/ai/vendor-suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventType,
+          location:          location || undefined,
+          budget:            budget ? Number(budget) : undefined,
+          category:          category !== "All Categories" ? category : undefined,
+          existingVendors:   [],
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Failed");
+      setResults(json.suggestions ?? []);
+    } catch {
+      setError("Could not fetch suggestions. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleAdd(s: AISuggestion) {
+    const key = `${s.name}|${s.city}`;
+    setAdding(key);
+    try {
+      await onImport(s);
+      setAdded((prev) => new Set(prev).add(key));
+    } finally {
+      setAdding(null);
+    }
+  }
+
+  const SEVERITY_COLORS: Record<string, string> = {
+    "Catering":       "from-orange-500/20 to-red-500/20 text-orange-300",
+    "Venue":          "from-indigo-500/20 to-purple-500/20 text-indigo-300",
+    "AV & Technology":"from-cyan-500/20 to-blue-500/20 text-cyan-300",
+    "Photography":    "from-pink-500/20 to-rose-500/20 text-pink-300",
+    "Entertainment":  "from-violet-500/20 to-fuchsia-500/20 text-violet-300",
+    "Decoration":     "from-green-500/20 to-teal-500/20 text-green-300",
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-[var(--border)] shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-[var(--text-1)] font-bold text-base flex items-center gap-2">
+                <span className="text-base">⚡</span> AI Vendor Suggestions
+              </h3>
+              <p className="text-[var(--text-3)] text-xs mt-0.5">Get India-specific vendor recommendations for your event.</p>
+            </div>
+            <button onClick={onClose} className="text-[var(--text-3)] hover:text-[var(--text-1)] text-xl leading-none">×</button>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="px-6 py-5 border-b border-[var(--border)] shrink-0">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[var(--text-2)] text-xs font-medium mb-1.5">Event Type <span className="text-red-400">*</span></label>
+              <select
+                value={eventType}
+                onChange={(e) => setEventType(e.target.value)}
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-1)] focus:border-indigo-500/50 outline-none"
+              >
+                {EVENT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[var(--text-2)] text-xs font-medium mb-1.5">Category</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-1)] focus:border-indigo-500/50 outline-none"
+              >
+                <option>All Categories</option>
+                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[var(--text-2)] text-xs font-medium mb-1.5">City / Location</label>
+              <input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g. Mumbai, Bengaluru"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]/60 focus:border-indigo-500/50 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[var(--text-2)] text-xs font-medium mb-1.5">Total Budget (₹)</label>
+              <input
+                type="number"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                placeholder="e.g. 500000"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]/60 focus:border-indigo-500/50 outline-none"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end mt-3">
+            <button
+              onClick={handleGenerate}
+              disabled={loading}
+              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white text-sm font-semibold transition-colors"
+            >
+              {loading ? (
+                <>
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  Generating…
+                </>
+              ) : "Generate Suggestions"}
+            </button>
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="overflow-y-auto flex-1 px-6 py-5">
+          {error && (
+            <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-400 mb-4">{error}</p>
+          )}
+
+          {results.length === 0 && !loading && !error && (
+            <div className="text-center py-10">
+              <p className="text-4xl mb-3">🤖</p>
+              <p className="text-[var(--text-3)] text-sm">Fill in the event details above and click Generate.</p>
+            </div>
+          )}
+
+          {results.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-[var(--text-3)] text-xs">{results.length} vendor suggestions for your {eventType}</p>
+              {results.map((s, i) => {
+                const key = `${s.name}|${s.city}`;
+                const isAdded   = added.has(key);
+                const isAdding  = adding === key;
+                const colorCls  = SEVERITY_COLORS[s.category] ?? "from-indigo-500/20 to-purple-500/20 text-indigo-300";
+                return (
+                  <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 flex items-start gap-4">
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colorCls} flex items-center justify-center text-base font-bold shrink-0`}>
+                      {s.name[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-[var(--text-1)] font-semibold text-sm">{s.name}</p>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-3)]">{s.category}</span>
+                      </div>
+                      <p className="text-[var(--text-3)] text-xs mt-0.5">
+                        {s.city} · {"★".repeat(Math.round(s.rating))}{"☆".repeat(5 - Math.round(s.rating))} · est. ₹{s.estimatedCost.toLocaleString("en-IN")}
+                      </p>
+                      <p className="text-[var(--text-2)] text-xs mt-1.5 leading-relaxed">{s.notes}</p>
+                    </div>
+                    <button
+                      onClick={() => handleAdd(s)}
+                      disabled={isAdded || isAdding}
+                      className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                        isAdded
+                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-default"
+                          : "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/30"
+                      }`}
+                    >
+                      {isAdded ? "Added ✓" : isAdding ? "…" : "+ Add"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

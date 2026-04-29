@@ -30,6 +30,7 @@ export default function CompliancePage() {
   const [filter,       setFilter]       = useState<FilterStatus>("ALL");
   const [search,       setSearch]       = useState("");
   const [showGenerate, setShowGenerate] = useState(false);
+  const [showRisk,     setShowRisk]     = useState(false);
 
   useEffect(() => {
     fetch("/api/compliance")
@@ -128,12 +129,20 @@ export default function CompliancePage() {
             )}
           </p>
         </div>
-        <button
-          onClick={() => setShowGenerate(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-colors"
-        >
-          <span className="text-base leading-none">⚡</span> Generate Checklist
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowRisk(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 text-sm font-semibold transition-colors"
+          >
+            <span className="text-base leading-none">🔍</span> Risk Analysis
+          </button>
+          <button
+            onClick={() => setShowGenerate(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-colors"
+          >
+            <span className="text-base leading-none">⚡</span> Generate Checklist
+          </button>
+        </div>
       </div>
 
       {/* Score */}
@@ -234,6 +243,159 @@ export default function CompliancePage() {
           onClose={() => setShowGenerate(false)}
         />
       )}
+
+      {showRisk && (
+        <RiskModal onClose={() => setShowRisk(false)} />
+      )}
+    </div>
+  );
+}
+
+// ── AI Risk Analysis Modal ─────────────────────────────────────────────────────
+
+type Risk = {
+  severity:   "HIGH" | "MEDIUM" | "LOW";
+  category:   string;
+  risk:       string;
+  mitigation: string;
+};
+
+const EVENT_TYPES_RISK = [
+  "Corporate Gala", "Conference", "Product Launch", "Wedding",
+  "Concert", "Brand Activation", "Awards Night", "Team Retreat",
+  "Exhibition", "Fundraiser", "Sports Event", "Workshop",
+];
+
+function RiskModal({ onClose }: { onClose: () => void }) {
+  const [eventType,  setEventType]  = useState("Corporate Gala");
+  const [location,   setLocation]   = useState("");
+  const [budget,     setBudget]     = useState("");
+  const [guestCount, setGuestCount] = useState("");
+  const [eventDate,  setEventDate]  = useState("");
+  const [loading,    setLoading]    = useState(false);
+  const [risks,      setRisks]      = useState<Risk[]>([]);
+  const [error,      setError]      = useState("");
+
+  async function handleAnalyse() {
+    setLoading(true);
+    setError("");
+    setRisks([]);
+    try {
+      const res = await fetch("/api/ai/compliance-risk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventType,
+          location:   location || undefined,
+          budget:     budget ? Number(budget) : undefined,
+          guestCount: guestCount ? Number(guestCount) : undefined,
+          eventDate:  eventDate || undefined,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Failed");
+      setRisks(json.risks ?? []);
+    } catch {
+      setError("Risk analysis failed. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const SEV_CONFIG = {
+    HIGH:   { label: "High",   cls: "bg-red-500/15 border-red-500/30 text-red-400",    dot: "bg-red-500"    },
+    MEDIUM: { label: "Medium", cls: "bg-amber-500/15 border-amber-500/30 text-amber-400", dot: "bg-amber-500" },
+    LOW:    { label: "Low",    cls: "bg-blue-500/15 border-blue-500/30 text-blue-400",  dot: "bg-blue-400"   },
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-[var(--border)] shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-[var(--text-1)] font-bold text-base flex items-center gap-2">
+                🔍 AI Risk Analysis
+              </h3>
+              <p className="text-[var(--text-3)] text-xs mt-0.5">Identify compliance risks before your event day.</p>
+            </div>
+            <button onClick={onClose} className="text-[var(--text-3)] hover:text-[var(--text-1)] text-xl leading-none">×</button>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="px-6 py-5 border-b border-[var(--border)] shrink-0">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[var(--text-2)] text-xs font-medium mb-1.5">Event Type <span className="text-red-400">*</span></label>
+              <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-1)] focus:border-indigo-500/50 outline-none">
+                {EVENT_TYPES_RISK.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[var(--text-2)] text-xs font-medium mb-1.5">Location</label>
+              <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Mumbai, Maharashtra" className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]/60 focus:border-indigo-500/50 outline-none" />
+            </div>
+            <div>
+              <label className="block text-[var(--text-2)] text-xs font-medium mb-1.5">Budget (₹)</label>
+              <input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="e.g. 1000000" className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]/60 focus:border-indigo-500/50 outline-none" />
+            </div>
+            <div>
+              <label className="block text-[var(--text-2)] text-xs font-medium mb-1.5">Guest Count</label>
+              <input type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="e.g. 500" className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]/60 focus:border-indigo-500/50 outline-none" />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-[var(--text-2)] text-xs font-medium mb-1.5">Event Date</label>
+              <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-1)] focus:border-indigo-500/50 outline-none" style={{ colorScheme: "dark" }} />
+            </div>
+          </div>
+          <div className="flex justify-end mt-3">
+            <button
+              onClick={handleAnalyse}
+              disabled={loading}
+              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-semibold transition-colors"
+            >
+              {loading ? (
+                <>
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  Analysing…
+                </>
+              ) : "Analyse Risks"}
+            </button>
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-3">
+          {error && <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
+
+          {risks.length === 0 && !loading && !error && (
+            <div className="text-center py-10">
+              <p className="text-4xl mb-3">🛡️</p>
+              <p className="text-[var(--text-3)] text-sm">Fill in the event details and click Analyse Risks.</p>
+            </div>
+          )}
+
+          {risks.map((r, i) => {
+            const cfg = SEV_CONFIG[r.severity] ?? SEV_CONFIG.LOW;
+            return (
+              <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${cfg.cls}`}>{cfg.label} Risk</span>
+                  <span className="text-[var(--text-3)] text-xs">{r.category}</span>
+                </div>
+                <p className="text-[var(--text-1)] text-sm font-medium">{r.risk}</p>
+                <div className="rounded-lg bg-[var(--bg-card)] border border-[var(--border)] px-3 py-2">
+                  <p className="text-[var(--text-3)] text-[11px] uppercase tracking-wide font-medium mb-1">Mitigation</p>
+                  <p className="text-[var(--text-2)] text-xs leading-relaxed">{r.mitigation}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

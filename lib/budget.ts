@@ -10,23 +10,42 @@ export const CATEGORIES = [
 export type BudgetItem = {
   id:          string;
   category:    string;
-  description: string;
+  description: string;   // item name shown in estimate/invoice
+  notes:       string;   // optional detail/scope line
   unit:        string;
   quantity:    number;
   unitCost:    number;
   gstRate:     GSTRate;
-  margin:      number;   // percentage
+  margin:      number;   // percentage (internal)
   visible:     boolean;  // shown in client view
 };
 
 export type BudgetMeta = {
   title:          string;
+  documentType:   "estimate" | "invoice";
+  status:         "draft" | "final";
+  // client
   clientName:     string;
+  clientCompany:  string;
+  clientAddress:  string;
+  clientGST:      string;
+  // document
   eventType:      string;
   currency:       string;
-  globalMargin:   number;   // override per-item margin if > 0
-  hideClientCosts:boolean;  // master hide toggle for client view
+  globalMargin:   number;
+  hideClientCosts:boolean;
+  terms:          string[];
 };
+
+export const DEFAULT_TERMS: string[] = [
+  "GST will be applicable as per government norms.",
+  "Extension of activity will be charged on a prorated basis (applicable on recurring costs).",
+  "Courier and cargo charges will be billed at actuals.",
+  "Outstation travel, accommodation, and meals for staff (if applicable) will be charged additionally.",
+  "In case of force majeure or unforeseen circumstances, applicable costs will still be payable.",
+  "All payments must be made in favour of the registered business entity.",
+  "Payment terms and timelines should be adhered to as agreed.",
+];
 
 export type ItemCalc = {
   baseCost:       number;   // qty × unitCost
@@ -101,6 +120,7 @@ export function newItem(overrides: Partial<BudgetItem> = {}): BudgetItem {
     id:          crypto.randomUUID(),
     category:    "Venue",
     description: "",
+    notes:       "",
     unit:        "Lump Sum",
     quantity:    1,
     unitCost:    0,
@@ -112,11 +132,17 @@ export function newItem(overrides: Partial<BudgetItem> = {}): BudgetItem {
 }
 
 export const DEFAULT_META: BudgetMeta = {
-  title:          "Event Budget",
+  title:          "Event Estimate",
+  documentType:   "estimate",
+  status:         "draft",
   clientName:     "",
+  clientCompany:  "",
+  clientAddress:  "",
+  clientGST:      "",
   eventType:      "",
   currency:       "INR",
   globalMargin:   0,
   hideClientCosts:false,
+  terms:          DEFAULT_TERMS,
 };
 

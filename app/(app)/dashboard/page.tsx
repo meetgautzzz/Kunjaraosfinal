@@ -12,23 +12,32 @@ import type { ProposalData } from "@/lib/proposals";
 type ProposalRow = { id: string; data: ProposalData; created_at: string };
 type CreditsData = { credits_added: number; events_used: number; plan: string | null };
 
+// ── Status config ─────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<string, string> = {
-  "DRAFT":             "bg-amber-500/15 text-amber-400",
-  "APPROVED":          "bg-emerald-500/15 text-emerald-400",
-  "CHANGES_REQUESTED": "bg-red-500/15 text-red-400",
-  "SENT":              "bg-indigo-500/15 text-indigo-400",
-  "SHARED":            "bg-indigo-500/15 text-indigo-400",
-  "GENERATED":         "bg-sky-500/15 text-sky-400",
-  "SAVED":             "bg-teal-500/15 text-teal-400",
+  DRAFT:             "bg-amber-500/15 text-amber-400",
+  APPROVED:          "bg-emerald-500/15 text-emerald-400",
+  CHANGES_REQUESTED: "bg-red-500/15 text-red-400",
+  SENT:              "bg-indigo-500/15 text-indigo-400",
+  SHARED:            "bg-indigo-500/15 text-indigo-400",
+  GENERATED:         "bg-sky-500/15 text-sky-400",
+  SAVED:             "bg-teal-500/15 text-teal-400",
 };
 
 function statusLabel(s: string | undefined) {
   if (!s) return "Draft";
-  if (s === "CHANGES_REQUESTED") return "Changes Requested";
-  const lower = s.toLowerCase();
-  return lower.charAt(0).toUpperCase() + lower.slice(1);
+  if (s === "CHANGES_REQUESTED") return "Revision";
+  return s.charAt(0) + s.slice(1).toLowerCase();
 }
 
+// ── Pipeline stage definitions ────────────────────────────────────────────────
+const PIPELINE_STAGES = [
+  { key: "lead",        label: "Lead",        statuses: ["SAVED", "GENERATED", "DRAFT"], dot: "#38bdf8", bg: "#0c1a2b" },
+  { key: "proposal",    label: "Proposal",    statuses: ["SENT", "SHARED"],              dot: "#818cf8", bg: "#13143a" },
+  { key: "negotiation", label: "Negotiation", statuses: ["CHANGES_REQUESTED"],           dot: "#fbbf24", bg: "#1c1508" },
+  { key: "won",         label: "Won",         statuses: ["APPROVED"],                    dot: "#34d399", bg: "#091c12" },
+] as const;
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const [proposals, setProposals] = useState<ProposalRow[]>([]);
   const [credits,   setCredits]   = useState<CreditsData | null>(null);
@@ -56,147 +65,293 @@ export default function DashboardPage() {
     });
   }, []);
 
-  const creditsLeft = credits
-    ? Math.max(0, (credits.credits_added ?? 0) - (credits.events_used ?? 0))
-    : null;
-
+  const creditsLeft   = credits ? Math.max(0, (credits.credits_added ?? 0) - (credits.events_used ?? 0)) : null;
   const approved      = proposals.filter((p) => p.data?.status === "APPROVED").length;
+  const actionNeeded  = proposals.filter((p) => ["DRAFT", "CHANGES_REQUESTED"].includes(p.data?.status ?? "")).length;
   const totalBudget   = proposals.reduce((s, p) => s + (p.data?.budget ?? 0), 0);
-  const recent        = [...proposals].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 5);
+  const conversionPct = proposals.length > 0 ? Math.round((approved / proposals.length) * 100) : 0;
+  const recent        = [...proposals].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 8);
 
-  const hour = new Date().getHours();
+  const hour     = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <Suspense>
-        <UpgradeBanner />
-      </Suspense>
+    <div className="max-w-[1400px] mx-auto space-y-4">
+      <Suspense><UpgradeBanner /></Suspense>
 
-      <div>
-        <h2 className="text-2xl font-bold text-[var(--text-1)]">{greeting}{userName ? `, ${userName}` : ""} 👋</h2>
-        <p className="text-[var(--text-2)] text-sm mt-1">Here's what's happening across your workspace today.</p>
+      {/* ── Greeting ──────────────────────────────────────────────────────── */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-[var(--text-1)]">
+            {greeting}{userName ? `, ${userName}` : ""} 👋
+          </h2>
+          <p className="text-[var(--text-3)] text-xs mt-0.5">
+            {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-[var(--text-3)]">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+          {vendors} vendor{vendors !== 1 ? "s" : ""} in network
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard
-          label="Total Proposals"
-          value={loading ? "—" : String(proposals.length)}
-          icon="📋"
-          href="/proposals"
-          sub={approved > 0 ? `${approved} approved` : "View all"}
-        />
-        <StatCard
-          label="Active Vendors"
-          value={loading ? "—" : String(vendors)}
-          icon="🏪"
-          href="/vendors"
-          sub={vendors === 0 ? "Add vendors" : "Manage network"}
-        />
-        <StatCard
-          label="AI Credits Left"
-          value={loading || creditsLeft === null ? "—" : String(creditsLeft)}
-          icon="⚡"
-          href="/billing"
-          sub={credits?.plan ? `${credits.plan} plan` : "No active plan"}
-          accent={creditsLeft !== null && creditsLeft <= 5 ? "amber" : undefined}
-        />
-        <StatCard
-          label="Pipeline Value"
+      {/* ── Metric cards ──────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+        <MetricCard
+          label="Pipeline Revenue"
           value={loading ? "—" : formatINR(totalBudget)}
-          icon="💰"
+          sub={`${proposals.length} event${proposals.length !== 1 ? "s" : ""} total`}
+          dot="#818cf8"
           href="/events"
-          sub={`${proposals.length} event${proposals.length !== 1 ? "s" : ""}`}
+        />
+        <MetricCard
+          label="Proposals"
+          value={loading ? "—" : String(proposals.length)}
+          sub={approved > 0 ? `${approved} approved` : "None approved yet"}
+          dot="#34d399"
+          href="/proposals"
+        />
+        <MetricCard
+          label="Conversion"
+          value={loading ? "—" : `${conversionPct}%`}
+          sub={`${approved} won of ${proposals.length}`}
+          dot="#38bdf8"
+          href="/proposals"
+        />
+        <MetricCard
+          label="Action Needed"
+          value={loading ? "—" : String(actionNeeded)}
+          sub={actionNeeded === 0 ? "All clear" : "Drafts & revisions"}
+          dot={actionNeeded > 0 ? "#fbbf24" : "#34d399"}
+          href="/proposals"
+          warn={actionNeeded > 0}
         />
       </div>
 
-      <ReceivablesWidget />
+      {/* ── Main 2/3 + Sidebar 1/3 ────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent proposals */}
-        <div className="lg:col-span-2 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
-          <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between">
-            <h3 className="text-[var(--text-1)] font-semibold text-sm">Recent Proposals</h3>
-            <Link href="/proposals" className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors">View all →</Link>
-          </div>
-          {loading ? (
-            <div className="p-5 space-y-3">
-              {[...Array(3)].map((_, i) => <div key={i} className="h-12 rounded-lg bg-[var(--bg-surface)] animate-pulse" />)}
-            </div>
-          ) : recent.length === 0 ? (
-            <div className="p-12 text-center">
-              <p className="text-[var(--text-3)] text-sm mb-3">No proposals yet.</p>
-              <Link href="/proposals/new" className="text-indigo-400 text-sm font-medium hover:text-indigo-300">
-                Create your first proposal →
+        {/* ══ Main column ══════════════════════════════════════════════════ */}
+        <div className="lg:col-span-2 space-y-4">
+
+          {/* Event Pipeline */}
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
+              <h3 className="text-[var(--text-1)] font-semibold text-sm">Event Pipeline</h3>
+              <Link href="/proposals" className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors">
+                All proposals →
               </Link>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--border)]">
-                    {["Proposal", "Type", "Budget", "Status"].map((h) => (
-                      <th key={h} className="text-left px-5 py-3 text-[var(--text-3)] text-xs font-medium uppercase tracking-wider">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.map((p) => (
-                    <tr key={p.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg-hover)] transition-colors">
-                      <td className="px-5 py-3.5">
-                        <Link href={`/proposals/${p.id}`} className="text-[var(--text-1)] font-medium hover:text-indigo-300 transition-colors truncate block max-w-[200px]">
-                          {p.data?.title ?? "Untitled"}
-                        </Link>
-                        <p className="text-[var(--text-3)] text-xs truncate">{p.data?.client?.companyName ?? p.data?.location ?? "—"}</p>
-                      </td>
-                      <td className="px-5 py-3.5 text-[var(--text-2)] text-xs">{p.data?.eventType ?? "—"}</td>
-                      <td className="px-5 py-3.5 text-[var(--text-2)] tabular-nums text-xs">{p.data?.budget ? formatINR(p.data.budget) : "—"}</td>
-                      <td className="px-5 py-3.5">
-                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[p.data?.status ?? ""] ?? "bg-gray-500/15 text-gray-400"}`}>
-                          {statusLabel(p.data?.status)}
+            {loading ? (
+              <div className="grid grid-cols-4 gap-px bg-[var(--border)]">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="bg-[var(--bg-card)] p-3 space-y-2">
+                    <div className="h-3 w-20 rounded skeleton" />
+                    <div className="h-10 rounded skeleton" />
+                    <div className="h-10 rounded skeleton" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[var(--border)]">
+                {PIPELINE_STAGES.map((stage) => {
+                  const stageItems = proposals.filter((p) =>
+                    stage.statuses.includes((p.data?.status ?? "DRAFT") as never)
+                  );
+                  return (
+                    <div key={stage.key} className="bg-[var(--bg-card)] p-3 min-h-[120px]">
+                      <div className="flex items-center gap-1.5 mb-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: stage.dot }} />
+                        <span className="text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider">
+                          {stage.label}
                         </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                        <span className="ml-auto text-[10px] font-bold" style={{ color: stage.dot }}>
+                          {stageItems.length}
+                        </span>
+                      </div>
+                      <div className="space-y-1.5">
+                        {stageItems.length === 0 ? (
+                          <p className="text-[var(--text-3)] text-[10px] italic">Empty</p>
+                        ) : (
+                          stageItems.slice(0, 3).map((p) => (
+                            <Link
+                              key={p.id}
+                              href={`/proposals/${p.id}`}
+                              className="block rounded-md px-2.5 py-1.5 hover:bg-[var(--bg-hover)] transition-colors border border-[var(--border)]"
+                              style={{ background: stage.bg }}
+                            >
+                              <p className="text-[var(--text-1)] text-[11px] font-medium truncate leading-tight">
+                                {p.data?.title ?? "Untitled"}
+                              </p>
+                              {p.data?.budget ? (
+                                <p className="text-[10px] tabular-nums mt-0.5" style={{ color: stage.dot }}>
+                                  {formatINR(p.data.budget)}
+                                </p>
+                              ) : (
+                                <p className="text-[10px] text-[var(--text-3)] mt-0.5">
+                                  {p.data?.eventType ?? "—"}
+                                </p>
+                              )}
+                            </Link>
+                          ))
+                        )}
+                        {stageItems.length > 3 && (
+                          <p className="text-[10px] text-[var(--text-3)] pl-1">
+                            +{stageItems.length - 3} more
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
-        {/* Quick actions */}
-        <div>
+          {/* Recent Proposals table */}
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
+              <h3 className="text-[var(--text-1)] font-semibold text-sm">Recent Proposals</h3>
+              <Link href="/proposals" className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors">
+                View all →
+              </Link>
+            </div>
+
+            {loading ? (
+              <div className="p-4 space-y-2">
+                {[...Array(4)].map((_, i) => <div key={i} className="h-10 rounded-lg skeleton" />)}
+              </div>
+            ) : recent.length === 0 ? (
+              <div className="px-4 py-10 text-center">
+                <p className="text-[var(--text-3)] text-sm mb-2">No proposals yet.</p>
+                <Link href="/proposals/new" className="text-indigo-400 text-sm font-medium hover:text-indigo-300">
+                  Create your first proposal →
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-[var(--border)]">
+                      {["Proposal", "Event Type", "Budget", "Status", "Date"].map((h) => (
+                        <th key={h} className="text-left px-4 py-2.5 text-[var(--text-3)] text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recent.map((p) => (
+                      <tr key={p.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg-hover)] transition-colors">
+                        <td className="px-4 py-2.5">
+                          <Link
+                            href={`/proposals/${p.id}`}
+                            className="text-[var(--text-1)] text-xs font-medium hover:text-indigo-300 transition-colors truncate block max-w-[200px]"
+                          >
+                            {p.data?.title ?? "Untitled"}
+                          </Link>
+                          <p className="text-[var(--text-3)] text-[10px] truncate max-w-[200px]">
+                            {p.data?.client?.companyName ?? p.data?.location ?? "—"}
+                          </p>
+                        </td>
+                        <td className="px-4 py-2.5 text-[var(--text-3)] text-xs whitespace-nowrap">
+                          {p.data?.eventType ?? "—"}
+                        </td>
+                        <td className="px-4 py-2.5 text-[var(--text-2)] text-xs tabular-nums whitespace-nowrap">
+                          {p.data?.budget ? formatINR(p.data.budget) : "—"}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${STATUS_STYLES[p.data?.status ?? ""] ?? "bg-gray-500/15 text-gray-400"}`}>
+                            {statusLabel(p.data?.status)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 text-[var(--text-3)] text-[10px] whitespace-nowrap">
+                          {new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+        </div>{/* end main column */}
+
+        {/* ══ Sidebar ══════════════════════════════════════════════════════ */}
+        <div className="space-y-4">
+
+          {/* Quick Actions */}
           <QuickActions />
-        </div>
+
+          {/* Receivables */}
+          <ReceivablesWidget />
+
+          {/* AI Credits */}
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[var(--text-1)] font-semibold text-sm">AI Credits</h3>
+              <Link href="/billing" className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors">
+                Top up →
+              </Link>
+            </div>
+            {creditsLeft === null ? (
+              <p className="text-[var(--text-3)] text-xs">No active plan.</p>
+            ) : (
+              <>
+                <div className="flex items-end gap-2 mb-2">
+                  <span className={`text-2xl font-black tabular-nums ${creditsLeft <= 5 ? "text-amber-400" : "text-[var(--text-1)]"}`}>
+                    {creditsLeft}
+                  </span>
+                  <span className="text-[var(--text-3)] text-xs mb-1">
+                    / {credits?.credits_added ?? 0} remaining
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full bg-[var(--border)] overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${creditsLeft <= 5 ? "bg-amber-400" : "bg-indigo-500"}`}
+                    style={{ width: `${Math.min(100, (creditsLeft / Math.max(1, credits?.credits_added ?? 1)) * 100)}%` }}
+                  />
+                </div>
+                <p className="text-[var(--text-3)] text-[10px] mt-1.5">
+                  {credits?.plan ? `${credits.plan} plan` : "Pay-as-you-go"}
+                </p>
+              </>
+            )}
+          </div>
+
+        </div>{/* end sidebar */}
+
       </div>
     </div>
   );
 }
 
-function StatCard({ label, value, icon, href, sub, accent }: {
+// ── MetricCard ────────────────────────────────────────────────────────────────
+function MetricCard({ label, value, sub, dot, href, warn }: {
   label: string;
   value: string;
-  icon: string;
-  href: string;
   sub: string;
-  accent?: "amber";
+  dot: string;
+  href: string;
+  warn?: boolean;
 }) {
   return (
-    <Link href={href} className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 flex flex-col gap-3 hover:border-indigo-500/30 transition-colors group">
-      <div className="flex items-center justify-between">
-        <span className="text-xl">{icon}</span>
-        <svg className="w-3.5 h-3.5 text-[var(--text-3)] group-hover:text-indigo-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <Link
+      href={href}
+      className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3 flex flex-col gap-1.5 hover:border-indigo-500/30 transition-colors group"
+    >
+      <div className="flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dot }} />
+        <span className="text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider">{label}</span>
+        <svg className="ml-auto w-3 h-3 text-[var(--text-3)] group-hover:text-indigo-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M5 12h14M12 5l7 7-7 7" />
         </svg>
       </div>
-      <div>
-        <p className={`text-2xl font-black tabular-nums ${accent === "amber" ? "text-amber-400" : "text-[var(--text-1)]"}`}>
-          {value}
-        </p>
-        <p className="text-[var(--text-3)] text-xs mt-0.5">{label}</p>
-      </div>
-      <p className="text-[var(--text-3)] text-xs">{sub}</p>
+      <p className={`text-xl font-black tabular-nums leading-tight ${warn ? "text-amber-400" : "text-[var(--text-1)]"}`}>
+        {value}
+      </p>
+      <p className="text-[var(--text-3)] text-[10px]">{sub}</p>
     </Link>
   );
 }

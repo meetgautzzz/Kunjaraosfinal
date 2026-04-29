@@ -1,15 +1,14 @@
-export type PlanId = "basic" | "pro" | "test";
+export type PlanId = "basic" | "pro";
 
 export interface Plan {
   id:           PlanId;
   name:         string;
   price:        number;
   annualPrice:  number;
-  proposals:    number;   // proposals / month
-  credits:      number;   // AI credits granted on subscription
+  proposals:    number;
+  credits:      number;
   users:        number;
   highlighted?: boolean;
-  dev?:         boolean;
   features:     string[];
 }
 
@@ -47,17 +46,6 @@ export const PLANS: Plan[] = [
       "PDF export",
       "Priority support",
     ],
-  },
-  {
-    id:          "test",
-    name:        "Test",
-    dev:         true,
-    price:       10,
-    annualPrice: 10,
-    proposals:   5,
-    credits:     5,
-    users:       1,
-    features:    ["End-to-end pay flow test", "5 AI credits", "Not for production use"],
   },
 ];
 

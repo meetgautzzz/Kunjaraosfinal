@@ -249,29 +249,55 @@ html, body { overflow-x: hidden; }
   background: linear-gradient(to right, rgba(99,102,241,0.3), transparent);
 }
 
+/* ── A4 Invoice / Estimate print ────────────────────────────────────────────
+   Isolation strategy: hide all body descendants, then reveal only the
+   .invoice-print-root tree. The root is positioned absolute so it covers
+   the viewport and fills the printed page edge-to-edge (margins come from
+   @page). This avoids any dependency on sidebar/nav class names.           */
 @media print {
-  .no-print { display: none !important; }
-
-  aside, nav, header, form { display: none !important; }
-
-  body {
+  /* 1. Blank slate */
+  html, body {
     background: #ffffff !important;
-    color: #0a0a0a !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
-  * {
-    border-color: #e5e7eb !important;
-    color: inherit;
+  /* 2. Hide everything */
+  body * { visibility: hidden !important; }
+
+  /* 3. Reveal only the invoice document tree */
+  .invoice-a4-doc,
+  .invoice-a4-doc * { visibility: visible !important; }
+
+  .invoice-a4-doc {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    zoom: 1 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
   }
 
-  .bg-surface, .bg-card, .bg-bg {
-    background: #f9fafb !important;
-  }
+  /* 4. Toolbar is always hidden in print */
+  .invoice-toolbar { display: none !important; visibility: hidden !important; }
 
-  .text-text-primary { color: #0a0a0a !important; }
-  .text-text-secondary { color: #6b7280 !important; }
-
+  /* 5. Page setup */
   @page {
-    margin: 1.5cm;
+    size: A4 portrait;
+    margin: 15mm 18mm;
+  }
+
+  /* 6. Prevent breaks inside key blocks */
+  .invoice-section       { page-break-inside: avoid; break-inside: avoid; }
+  .invoice-table tbody tr { page-break-inside: avoid; break-inside: avoid; }
+  .invoice-terms         { page-break-inside: avoid; break-inside: avoid; }
+  .invoice-footer        { page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; }
+
+  /* 7. Preserve colour fills (badge, header band) */
+  .invoice-color-exact {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

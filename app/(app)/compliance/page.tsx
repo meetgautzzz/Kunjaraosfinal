@@ -62,12 +62,50 @@ export default function CompliancePage() {
       });
   }, [items, filter, search]);
 
-  function updateItem(updated: ComplianceItem) {
+  async function updateItem(updated: ComplianceItem) {
     setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+    // Persist to DB
+    await fetch(`/api/compliance/${updated.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status:       updated.status,
+        priority:     updated.priority,
+        notes:        updated.notes,
+        deadline:     updated.deadline,
+        submittedAt:  updated.submittedAt,
+        approvedAt:   updated.approvedAt,
+        documentName: updated.documentName,
+        documentUrl:  updated.documentUrl,
+      }),
+    });
   }
 
-  function handleGenerate(newItems: ComplianceItem[]) {
-    setItems(newItems);
+  async function handleGenerate(newItems: ComplianceItem[]) {
+    // Bulk-save generated items to DB
+    const res = await fetch("/api/compliance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newItems.map((item) => ({
+        type:            item.type,
+        name:            item.name,
+        authority:       item.authority,
+        description:     item.description,
+        instructions:    item.instructions,
+        status:          item.status,
+        priority:        item.priority,
+        deadline:        item.deadline ?? null,
+        notes:           item.notes,
+        fee:             item.fee,
+        processing_days: item.processingDays,
+      }))),
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      setItems(Array.isArray(saved) ? saved : newItems);
+    } else {
+      setItems(newItems);
+    }
   }
 
   const overdueCnt = items.filter((i) => deadlineState(i) === "overdue").length;

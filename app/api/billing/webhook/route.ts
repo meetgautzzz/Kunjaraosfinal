@@ -6,20 +6,11 @@ import { applyPaymentCredits } from "@/lib/ai/credits";
 import { getAdminClient } from "@/lib/supabase/admin";
 import { getPlan, type PlanId } from "@/lib/plans";
 
-// Razorpay webhook payload shape — we only read the payment entity on
-// `payment.captured`. Other event types are acked without schema checks.
+// Minimal top-level shape — Razorpay payload structure varies by event type.
+// We only deep-validate fields we actually use; extra keys are stripped by Zod.
 const WebhookEventSchema = z.object({
-  event: z.string().min(1),
-  payload: z.object({
-    payment: z.object({
-      entity: z.object({
-        id:       z.string().min(1),
-        order_id: z.string().min(1),
-        amount:   z.number(),
-        status:   z.string().min(1),
-      }),
-    }).optional(),
-  }),
+  event:   z.string().min(1),
+  payload: z.record(z.string(), z.unknown()).optional(),
 });
 
 function resolvePlan(plan: string): PlanId {
@@ -88,13 +79,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  const payment = event.payload?.payment?.entity;
-  if (!payment) {
+  // Safely extract payment entity from the permissive payload.
+  const paymentEntity = (event.payload?.payment as Record<string, unknown> | undefined)?.entity as Record<string, unknown> | undefined;
+  if (!paymentEntity) {
     console.warn("[webhook] payment.captured with no payment entity", { eventDeliveryId });
     return NextResponse.json({ received: true });
   }
 
-  const { id: paymentId, order_id: orderId, amount, status } = payment;
+  const paymentId = paymentEntity.id as string | undefined;
+  const orderId   = paymentEntity.order_id as string | undefined;
+  const amount    = paymentEntity.amount;
+  const status    = paymentEntity.status;
+
+  if (!paymentId || !orderId) {
+    console.warn("[webhook] payment entity missing id or order_id", { eventDeliveryId, paymentEntity });
+    return NextResponse.json({ received: true });
+  }
+
   console.log("[webhook] payment.captured", { eventDeliveryId, paymentId, orderId, amount, status });
 
   // 3. Fetch order from Razorpay to get authoritative plan + user_id from notes

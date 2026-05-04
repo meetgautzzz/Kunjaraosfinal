@@ -52,12 +52,11 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({
-      success: true,
-      order,
-      order_id: order.id,
-      amount: amountPaise,
+      success:  true,
+      orderId:  order.id,   // camelCase — matches frontend Razorpay config
+      order_id: order.id,   // snake_case — kept for any direct callers
+      amount:   amountPaise,
       currency: "INR",
-      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     });
   } catch (error) {
     console.error("RAZORPAY ERROR:", error);

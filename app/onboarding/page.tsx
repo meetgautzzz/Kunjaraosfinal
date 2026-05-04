@@ -1,11 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import { PLANS, formatPrice, type Plan } from "@/lib/plans";
-
-// ─── helpers ──────────────────────────────────────────────────────────────────
+import { useRef, useState } from "react";
+import { PLANS, type Plan } from "@/lib/plans";
 
 function loadRazorpay(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -19,17 +15,6 @@ function loadRazorpay(): Promise<boolean> {
     document.body.appendChild(s);
   });
 }
-
-const GoogleG = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
-    <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.45c-.28 1.48-1.13 2.73-2.41 3.57v2.96h3.88c2.27-2.09 3.57-5.17 3.57-8.77z"/>
-    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-2.96c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.71-4.94H1.3v3.1C3.27 21.3 7.31 24 12 24z"/>
-    <path fill="#FBBC05" d="M5.29 14.35c-.24-.72-.38-1.48-.38-2.35s.14-1.63.38-2.35V6.55H1.3C.47 8.2 0 10.05 0 12s.47 3.8 1.3 5.45l3.99-3.1z"/>
-    <path fill="#EA4335" d="M12 4.77c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.31 0 3.27 2.7 1.3 6.55l3.99 3.1C6.23 6.82 8.88 4.77 12 4.77z"/>
-  </svg>
-);
-
-// ─── TOS content ──────────────────────────────────────────────────────────────
 
 const TOS_SECTIONS = [
   {
@@ -82,12 +67,10 @@ const TOS_SECTIONS = [
   },
 ];
 
-// ─── Step indicator ───────────────────────────────────────────────────────────
-
-function StepDots({ step }: { step: 1 | 2 | 3 }) {
+function StepDots({ step }: { step: 1 | 2 }) {
   return (
     <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 36 }}>
-      {[1, 2, 3].map((n) => (
+      {[1, 2].map((n) => (
         <div
           key={n}
           style={{
@@ -103,30 +86,20 @@ function StepDots({ step }: { step: 1 | 2 | 3 }) {
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+export default function OnboardingPage() {
+  const [step, setStep] = useState<1 | 2>(1);
 
-export default function SignupPage() {
-  const [step, setStep]           = useState<1 | 2 | 3>(1);
+  // Step 1 — TOS
+  const tosRef                    = useRef<HTMLDivElement>(null);
+  const [tosRead, setTosRead]     = useState(false);
+  const [tosAgreed, setTosAgreed] = useState(false);
 
-  // Step 1 — account info
-  const [name,     setName]     = useState("");
-  const [email,    setEmail]    = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm,  setConfirm]  = useState("");
-  const [error,    setError]    = useState<string | null>(null);
-  const [loading,  setLoading]  = useState(false);
-
-  // Step 2 — TOS
-  const tosRef            = useRef<HTMLDivElement>(null);
-  const [tosRead,    setTosRead]    = useState(false);
-  const [tosAgreed,  setTosAgreed]  = useState(false);
-
-  // Step 3 — plan & payment
-  const [annual,       setAnnual]       = useState(false);
-  const [payPlan,      setPayPlan]      = useState<Plan | null>(null);
-  const [payLoading,   setPayLoading]   = useState(false);
-  const [payError,     setPayError]     = useState<string | null>(null);
-  const [processing,   setProcessing]   = useState(false); // post-payment confirmation
+  // Step 2 — plan & payment
+  const [annual, setAnnual]           = useState(false);
+  const [payPlan, setPayPlan]         = useState<Plan | null>(null);
+  const [payLoading, setPayLoading]   = useState(false);
+  const [payError, setPayError]       = useState<string | null>(null);
+  const [processing, setProcessing]   = useState(false);
 
   function handleTosScroll() {
     const el = tosRef.current;
@@ -134,72 +107,8 @@ export default function SignupPage() {
     if (el.scrollTop + el.clientHeight >= el.scrollHeight - 32) setTosRead(true);
   }
 
-  // ── Step 1: Google OAuth ──────────────────────────────────────────────────
-
-  async function handleGoogle() {
-    setLoading(true);
-    setError(null);
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent("/onboarding")}`,
-        },
-      });
-      if (error) {
-        setError("Could not open Google sign-in. Try email below.");
-        setLoading(false);
-      }
-    } catch {
-      setError("Could not reach Google. Check your connection and try again.");
-      setLoading(false);
-    }
-  }
-
-  // ── Step 1 → Step 2: validate fields ────────────────────────────────────
-
-  function handleStep1(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-
-    if (!name.trim())          return setError("Enter your name.");
-    if (!email.trim())         return setError("Enter your email address.");
-    if (password.length < 8)   return setError("Password must be at least 8 characters.");
-    if (password !== confirm)  return setError("Passwords don't match.");
-
-    setStep(2);
-  }
-
-  // ── Step 2 → Step 3: create account then show plans ─────────────────────
-
-  async function handleTosAgree() {
-    if (!tosAgreed || !tosRead) return;
-    setLoading(true);
-    setError(null);
-
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
-    });
-
-    if (!res.ok) {
-      const json = await res.json().catch(() => ({}));
-      setError(json.error ?? "Could not create account. Try again.");
-      setLoading(false);
-      setStep(1);
-      return;
-    }
-
-    setLoading(false);
-    setStep(3);
-  }
-
-  // ── Step 3: Razorpay payment ─────────────────────────────────────────────
-
   async function handleSubscribe(plan: Plan) {
-    setPayPlan(plan.id as never);
+    setPayPlan(plan);
     setPayLoading(true);
     setPayError(null);
 
@@ -270,9 +179,7 @@ export default function SignupPage() {
     setPayLoading(false);
   }
 
-  // ─── Render ───────────────────────────────────────────────────────────────
-
-  const cardWidth = step === 1 ? 380 : step === 2 ? 680 : 860;
+  const cardWidth = step === 1 ? 680 : 860;
 
   return (
     <div
@@ -319,95 +226,8 @@ export default function SignupPage() {
       >
         <StepDots step={step} />
 
-        {/* ══════════════ STEP 1 — Account info ══════════════ */}
+        {/* ══════════════ STEP 1 — Terms & Conditions ══════════════ */}
         {step === 1 && (
-          <>
-            <div style={{ textAlign: "center", marginBottom: 28 }}>
-              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#F4F1EA", letterSpacing: "-0.02em" }}>
-                Create your account
-              </h1>
-              <p style={{ marginTop: 6, fontSize: 13, color: "rgba(244,241,234,0.5)" }}>
-                Start with Google or fill in your details below
-              </p>
-            </div>
-
-            {/* Google */}
-            <button
-              type="button"
-              onClick={handleGoogle}
-              disabled={loading}
-              style={{
-                width: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-                gap: 10, padding: "12px 16px", borderRadius: 10,
-                border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)",
-                color: "#F4F1EA", fontSize: 14, fontWeight: 500, cursor: "pointer",
-                fontFamily: "inherit", transition: "border-color 0.15s",
-              }}
-            >
-              <GoogleG />
-              {loading ? "Opening Google…" : "Continue with Google"}
-            </button>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0" }}>
-              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
-              <span style={{ fontSize: 11, color: "rgba(244,241,234,0.35)", letterSpacing: "0.1em" }}>OR</span>
-              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
-            </div>
-
-            <form onSubmit={handleStep1} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <input
-                type="text"
-                autoComplete="name"
-                placeholder="Full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={loading}
-                style={inputStyle}
-              />
-              <input
-                type="email"
-                autoComplete="email"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-                style={inputStyle}
-              />
-              <input
-                type="password"
-                autoComplete="new-password"
-                placeholder="Password (min 8 characters)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-                style={inputStyle}
-              />
-              <input
-                type="password"
-                autoComplete="new-password"
-                placeholder="Confirm password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                disabled={loading}
-                style={inputStyle}
-              />
-
-              {error && <ErrorBox msg={error} />}
-
-              <button type="submit" disabled={loading} style={primaryBtnStyle}>
-                Continue →
-              </button>
-            </form>
-
-            <p style={{ marginTop: 20, textAlign: "center", fontSize: 12, color: "rgba(244,241,234,0.4)" }}>
-              Already have an account?{" "}
-              <Link href="/login" style={{ color: "#D4A85F", textDecoration: "none" }}>Sign in</Link>
-            </p>
-          </>
-        )}
-
-        {/* ══════════════ STEP 2 — Terms & Conditions ══════════════ */}
-        {step === 2 && (
           <>
             <div style={{ textAlign: "center", marginBottom: 24 }}>
               <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#F4F1EA", letterSpacing: "-0.02em" }}>
@@ -418,7 +238,6 @@ export default function SignupPage() {
               </p>
             </div>
 
-            {/* Scroll container */}
             <div
               ref={tosRef}
               onScroll={handleTosScroll}
@@ -458,7 +277,6 @@ export default function SignupPage() {
               </p>
             )}
 
-            {/* Agree checkbox */}
             <label
               style={{
                 display: "flex", alignItems: "flex-start", gap: 12, marginTop: 16,
@@ -478,24 +296,23 @@ export default function SignupPage() {
               </span>
             </label>
 
-            {error && <ErrorBox msg={error} style={{ marginTop: 12 }} />}
-
             <button
-              onClick={handleTosAgree}
-              disabled={!tosAgreed || !tosRead || loading}
-              style={{ ...primaryBtnStyle, marginTop: 16, opacity: (!tosAgreed || !tosRead || loading) ? 0.4 : 1, cursor: (!tosAgreed || !tosRead || loading) ? "not-allowed" : "pointer" }}
+              onClick={() => { if (tosAgreed && tosRead) setStep(2); }}
+              disabled={!tosAgreed || !tosRead}
+              style={{
+                ...primaryBtnStyle,
+                marginTop: 16,
+                opacity: (!tosAgreed || !tosRead) ? 0.4 : 1,
+                cursor: (!tosAgreed || !tosRead) ? "not-allowed" : "pointer",
+              }}
             >
-              {loading ? "Creating account…" : "Agree & Choose Plan →"}
-            </button>
-
-            <button onClick={() => { setStep(1); setError(null); }} style={ghostBtnStyle}>
-              ← Back
+              Agree & Choose Plan →
             </button>
           </>
         )}
 
-        {/* ══════════════ STEP 3 — Plan & Payment ══════════════ */}
-        {step === 3 && (
+        {/* ══════════════ STEP 2 — Plan & Payment ══════════════ */}
+        {step === 2 && (
           <>
             {processing ? (
               <div style={{ textAlign: "center", padding: "40px 0" }}>
@@ -539,9 +356,9 @@ export default function SignupPage() {
                 {/* Plan cards */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   {PLANS.map((plan) => {
-                    const price   = annual ? plan.annualPrice : plan.price;
-                    const isPro   = plan.highlighted;
-                    const isBusy  = payLoading && payPlan === (plan.id as never);
+                    const price  = annual ? plan.annualPrice : plan.price;
+                    const isPro  = plan.highlighted;
+                    const isBusy = payLoading && payPlan?.id === plan.id;
                     return (
                       <div
                         key={plan.id}
@@ -596,7 +413,8 @@ export default function SignupPage() {
                           disabled={payLoading}
                           style={{
                             width: "100%", padding: "12px 16px", borderRadius: 10, border: "none",
-                            fontFamily: "inherit", fontSize: 13, fontWeight: 500, cursor: payLoading ? "not-allowed" : "pointer",
+                            fontFamily: "inherit", fontSize: 13, fontWeight: 500,
+                            cursor: payLoading ? "not-allowed" : "pointer",
                             background: isPro ? "linear-gradient(135deg,#D4A85F,#E5C07B)" : "rgba(255,255,255,0.07)",
                             color: isPro ? "#08080A" : "#F4F1EA",
                             opacity: payLoading ? 0.6 : 1,
@@ -610,7 +428,15 @@ export default function SignupPage() {
                   })}
                 </div>
 
-                {payError && <ErrorBox msg={payError} style={{ marginTop: 16 }} />}
+                {payError && (
+                  <div style={{
+                    marginTop: 16, padding: "10px 14px", borderRadius: 8,
+                    border: "1px solid rgba(239,68,68,0.25)", background: "rgba(239,68,68,0.08)",
+                    fontSize: 12, color: "#FCA5A5", lineHeight: 1.5,
+                  }}>
+                    {payError}
+                  </div>
+                )}
 
                 <p style={{ marginTop: 20, textAlign: "center", fontSize: 11, color: "rgba(244,241,234,0.3)" }}>
                   All prices + 18% GST · Secured by Razorpay · UPI / Card / Net Banking
@@ -628,21 +454,6 @@ export default function SignupPage() {
   );
 }
 
-// ─── Small shared styles ──────────────────────────────────────────────────────
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "12px 14px",
-  borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.1)",
-  background: "rgba(255,255,255,0.03)",
-  color: "#F4F1EA",
-  fontSize: 14,
-  fontFamily: "inherit",
-  outline: "none",
-  transition: "border-color 0.15s",
-};
-
 const primaryBtnStyle: React.CSSProperties = {
   width: "100%",
   padding: "13px 16px",
@@ -657,34 +468,3 @@ const primaryBtnStyle: React.CSSProperties = {
   transition: "all 0.15s",
   boxShadow: "0 8px 24px rgba(212,168,95,0.3)",
 };
-
-const ghostBtnStyle: React.CSSProperties = {
-  width: "100%",
-  marginTop: 10,
-  padding: "11px 16px",
-  borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.08)",
-  background: "transparent",
-  color: "rgba(244,241,234,0.5)",
-  fontSize: 13,
-  cursor: "pointer",
-  fontFamily: "inherit",
-  transition: "all 0.15s",
-};
-
-function ErrorBox({ msg, style }: { msg: string; style?: React.CSSProperties }) {
-  return (
-    <div style={{
-      padding: "10px 14px",
-      borderRadius: 8,
-      border: "1px solid rgba(239,68,68,0.25)",
-      background: "rgba(239,68,68,0.08)",
-      fontSize: 12,
-      color: "#FCA5A5",
-      lineHeight: 1.5,
-      ...style,
-    }}>
-      {msg}
-    </div>
-  );
-}

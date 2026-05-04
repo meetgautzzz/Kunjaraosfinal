@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import CookieConsent from "@/components/ui/CookieConsent";
 
 export const metadata: Metadata = {
   title: "Kunjara OS™",
@@ -13,7 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-bg text-text-primary min-h-screen">{children}</body>
+      <body className="bg-bg text-text-primary min-h-screen">
+        {children}
+        <CookieConsent />
+      </body>
     </html>
   );
 }

@@ -4,6 +4,7 @@ import { getAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 const SignupSchema = z.object({
+  name:     z.string().min(1).max(200).trim(),
   email:    z.string().email().max(300),
   password: z.string().min(8).max(128),
 });
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email or password." }, { status: 400 });
   }
 
-  const { email, password } = parsed.data;
+  const { name, email, password } = parsed.data;
 
   const admin = getAdminClient();
   if (!admin) {
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
     email,
     password,
     email_confirm: true,
+    user_metadata: { full_name: name },
   });
 
   if (createError) {

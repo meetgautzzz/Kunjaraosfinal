@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { getAdminClient } from "@/lib/supabase/admin";
 import { getPlan, type PlanId } from "@/lib/plans";
 import { parseJson } from "@/lib/validate";
 import { billingLimiter, limit, ipFromRequest } from "@/lib/ratelimit";
@@ -62,8 +63,23 @@ export async function POST(req: NextRequest) {
       : "basic";
     const creditsToAdd = getPlan(resolvedPlan).credits;
 
-    // Brief poll so the frontend's refreshUsage() sees the webhook's write.
+    // Signature is valid — immediately activate the subscription in app_metadata.
+    // The webhook also does this for resilience, but doing it here eliminates the
+    // race between payment confirmation and the webhook landing.
     const supabase = await createClient();
+    if (supabase) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const admin = getAdminClient();
+        if (admin) {
+          await admin.auth.admin.updateUserById(user.id, {
+            app_metadata: { subscription_active: true, plan: resolvedPlan },
+          });
+        }
+      }
+    }
+
+    // Brief poll so the frontend's refreshUsage() sees the webhook's write.
     let credited = false;
     if (supabase) {
       const { data: { user } } = await supabase.auth.getUser();

@@ -3,6 +3,7 @@ import crypto from "crypto";
 import Razorpay from "razorpay";
 import { z } from "zod";
 import { applyPaymentCredits } from "@/lib/ai/credits";
+import { getAdminClient } from "@/lib/supabase/admin";
 import { getPlan, type PlanId } from "@/lib/plans";
 
 // Razorpay webhook payload shape — we only read the payment entity on
@@ -154,6 +155,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true, idempotent: true });
   }
 
-  console.log("[webhook] Credits applied", { eventDeliveryId, userId, resolvedPlan, creditsToAdd, totalCredits: result.totalCredits, paymentId });
+  // Activate subscription in auth.users app_metadata so middleware can gate access.
+  const admin = getAdminClient();
+  if (admin) {
+    const { error: metaErr } = await admin.auth.admin.updateUserById(userId, {
+      app_metadata: { subscription_active: true, plan: resolvedPlan },
+    });
+    if (metaErr) {
+      console.error("[webhook] Failed to set subscription_active", { eventDeliveryId, userId, err: metaErr.message });
+    }
+  }
+
+  console.log("[webhook] Credits applied + subscription activated", { eventDeliveryId, userId, resolvedPlan, creditsToAdd, totalCredits: result.totalCredits, paymentId });
   return NextResponse.json({ received: true });
 }

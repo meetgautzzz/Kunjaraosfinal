@@ -23,6 +23,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/login?err=oauth_failed", req.url));
   }
 
+  // Gate new OAuth users who haven't subscribed yet to /onboarding.
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user && !user.app_metadata?.subscription_active) {
+    return NextResponse.redirect(new URL("/onboarding", req.url));
+  }
+
   return NextResponse.redirect(new URL(next, req.url));
 }
 

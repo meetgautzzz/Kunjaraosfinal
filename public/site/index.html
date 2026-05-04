@@ -134,9 +134,10 @@
     .pillars-grid  { grid-template-columns: 1fr !important; }
     .privacy-grid  { grid-template-columns: repeat(2,1fr) !important; }
     .compare-grid  { grid-template-columns: 1fr !important; }
-    .testimonial-grid { grid-template-columns: 1fr !important; }
+    .features-grid { grid-template-columns: 1fr !important; }
     .pricing-grid  { grid-template-columns: 1fr !important; max-width: 480px; margin: 0 auto !important; }
     .pricing-grid > div { transform: none !important; }
+    .atlas-grid    { grid-template-columns: 1fr !important; }
   }
   @media (max-width: 900px) {
     .product-grid  { grid-template-columns: 1fr !important; gap: 60px !important; }
@@ -206,8 +207,10 @@ const Icon = ({ name, size = 32, color = "currentColor", strokeWidth = 1.4 }) =>
   if (name === "lock")   return <svg {...p}><rect x="7" y="14" width="18" height="14" rx="2"/><path d="M11 14 V10 A5 5 0 0 1 21 10 V14"/><circle cx="16" cy="21" r="1.5" fill={color}/></svg>;
   if (name === "wall")   return <svg {...p}><rect x="4" y="6" width="24" height="20" rx="1.5"/><path d="M4 12 H28 M4 20 H28 M12 6 V12 M20 12 V20 M12 20 V26"/></svg>;
   if (name === "ban")    return <svg {...p}><circle cx="16" cy="16" r="11"/><path d="M8 8 L24 24"/></svg>;
-  if (name === "scale")  return <svg {...p}><path d="M16 4 V28"/><path d="M9 28 H23"/><path d="M16 8 L8 16 H14 L8 22 M16 8 L24 16 H18 L24 22"/></svg>;
   if (name === "trash")  return <svg {...p}><path d="M5 9 H27"/><path d="M11 9 V6 A1 1 0 0 1 12 5 H20 A1 1 0 0 1 21 6 V9"/><path d="M8 9 L9.5 27 A1 1 0 0 0 10.5 28 H21.5 A1 1 0 0 0 22.5 27 L24 9"/><path d="M13 14 V23 M19 14 V23"/></svg>;
+  if (name === "sparkle") return <svg {...p}><path d="M16 4 l2.5 7.5 7.5 2.5-7.5 2.5-2.5 7.5-2.5-7.5-7.5-2.5 7.5-2.5z"/></svg>;
+  if (name === "brain")   return <svg {...p}><path d="M10 18 C10 12 22 12 22 18"/><path d="M14 18 C14 22 16 24 18 20 C19 18 17 16 17 19"/><path d="M21 20 L24 24"/><circle cx="21" cy="14" r="1.2" fill={color} stroke="none"/></svg>;
+  if (name === "bolt")    return <svg {...p}><path d="M18 4 L10 17 H16 L14 28 L22 15 H16 Z"/></svg>;
   return null;
 };
 
@@ -227,70 +230,44 @@ const IndianFlag = ({ width = 28 }) => (
   </svg>
 );
 
-/* ── Proposal Mock ─────────────────────────────────────────────────────────── */
-const ProposalMock = () => {
-  const [hover, setHover] = useState(false);
-  const transform = `perspective(1800px) rotateY(${hover ? -4 : -7}deg) rotateX(${hover ? 1 : 3}deg) translateZ(0)`;
-  return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ transform, transition: "transform 700ms cubic-bezier(0.2,0.8,0.2,1)", transformStyle: "preserve-3d",
-        width: "100%", maxWidth: 640, borderRadius: 18, overflow: "hidden",
-        background: "linear-gradient(180deg,#0E0E10 0%,#15151A 100%)",
-        boxShadow: "0 60px 120px -40px rgba(0,0,0,0.8),0 30px 60px -30px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.06),inset 0 1px 0 rgba(255,255,255,0.05)",
-        color: "#E8E6E1", fontFamily: '"Geist",system-ui,sans-serif' }}>
-      {/* Window chrome */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
-        <div style={{ display: "flex", gap: 6 }}>
-          {["#FF5F57","#FEBC2E","#28C840"].map(c => <span key={c} style={{ width: 11, height: 11, borderRadius: 999, background: c }} />)}
-        </div>
-        <div style={{ marginLeft: 10, fontSize: 11, color: "rgba(232,230,225,0.5)", fontFamily: '"JetBrains Mono",monospace', letterSpacing: "0.02em" }}>
-          kunjaraos.com/event-room/aurora-corp-2026
-        </div>
-        <span style={{ marginLeft: "auto", fontSize: 10, padding: "3px 8px", borderRadius: 999, background: "rgba(193,154,91,0.15)", color: "#D4A85F", border: "1px solid rgba(193,154,91,0.3)", fontFamily: '"JetBrains Mono",monospace', letterSpacing: "0.06em" }}>DRAFT</span>
+/* ── Proposal Mock — Interactive Demo Coming Soon ──────────────────────────── */
+const ProposalMock = () => (
+  <div style={{ width: "100%", maxWidth: 640, borderRadius: 18, overflow: "hidden",
+    background: "linear-gradient(180deg,#0E0E10 0%,#15151A 100%)",
+    boxShadow: "0 60px 120px -40px rgba(0,0,0,0.8),0 30px 60px -30px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.06),inset 0 1px 0 rgba(255,255,255,0.05)",
+    color: "#E8E6E1", fontFamily: '"Geist",system-ui,sans-serif', minHeight: 380,
+    display: "flex", flexDirection: "column" }}>
+    {/* Window chrome */}
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)", flexShrink: 0 }}>
+      <div style={{ display: "flex", gap: 6 }}>
+        {["#FF5F57","#FEBC2E","#28C840"].map(c => <span key={c} style={{ width: 11, height: 11, borderRadius: 999, background: c }} />)}
       </div>
-      {/* Body */}
-      <div style={{ padding: "26px 28px 24px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
-          <div>
-            <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "rgba(212,168,95,0.85)", fontFamily: '"JetBrains Mono",monospace', marginBottom: 8 }}>PROPOSAL · 0042</div>
-            <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 28, lineHeight: 1.05, fontStyle: "italic", color: "#F4F1EA", maxWidth: 360 }}>
-              Aurora Corp · Annual Gala<br/>
-              <span style={{ fontStyle: "normal", fontFamily: '"Geist",sans-serif', fontSize: 18, color: "rgba(244,241,234,0.7)", fontWeight: 400 }}>Mumbai · 500 pax · Mar 2026</span>
-            </div>
-          </div>
-          <div style={{ fontSize: 11, fontFamily: '"JetBrains Mono",monospace', color: "rgba(232,230,225,0.5)", textAlign: "right", lineHeight: 1.6 }}>
-            <div>500 pax</div><div>+18% GST</div><div style={{ color: "#7AD4A0" }}>● client viewing</div>
-          </div>
-        </div>
-        <div style={{ display: "grid", gap: 10, marginBottom: 16 }}>
-          {[
-            { label: "Venue · Grand Hyatt BKC", sub: "Ballroom + Pre-function", price: "₹ 12.2L", color: "#D4A85F" },
-            { label: "F&B · 500 pax · multi-cuisine", sub: "Live counters + dessert lounge", price: "₹ 7.7L", color: "#2F7A78" },
-            { label: "Decor · Modern India theme", sub: "Terracotta · Teal · Champagne", price: "₹ 6.3L", color: "#C9785F" },
-          ].map(row => (
-            <div key={row.label} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto auto", alignItems: "center", gap: 14, padding: "12px 14px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 10 }}>
-              <span style={{ width: 6, height: 24, background: row.color, borderRadius: 2 }} />
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 500, color: "#F4F1EA" }}>{row.label}</div>
-                <div style={{ fontSize: 11, color: "rgba(232,230,225,0.5)" }}>{row.sub}</div>
-              </div>
-              <div style={{ fontSize: 11, color: "rgba(232,230,225,0.4)", fontFamily: '"JetBrains Mono",monospace' }}>▦ moodboard</div>
-              <div style={{ fontSize: 13, fontFamily: '"JetBrains Mono",monospace', color: "#F4F1EA" }}>{row.price}</div>
-            </div>
-          ))}
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 14, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
-          <div style={{ fontSize: 11, color: "rgba(232,230,225,0.5)", fontFamily: '"JetBrains Mono",monospace', letterSpacing: "0.08em" }}>GRAND TOTAL · INCL. 18% GST</div>
-          <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 28, fontStyle: "italic", color: "#D4A85F" }}>₹ 30.84 L</div>
-        </div>
-        <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8, background: "linear-gradient(90deg,rgba(212,168,95,0.08),transparent)", border: "1px solid rgba(212,168,95,0.2)" }}>
-          <span style={{ width: 8, height: 8, borderRadius: 999, background: "#D4A85F", boxShadow: "0 0 12px #D4A85F", animation: "pulse-dot 1.6s ease-in-out infinite", flexShrink: 0 }} />
-          <span style={{ fontSize: 11, fontFamily: '"JetBrains Mono",monospace', color: "rgba(212,168,95,0.9)", letterSpacing: "0.04em" }}>architected in 6m 12s · proposal intelligence: high intent</span>
-        </div>
+      <div style={{ marginLeft: 10, fontSize: 11, color: "rgba(232,230,225,0.5)", fontFamily: '"JetBrains Mono",monospace', letterSpacing: "0.02em" }}>
+        kunjaraos.com/proposals
       </div>
+      <span style={{ marginLeft: "auto", fontSize: 10, padding: "3px 8px", borderRadius: 999, background: "rgba(193,154,91,0.15)", color: "#D4A85F", border: "1px solid rgba(193,154,91,0.3)", fontFamily: '"JetBrains Mono",monospace', letterSpacing: "0.06em" }}>DEMO</span>
     </div>
-  );
-};
+    {/* Coming Soon body */}
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "60px 40px", textAlign: "center" }}>
+      <div style={{ width: 64, height: 64, borderRadius: 18, background: `rgba(212,168,95,0.1)`, border: `1px solid rgba(212,168,95,0.25)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" stroke={ACCENT} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M16 4 l2.5 7.5 7.5 2.5-7.5 2.5-2.5 7.5-2.5-7.5-7.5-2.5 7.5-2.5z"/>
+          <circle cx="24" cy="8" r="1.2" fill={ACCENT} stroke="none"/>
+          <circle cx="9" cy="22" r="0.8" fill={ACCENT} stroke="none"/>
+        </svg>
+      </div>
+      <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.3em", color: ACCENT, marginBottom: 14 }}>◆ PROPOSAL ARCHITECT™</div>
+      <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 34, fontStyle: "italic", color: "#F4F1EA", lineHeight: 1.1, marginBottom: 8 }}>Interactive Demo</div>
+      <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 28, fontStyle: "italic", color: ACCENT, marginBottom: 20 }}>Coming Soon</div>
+      <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, color: "rgba(232,230,225,0.5)", lineHeight: 1.65, maxWidth: 320 }}>
+        Sign up today to generate your first AI-powered event proposal — complete brief to client-ready deck in under 2 minutes.
+      </div>
+      <a href="/signup" style={{ marginTop: 28, padding: "12px 24px", borderRadius: 999, background: `linear-gradient(135deg,${ACCENT},#E5C07B)`, color: "#0A0A0C", fontFamily: '"Geist",sans-serif', fontSize: 13, fontWeight: 600, textDecoration: "none", display: "inline-block" }}>
+        Get started →
+      </a>
+    </div>
+  </div>
+);
 
 /* ── Reveal on scroll ──────────────────────────────────────────────────────── */
 const Reveal = ({ children, delay = 0 }) => {
@@ -325,7 +302,7 @@ const Nav = () => {
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <a href="/login" style={{ color: "var(--ink-dim)", textDecoration: "none", fontSize: 13 }}>Log in</a>
-        <a href="/signup" style={{ padding: "9px 16px", borderRadius: 999, background: "rgba(244,241,234,0.08)", border: "1px solid rgba(244,241,234,0.15)", color: "#F4F1EA", textDecoration: "none", fontSize: 13, fontWeight: 500, backdropFilter: "blur(8px)" }}>Sign up free</a>
+        <a href="/signup" style={{ padding: "9px 16px", borderRadius: 999, background: "rgba(244,241,234,0.08)", border: "1px solid rgba(244,241,234,0.15)", color: "#F4F1EA", textDecoration: "none", fontSize: 13, fontWeight: 500, backdropFilter: "blur(8px)" }}>Sign up</a>
       </div>
     </nav>
   );
@@ -381,8 +358,12 @@ const ScrollStage = () => {
               Every great event<br/>
               <span style={{ fontStyle: "italic", color: ACCENT }}>starts with a plan.</span>
             </h1>
-            <div className="fade-up" style={{ marginTop: 60, fontFamily: '"Geist",sans-serif', fontSize: "clamp(16px,1.4vw,20px)", color: "rgba(244,241,234,0.75)", animationDelay: "0.9s" }}>
+            <div className="fade-up" style={{ marginTop: 36, fontFamily: '"Geist",sans-serif', fontSize: "clamp(16px,1.4vw,20px)", color: "rgba(244,241,234,0.75)", animationDelay: "0.9s" }}>
               We help you create it in minutes.
+            </div>
+            {/* Hero tagline */}
+            <div className="fade-up" style={{ marginTop: 20, fontFamily: '"JetBrains Mono",monospace', fontSize: "clamp(11px,1vw,13px)", letterSpacing: "0.18em", color: "rgba(212,168,95,0.7)", animationDelay: "1.1s" }}>
+              KUNJARA OS™ — EVENTS RUN INTELLIGENTLY.
             </div>
             <div className="fade-up" style={{ position: "absolute", bottom: 50, fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.3em", color: "rgba(244,241,234,0.5)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, animationDelay: "1.4s" }}>
               <span>SCROLL</span>
@@ -415,17 +396,8 @@ const ScrollStage = () => {
               </p>
               <div style={{ marginTop: 42, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
                 <a href="/signup" className="cta-primary" style={{ padding: "16px 28px", border: "none", borderRadius: 999, fontFamily: '"Geist",sans-serif', fontSize: 15, fontWeight: 500, cursor: "pointer", color: "#0A0A0C", background: `linear-gradient(135deg,${ACCENT} 0%,#E5C07B 50%,${ACCENT} 100%)`, backgroundSize: "200% 200%", boxShadow: `0 14px 40px -10px ${ACCENT}80,inset 0 1px 0 rgba(255,255,255,0.4)`, display: "inline-flex", alignItems: "center", gap: 10, transition: "all 400ms cubic-bezier(0.2,0.8,0.2,1)", textDecoration: "none" }}>
-                  Generate Proposal <span className="arrow" style={{ fontSize: 18, lineHeight: 1, transition: "transform 300ms", display: "inline-block" }}>→</span>
+                  Sign up <span className="arrow" style={{ fontSize: 18, lineHeight: 1, transition: "transform 300ms", display: "inline-block" }}>→</span>
                 </a>
-              </div>
-              {/* Trust strip */}
-              <div className="trust-grid" style={{ marginTop: 60, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,0.08)", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 30 }}>
-                {[{ val: "12,400+", label: "proposals drafted" }, { val: "₹ 840 Cr", label: "events transacted" }, { val: "1m 47s", label: "median draft time" }].map(s => (
-                  <div key={s.label}>
-                    <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 30, fontStyle: "italic", color: ACCENT, lineHeight: 1 }}>{s.val}</div>
-                    <div style={{ marginTop: 6, fontFamily: '"Geist",sans-serif', fontSize: 12, color: "rgba(244,241,234,0.5)" }}>{s.label}</div>
-                  </div>
-                ))}
               </div>
             </div>
             {/* Right — proposal mock */}
@@ -443,10 +415,34 @@ const ScrollStage = () => {
 /* ── Pillars ───────────────────────────────────────────────────────────────── */
 const PillarsDetailed = () => {
   const pillars = [
-    { n: "01", label: "Plan",        desc: "From zero to complete proposal in minutes. AI generates your entire event plan — concept, budget, timeline, vendors.", tags: ["AI Proposal Builder","Budget + GST","Run-of-Show AI","Vendor Mgmt"], img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80" },
-    { n: "02", label: "Execute",     desc: "Real-time event day operations on mobile. Every task, every guest, every check-in — tracked live from your pocket.", tags: ["Client Portal","RSVP + Reg","QR Check-in","Event Day Live"], img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80" },
-    { n: "03", label: "Market",      desc: "AI-generated captions for every platform, one-click publishing, event microsites and post-event narratives.", tags: ["Social Media AI","Microsite","Post-Event Story"], img: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80" },
-    { n: "04", label: "Communicate", desc: "Create, edit and share Estimates and Invoices straight from the Budget Builder. Post-event surveys auto-sent.", tags: ["Estimate + Invoice","Email","Post-Event Survey","Auto Reports"], img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80" },
+    {
+      n: "01", label: "Plan",
+      desc: "From zero to complete proposal in minutes. AI generates your entire event plan — concept, budget, timeline, vendors.",
+      tags: ["AI Proposal Builder","Budget + GST","Run-of-Show AI","Vendor Mgmt"],
+      img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80",
+      comingSoon: false,
+    },
+    {
+      n: "02", label: "Execute",
+      desc: "Real-time event day operations on mobile. Every task, every guest, every check-in.\n• Client Portal\n• RSVP + Reg\n• QR Check-in\n• WhatsApp Integration\n• Event Day Live\n• AI 3D Stage/Set Builder — tracked live from your pocket.",
+      tags: ["Client Portal","RSVP + Reg","QR Check-in","WhatsApp Integration","Event Day Live","AI 3D Stage Builder"],
+      img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
+      comingSoon: true,
+    },
+    {
+      n: "03", label: "Market",
+      desc: "AI-generated captions for every platform, one-click publishing, event microsites and post-event narratives.\n• Social Media Event AI Campaign\n• AI Microsite\n• Post-Event Story",
+      tags: ["Social Media AI Campaign","AI Microsite","Post-Event Story"],
+      img: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80",
+      comingSoon: true,
+    },
+    {
+      n: "04", label: "Communicate",
+      desc: "Create, edit and share Estimates and Invoices straight from the Budget Builder. Post-event surveys auto-sent.",
+      tags: ["Estimate + Invoice","Email","Post-Event Survey","Auto Reports"],
+      img: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
+      comingSoon: false,
+    },
   ];
   return (
     <section id="platform" style={{ background: "#F5F1E8", color: "#1A1612", padding: "140px 6vw 160px", position: "relative" }}>
@@ -466,17 +462,21 @@ const PillarsDetailed = () => {
           {pillars.map((p, i) => (
             <Reveal key={p.n} delay={i * 80}>
               <article style={{ position: "relative", background: "#FFFFFF", borderRadius: 18, overflow: "hidden", border: "1px solid rgba(26,22,18,0.06)", boxShadow: "0 1px 2px rgba(26,22,18,0.04)", display: "grid", gridTemplateColumns: "1fr 200px", minHeight: 280 }}>
+                {/* Coming Soon ribbon */}
+                {p.comingSoon && (
+                  <div style={{ position: "absolute", top: 16, right: 16, zIndex: 2, padding: "4px 12px", borderRadius: 999, background: "rgba(47,122,120,0.12)", color: "#2F7A78", border: "1px solid rgba(47,122,120,0.3)", fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.12em", fontWeight: 600 }}>COMING SOON</div>
+                )}
                 <div style={{ padding: "36px 36px 32px", display: "flex", flexDirection: "column" }}>
                   <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.18em", color: "#8B6F3D", marginBottom: 16 }}>{p.n} — PILLAR</div>
                   <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 48, lineHeight: 1, marginBottom: 16, fontStyle: "italic" }}>{p.label}</div>
-                  <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, lineHeight: 1.55, color: "rgba(26,22,18,0.62)", marginBottom: 22 }}>{p.desc}</div>
+                  <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, lineHeight: 1.55, color: "rgba(26,22,18,0.62)", marginBottom: 22, whiteSpace: "pre-line" }}>{p.desc}</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "auto" }}>
                     {p.tags.map(t => (
                       <span key={t} style={{ fontFamily: '"Geist",sans-serif', fontSize: 11, padding: "5px 10px", borderRadius: 999, background: "rgba(212,168,95,0.1)", color: "#8B6F3D", border: "1px solid rgba(212,168,95,0.25)" }}>{t}</span>
                     ))}
                   </div>
                 </div>
-                <div className="pillar-img" style={{ backgroundImage: `url(${p.img})`, backgroundSize: "cover", backgroundPosition: "center", position: "relative" }}>
+                <div className="pillar-img" style={{ backgroundImage: `url(${p.img})`, backgroundSize: "cover", backgroundPosition: "center", position: "relative", opacity: p.comingSoon ? 0.5 : 1 }}>
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg,#FFFFFF 0%,transparent 25%)" }} />
                 </div>
               </article>
@@ -551,18 +551,27 @@ const ComparisonSection = () => {
     { feat: "Proposal Intelligence",   us: "Native",         them: "None" },
     { feat: "Run-of-Show AI",          us: "Native",         them: "None" },
     { feat: "Estimate + Invoice",      us: "Native",         them: "None" },
-    { feat: "Atlas — your event planner guide", us: "Native",   them: "None" },
+    { feat: "Atlas X — your event planner guide", us: "Native", them: "None" },
     { feat: "Monthly cost",            us: "₹1,999+",        them: "₹50,000+ / broken" },
   ];
   return (
     <section style={{ background: "#0A0A0C", color: "#F4F1EA", padding: "140px 6vw", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
         <Reveal>
-          <div style={{ marginBottom: 70, maxWidth: 900 }}>
+          <div style={{ marginBottom: 50, maxWidth: 900 }}>
             <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 22 }}>◆ COMPETITIVE LANDSCAPE</div>
             <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(40px,5.5vw,76px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
-              We're not competing.<br/><span style={{ fontStyle: "italic", color: ACCENT }}>We're replacing.</span>
+              Save 40% of your time<br/><span style={{ fontStyle: "italic", color: ACCENT }}>and money in planning the event.</span>
             </h2>
+          </div>
+        </Reveal>
+        <Reveal delay={100}>
+          <div style={{ marginBottom: 50, display: "inline-flex", alignItems: "center", gap: 14, padding: "16px 24px", borderRadius: 14, background: `rgba(212,168,95,0.08)`, border: `1px solid rgba(212,168,95,0.2)` }}>
+            <span style={{ fontSize: 28 }}>⏱</span>
+            <div>
+              <div style={{ fontFamily: '"Geist",sans-serif', fontWeight: 600, fontSize: 15, color: ACCENT }}>Save 40% of your time and money</div>
+              <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, color: "rgba(244,241,234,0.55)", marginTop: 2 }}>compared to traditional event planning tools and manual workflows</div>
+            </div>
           </div>
         </Reveal>
         <div className="compare-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
@@ -581,38 +590,155 @@ const ComparisonSection = () => {
   );
 };
 
-/* ── Testimonials ──────────────────────────────────────────────────────────── */
-const TestimonialsSection = () => {
-  const items = [
-    { q: "The GST automation alone saved me 3 hours per proposal. Finally a tool that understands how Indian events actually work.", name: "Radhika Sharma", role: "Event Director · Mumbai", ini: "RS" },
-    { q: "The AI proposal builder is witchcraft. I described a 400-pax gala and got a complete, client-ready deck in under 10 minutes.", name: "Arjun Kapoor", role: "MICE Agency Owner · Delhi", ini: "AK" },
-    { q: "We replaced 6 different tools with Kunjara OS. Entire team on one platform. No more WhatsApp group chaos at 2am.", name: "Priya Desai", role: "Corporate Events Head · Bangalore", ini: "PD" },
+/* ── Atlas X Callout ───────────────────────────────────────────────────────── */
+const AtlasXSection = () => (
+  <section style={{ background: "linear-gradient(135deg,#0F0E14 0%,#15110A 100%)", color: "#F4F1EA", padding: "120px 6vw", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+    <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+      <Reveal>
+        <div className="atlas-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+          {/* Left — visual */}
+          <div style={{ position: "relative" }}>
+            <div style={{ position: "absolute", inset: -60, background: `radial-gradient(ellipse at 40% 50%,${ACCENT}18 0%,transparent 65%)`, filter: "blur(40px)", pointerEvents: "none" }} />
+            <div style={{ position: "relative", borderRadius: 24, overflow: "hidden", border: `1px solid rgba(212,168,95,0.2)`, background: "linear-gradient(135deg,#141220 0%,#0F0E14 100%)", padding: "48px 40px" }}>
+              {/* Atlas avatar */}
+              <div style={{ width: 72, height: 72, borderRadius: 20, background: `linear-gradient(135deg,${ACCENT}33,rgba(47,122,120,0.3))`, border: `1px solid ${ACCENT}40`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 28 }}>
+                <svg width="36" height="36" viewBox="0 0 32 32" fill="none" stroke={ACCENT} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 4 l2.5 7.5 7.5 2.5-7.5 2.5-2.5 7.5-2.5-7.5-7.5-2.5 7.5-2.5z"/>
+                  <circle cx="24" cy="8" r="1.2" fill={ACCENT} stroke="none"/>
+                  <circle cx="9" cy="23" r="0.9" fill={ACCENT} stroke="none"/>
+                  <circle cx="26" cy="24" r="0.7" fill="#2F7A78" stroke="none"/>
+                </svg>
+              </div>
+              <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.25em", color: ACCENT, marginBottom: 12 }}>◆ AI EVENT INTELLIGENCE</div>
+              <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 38, fontStyle: "italic", color: "#F4F1EA", lineHeight: 1.1, marginBottom: 20 }}>Atlas X</div>
+              {/* Simulated chat bubbles */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {[
+                  { msg: "What venue fits 400 pax with a ₹8L budget in Pune?", user: true },
+                  { msg: "Grand Hyatt Pune has a 450-pax ballroom at ₹7.2L. Want me to draft a venue comparison?", user: false },
+                  { msg: "Yes — and add the F&B estimate with GST.", user: true },
+                ].map((b, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: b.user ? "flex-end" : "flex-start" }}>
+                    <div style={{ maxWidth: "80%", padding: "10px 14px", borderRadius: b.user ? "14px 14px 4px 14px" : "14px 14px 14px 4px", background: b.user ? `rgba(212,168,95,0.15)` : "rgba(255,255,255,0.05)", border: b.user ? `1px solid rgba(212,168,95,0.25)` : "1px solid rgba(255,255,255,0.08)", fontFamily: '"Geist",sans-serif', fontSize: 12, color: b.user ? "#F4F1EA" : "rgba(244,241,234,0.75)", lineHeight: 1.5 }}>
+                      {b.msg}
+                    </div>
+                  </div>
+                ))}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: "14px 14px 14px 4px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", width: "fit-content" }}>
+                  {[0, 1, 2].map(i => (
+                    <span key={i} style={{ width: 6, height: 6, borderRadius: 999, background: ACCENT, opacity: 0.6, animation: `pulse-dot 1.4s ease-in-out ${i * 0.2}s infinite` }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right — copy */}
+          <div>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ width: 28, height: 1, background: ACCENT }} />
+              YOUR AI EVENT PLANNER GUIDE
+            </div>
+            <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(40px,5vw,68px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
+              Meet<br/><span style={{ fontStyle: "italic", color: ACCENT }}>Atlas X.</span>
+            </h2>
+            <p style={{ marginTop: 28, fontFamily: '"Geist",sans-serif', fontSize: 17, lineHeight: 1.65, color: "rgba(244,241,234,0.7)", maxWidth: 480 }}>
+              Atlas X is your event planner guide — an AI that understands the Indian event industry deeply. He guides the event planner to do a better event, every single time.
+            </p>
+            <div style={{ marginTop: 36, display: "flex", flexDirection: "column", gap: 16 }}>
+              {[
+                { icon: "bolt",    label: "Instant answers", desc: "Venue suggestions, vendor rates, budget breakdowns — answered in seconds." },
+                { icon: "brain",   label: "Context-aware",   desc: "Atlas X learns from your past proposals to improve every recommendation." },
+                { icon: "sparkle", label: "Always improving", desc: "The more you use Kunjara OS, the smarter Atlas X becomes for your workflow." },
+              ].map(f => (
+                <div key={f.label} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: `rgba(212,168,95,0.1)`, border: `1px solid rgba(212,168,95,0.2)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Icon name={f.icon} size={18} color={ACCENT} strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: '"Geist",sans-serif', fontWeight: 600, fontSize: 14, color: "#F4F1EA", marginBottom: 4 }}>{f.label}</div>
+                    <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, color: "rgba(244,241,234,0.55)", lineHeight: 1.5 }}>{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 40 }}>
+              <a href="/signup" style={{ padding: "14px 26px", borderRadius: 999, background: `linear-gradient(135deg,${ACCENT},#E5C07B)`, color: "#0A0A0C", fontFamily: '"Geist",sans-serif', fontSize: 14, fontWeight: 600, textDecoration: "none", display: "inline-block" }}>
+                Try Atlas X free →
+              </a>
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+);
+
+/* ── Feature Highlights (replaces Testimonials) ────────────────────────────── */
+const FeatureHighlightsSection = () => {
+  const features = [
+    {
+      icon: "sparkle",
+      label: "AI Proposal Builder",
+      tag: "PLAN · FLAGSHIP",
+      tagColor: ACCENT,
+      desc: "Brief to full proposal in under 2 minutes. AI drafts your concept, venue options, vendor suggestions, GST-correct budget and run-of-show — on your letterhead, client-ready.",
+      bullets: ["Auto 18% GST on every line item", "Branded PDF export", "Proposal Intelligence scoring"],
+    },
+    {
+      icon: "bolt",
+      label: "Budget Builder + Invoicing",
+      tag: "COMMUNICATE",
+      tagColor: "#2F7A78",
+      desc: "Professional estimates and invoices generated straight from your event budget. GST-compliant, auto-calculated, and delivered on your letterhead in one click.",
+      bullets: ["Live A4 invoice preview", "Shareable estimate link", "Track payments and approvals"],
+    },
+    {
+      icon: "brain",
+      label: "Atlas X — AI Planner Guide",
+      tag: "AI · ALWAYS ON",
+      tagColor: "#C9785F",
+      desc: "Your intelligent event planning companion. Atlas X answers venue, vendor, budget and logistics questions instantly — and keeps learning from every proposal you approve.",
+      bullets: ["Context-aware AI answers", "Learns from your approvals", "Guides every decision"],
+    },
   ];
+
   return (
     <section style={{ background: "#F5F1E8", color: "#1A1612", padding: "140px 6vw" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
         <Reveal>
           <div style={{ textAlign: "center", marginBottom: 80 }}>
-            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 22 }}>◆ EARLY ADOPTERS</div>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 22 }}>◆ PLATFORM HIGHLIGHTS</div>
             <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(40px,5vw,72px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
-              Built by planners. <span style={{ fontStyle: "italic", color: ACCENT }}>For planners.</span>
+              Built for planners. <span style={{ fontStyle: "italic", color: ACCENT }}>By planners.</span>
             </h2>
+            <p style={{ marginTop: 22, fontFamily: '"Geist",sans-serif', fontSize: 16, color: "rgba(26,22,18,0.62)", maxWidth: 560, margin: "22px auto 0" }}>
+              Every feature is designed around how the Indian event industry actually works — not how software companies think it does.
+            </p>
           </div>
         </Reveal>
-        <div className="testimonial-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
-          {items.map((t, i) => (
-            <Reveal key={t.ini} delay={i * 100}>
-              <figure style={{ margin: 0, padding: "36px 32px", background: "#FFFFFF", borderRadius: 18, border: "1px solid rgba(26,22,18,0.06)", display: "flex", flexDirection: "column", gap: 28 }}>
-                <div style={{ fontSize: 36, lineHeight: 0, color: ACCENT, fontFamily: '"Instrument Serif",serif' }}>"</div>
-                <blockquote style={{ margin: 0, fontFamily: '"Instrument Serif",serif', fontSize: 22, lineHeight: 1.35, color: "#1A1612", flex: 1 }}>{t.q}</blockquote>
-                <figcaption style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 999, background: `linear-gradient(135deg,${ACCENT},#8B6F3D)`, color: "#FFF", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: '"Geist",sans-serif', fontWeight: 600, fontSize: 13, letterSpacing: "0.04em", flexShrink: 0 }}>{t.ini}</div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14, fontFamily: '"Geist",sans-serif' }}>{t.name}</div>
-                    <div style={{ fontSize: 12, color: "rgba(26,22,18,0.62)", fontFamily: '"Geist",sans-serif', marginTop: 2 }}>{t.role}</div>
+        <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
+          {features.map((f, i) => (
+            <Reveal key={f.label} delay={i * 100}>
+              <div style={{ padding: "36px 32px", background: "#FFFFFF", borderRadius: 18, border: "1px solid rgba(26,22,18,0.06)", display: "flex", flexDirection: "column", gap: 20, height: "100%" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, background: `rgba(212,168,95,0.1)`, border: "1px solid rgba(212,168,95,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon name={f.icon} size={22} color="#8B6F3D" strokeWidth={1.5} />
                   </div>
-                </figcaption>
-              </figure>
+                  <span style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 9, letterSpacing: "0.15em", padding: "4px 10px", borderRadius: 999, background: `${f.tagColor}18`, color: f.tagColor, border: `1px solid ${f.tagColor}30` }}>{f.tag}</span>
+                </div>
+                <div>
+                  <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 26, fontStyle: "italic", color: "#1A1612", marginBottom: 10, lineHeight: 1.1 }}>{f.label}</div>
+                  <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, lineHeight: 1.6, color: "rgba(26,22,18,0.62)" }}>{f.desc}</div>
+                </div>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8, marginTop: "auto" }}>
+                  {f.bullets.map(b => (
+                    <li key={b} style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: '"Geist",sans-serif', fontSize: 13, color: "rgba(26,22,18,0.75)" }}>
+                      <span style={{ color: ACCENT, fontSize: 14, flexShrink: 0 }}>✓</span>{b}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </Reveal>
           ))}
         </div>
@@ -700,12 +826,11 @@ const PricingSection = () => {
 /* ── Privacy ───────────────────────────────────────────────────────────────── */
 const PrivacySection = () => {
   const items = [
-    { icon: "lock",   title: "Zero Data Sharing",           desc: "Client names and event data never shared with any third party, ever." },
-    { icon: "wall",   title: "No Cross-User Visibility",    desc: "Complete database-level isolation between all subscriber accounts." },
-    { icon: "ban",    title: "No Commercial Use",           desc: "We do not mine, analyse, sell or commercially use your business data." },
-    { icon: "shield", title: "DPDP Act 2023",               desc: "Full compliance with IT Act 2000, IT Rules 2011, and DPDP Act 2023." },
-    { icon: "scale",  title: "Mumbai Jurisdiction",         desc: "All disputes under exclusive jurisdiction of Mumbai courts." },
-    { icon: "trash",  title: "Data Deletion on Exit",       desc: "Account data fully deleted within 90 days of cancellation." },
+    { icon: "lock",   title: "Zero Data Sharing",        desc: "Client names and event data never shared with any third party, ever." },
+    { icon: "wall",   title: "No Cross-User Visibility", desc: "Complete database-level isolation between all subscriber accounts." },
+    { icon: "ban",    title: "No Commercial Use",        desc: "We do not mine, analyse, sell or commercially use your business data." },
+    { icon: "shield", title: "DPDP Act 2023",            desc: "Full compliance with IT Act 2000, IT Rules 2011, and DPDP Act 2023." },
+    { icon: "trash",  title: "Data Deletion on Exit",    desc: "Account data fully deleted within 90 days of cancellation." },
   ];
   return (
     <section style={{ background: "#F5F1E8", color: "#1A1612", padding: "140px 6vw" }}>
@@ -741,7 +866,7 @@ const PhilosophySection = () => (
   <section id="principle" style={{ position: "relative", padding: "140px 6vw", background: "linear-gradient(180deg,#0A0A0C 0%,#15110A 100%)", color: "#F4F1EA", overflow: "hidden" }}>
     <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
       <Reveal>
-        <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 32 }}>◆ LEX MERCATORIA · FOUNDING PRINCIPLE</div>
+        <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 32 }}>◆ FOUNDING PRINCIPLE</div>
         <blockquote style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(28px,3.6vw,48px)", lineHeight: 1.25, margin: 0, color: "#F4F1EA", letterSpacing: "-0.01em", fontStyle: "italic" }}>
           "We grow only when <span style={{ color: ACCENT }}>you</span> grow. The planner succeeds, the client gets a better event, the vendor gets more work — and the entire ecosystem lifts."
         </blockquote>
@@ -796,7 +921,7 @@ const Footer = () => (
 
         {[
           { title: "Platform", links: [{ l: "All Features", h: "/dashboard" }, { l: "AI Proposal Builder", h: "/proposals/new" }, { l: "Pricing", h: "#pricing" }, { l: "Budget & Invoicing", h: "/budget" }] },
-          { title: "Company",  links: [{ l: "About Us", h: "/about" }, { l: "Contact", h: "/contact" }, { l: "Support", h: "/support" }, { l: "Lex Mercatoria", h: "#principle" }] },
+          { title: "Company",  links: [{ l: "About Us", h: "/about" }, { l: "Contact", h: "/contact" }, { l: "Support", h: "/support" }] },
           { title: "Legal",    links: [{ l: "Privacy Policy", h: "/privacy" }, { l: "Terms of Service", h: "/terms" }, { l: "DPDP Compliance", h: "/dpdp" }, { l: "Data Deletion", h: "/data-deletion" }] },
         ].map(col => (
           <div key={col.title}>
@@ -814,7 +939,7 @@ const Footer = () => (
 
       <div style={{ paddingTop: 28, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
         <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, color: "rgba(244,241,234,0.4)", letterSpacing: "0.06em", lineHeight: 1.7 }}>
-          © 2025 Kunjara OS™ by Indigo Events &amp; Promotions. All rights reserved.<br/>
+          © 2026 Kunjara OS™ by Indigo EP. All rights reserved.<br/>
           Mumbai, Maharashtra, India · IT Act 2000 · DPDP Act 2023.
         </div>
         <div style={{ display: "flex", gap: 22 }}>
@@ -836,7 +961,8 @@ function App() {
       <PillarsDetailed />
       <EventsSection />
       <ComparisonSection />
-      <TestimonialsSection />
+      <AtlasXSection />
+      <FeatureHighlightsSection />
       <PricingSection />
       <PrivacySection />
       <PhilosophySection />

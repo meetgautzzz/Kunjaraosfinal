@@ -10,8 +10,10 @@ const PROTECTED = [
   "/events",
   "/vendors",
   "/ai",
+  "/brain",
   "/billing",
   "/settings",
+  "/room",
 ];
 const AUTH_ONLY = ["/login", "/signup"];
 
@@ -95,6 +97,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Authenticated but no active subscription → send to onboarding.
+  if (isProtected && user && !user.app_metadata?.subscription_active) {
+    return NextResponse.redirect(new URL("/onboarding", request.url));
+  }
+
+  // Subscribed user lands on /onboarding → skip to dashboard.
+  if (pathname === "/onboarding" && user?.app_metadata?.subscription_active) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   if (isAuthRoute && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
@@ -123,6 +135,7 @@ export const config = {
     "/settings/:path*",
     "/login",
     "/signup",
+    "/onboarding",
     "/api/:path*",
   ],
 };

@@ -260,7 +260,7 @@ const ProposalMock = () => (
       <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 34, fontStyle: "italic", color: "#F4F1EA", lineHeight: 1.1, marginBottom: 8 }}>Interactive Demo</div>
       <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 28, fontStyle: "italic", color: ACCENT, marginBottom: 20 }}>Coming Soon</div>
       <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, color: "rgba(232,230,225,0.5)", lineHeight: 1.65, maxWidth: 320 }}>
-        Sign up today to generate your first AI-powered event proposal — complete brief to client-ready deck in under 2 minutes.
+        Sign up today to generate your first AI-powered event proposal — complete brief to client-ready deck in 5–10 minutes.
       </div>
       <a href="/signup" style={{ marginTop: 28, padding: "12px 24px", borderRadius: 999, background: `linear-gradient(135deg,${ACCENT},#E5C07B)`, color: "#0A0A0C", fontFamily: '"Geist",sans-serif', fontSize: 13, fontWeight: 600, textDecoration: "none", display: "inline-block" }}>
         Get started →
@@ -385,7 +385,7 @@ const ScrollStage = () => {
               </div>
               <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(44px,6.2vw,96px)", lineHeight: 0.98, margin: 0, fontWeight: 400, color: "#F4F1EA", letterSpacing: "-0.025em" }}>
                 Client-ready<br/>event proposals<br/>in <span style={{ fontStyle: "italic", color: ACCENT, position: "relative" }}>
-                  2 minutes
+                  5–10 minutes
                   <svg viewBox="0 0 200 12" style={{ position: "absolute", left: 0, bottom: -8, width: "100%", height: 12 }} preserveAspectRatio="none">
                     <path d="M2 8 Q50 1,100 6 T198 5" stroke={ACCENT} strokeWidth="1.5" fill="none" opacity="0.6"/>
                   </svg>
@@ -409,6 +409,62 @@ const ScrollStage = () => {
         </div>
       </div>
     </>
+  );
+};
+
+/* ── Proposals Section ─────────────────────────────────────────────────────── */
+const ProposalSection = () => {
+  const features = [
+    {
+      icon: "sparkle",
+      label: "Event Concept + Visual Direction",
+      desc: "Theme, colour palette, lighting, stage design and mood board — generated from your brief.",
+    },
+    {
+      icon: "bolt",
+      label: "Budget Allocation + GST",
+      desc: "Smart cost split with 18% GST auto-calculated. Toggle off for events below the ₹19L threshold.",
+    },
+    {
+      icon: "brain",
+      label: "Proposal Intelligence",
+      desc: "See when your client opens the proposal and get AI signals: \"High Intent — Call Now.\"",
+    },
+  ];
+  return (
+    <section style={{ background: "#0A0A0C", color: "#F4F1EA", padding: "140px 6vw", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <Reveal>
+          <div style={{ maxWidth: 780, marginBottom: 80 }}>
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 22 }}>◆ PROPOSAL ARCHITECT™</div>
+            <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(44px,6vw,84px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
+              Proposals that close.<br/><span style={{ fontStyle: "italic", color: ACCENT }}>Not templates.</span>
+            </h2>
+            <p style={{ marginTop: 28, fontFamily: '"Geist",sans-serif', fontSize: 17, lineHeight: 1.65, color: "rgba(244,241,234,0.7)", maxWidth: 600 }}>
+              Our AI gathers your brief through intelligent conversation, then generates a complete, client-ready proposal — not a generic template.
+            </p>
+            <div style={{ marginTop: 16, fontFamily: '"JetBrains Mono",monospace', fontSize: 12, color: "rgba(212,168,95,0.65)", letterSpacing: "0.08em" }}>
+              Proposal Architect™ delivers in 5–10 minutes
+            </div>
+          </div>
+        </Reveal>
+        <div>
+          {features.map((f, i) => (
+            <Reveal key={f.label} delay={i * 100}>
+              <div style={{ display: "grid", gridTemplateColumns: "56px 1fr", gap: 32, alignItems: "flex-start", padding: "40px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ width: 56, height: 56, borderRadius: 14, background: "rgba(212,168,95,0.08)", border: "1px solid rgba(212,168,95,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Icon name={f.icon} size={22} color={ACCENT} strokeWidth={1.5} />
+                </div>
+                <div>
+                  <div style={{ fontFamily: '"Instrument Serif",serif', fontSize: 30, fontStyle: "italic", color: "#F4F1EA", lineHeight: 1.1, marginBottom: 10 }}>{f.label}</div>
+                  <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 15, lineHeight: 1.7, color: "rgba(244,241,234,0.65)", maxWidth: 640 }}>{f.desc}</div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };
 
@@ -545,46 +601,105 @@ const EventsSection = () => {
 /* ── Comparison ────────────────────────────────────────────────────────────── */
 const ComparisonSection = () => {
   const features = [
-    { feat: "AI Proposal Builder",     us: "5–10 minutes",   them: "Manual — hours" },
-    { feat: "GST-Compliant Invoicing", us: "Auto 18%",       them: "Manual" },
-    { feat: "Branded Event Room",      us: "Native",         them: "None" },
-    { feat: "Proposal Intelligence",   us: "Native",         them: "None" },
-    { feat: "Run-of-Show AI",          us: "Native",         them: "None" },
-    { feat: "Estimate + Invoice",      us: "Native",         them: "None" },
-    { feat: "Atlas X — your event planner guide", us: "Native", them: "None" },
-    { feat: "Monthly cost",            us: "₹1,999+",        them: "₹50,000+ / broken" },
+    { feat: "AI Proposal Builder",      us: "✦ 5–10 Minutes",      whatsapp: "Manual — Hours",    zoho: "None",    cvent: "None" },
+    { feat: "GST-Compliant Invoicing",  us: "✓ Auto 18%",           whatsapp: "✕ Manual",          zoho: "✕ None",  cvent: "✕ None" },
+    { feat: "Event Room — Client Link", us: "✓ Branded URL",        whatsapp: "✕ None",            zoho: "✕ None",  cvent: "Basic" },
+    { feat: "Proposal Intelligence",    us: "✓ AI Open Tracking",   whatsapp: "✕ None",            zoho: "✕ None",  cvent: "✕ None" },
+    { feat: "Run-of-Show AI",           us: "✓ AI Generated",       whatsapp: "✕ Manual",          zoho: "✕ None",  cvent: "Basic" },
+    { feat: "Social Media AI",          us: "✓ All Platforms",      whatsapp: "✕ Manual",          zoho: "✕ None",  cvent: "✕ None" },
+    { feat: "Hindi + English",          us: "✓ Native",             whatsapp: "✕ None",            zoho: "✕ None",  cvent: "✕ None", note: "coming soon" },
+    { feat: "Razorpay + UPI",           us: "✓ Native",             whatsapp: "✕ Manual",          zoho: "Partial", cvent: "✕ None", note: "coming soon" },
+    { feat: "Monthly Cost",             us: "₹1,999 – ₹24,999",    whatsapp: "Free (but broken)",  zoho: "₹0–₹5,000", cvent: "₹50,000+" },
   ];
+  const platforms = [
+    { name: "WhatsApp + Excel", what: "What 80% of Indian planners use today",   threat: "Highest — status quo",        adv: "Replace both with one intelligent OS" },
+    { name: "Zoho Backstage",   what: "Event registration only",                  threat: "Medium — partial overlap",    adv: "10× more coverage in every direction" },
+    { name: "Eventbrite",       what: "Ticketing platform only",                  threat: "Low — different scope",       adv: "Full event management, not just tickets" },
+    { name: "Cvent",            what: "Enterprise conference platform",            threat: "Low — ₹50,000+/year",         adv: "95% cheaper, India-native, AI-powered" },
+    { name: "Paperflite",       what: "B2B sales enablement (different market)",  threat: "Zero competition",            adv: "Inspired our Event Room + Proposal Intelligence" },
+    { name: "Chronicle HQ",     what: "General AI presentation maker",            threat: "Zero competition",            adv: "Presentation Engine built event-specific" },
+    { name: "Odoo",             what: "Generic ERP for any industry",             threat: "Low — no event features",     adv: "Kunjara wins on every event-specific metric" },
+  ];
+  const threatColor = (t) => {
+    if (t.startsWith("Highest")) return "#C9785F";
+    if (t.startsWith("Medium"))  return "#D4A85F";
+    if (t.startsWith("Zero"))    return "#2F7A78";
+    return "rgba(244,241,234,0.45)";
+  };
+  const thStyle = { textAlign: "left", padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)", fontWeight: 500, fontSize: 11, letterSpacing: "0.1em" };
+  const tdStyle = { padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" };
   return (
     <section style={{ background: "#0A0A0C", color: "#F4F1EA", padding: "140px 6vw", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
         <Reveal>
-          <div style={{ marginBottom: 50, maxWidth: 900 }}>
+          <div style={{ marginBottom: 70, maxWidth: 900 }}>
             <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 22 }}>◆ COMPETITIVE LANDSCAPE</div>
             <h2 style={{ fontFamily: '"Instrument Serif",serif', fontSize: "clamp(40px,5.5vw,76px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em" }}>
-              Save 40% of your time<br/><span style={{ fontStyle: "italic", color: ACCENT }}>and money in planning the event.</span>
+              We're not competing.<br/><span style={{ fontStyle: "italic", color: ACCENT }}>We're replacing.</span>
             </h2>
+            <p style={{ marginTop: 24, fontFamily: '"Geist",sans-serif', fontSize: 16, color: "rgba(244,241,234,0.6)", maxWidth: 640, marginBottom: 0 }}>
+              No Indian-built, India-first, AI-powered Event OS exists. Kunjara OS operates in a blue ocean.
+            </p>
           </div>
         </Reveal>
-        <Reveal delay={100}>
-          <div style={{ marginBottom: 50, display: "inline-flex", alignItems: "center", gap: 14, padding: "16px 24px", borderRadius: 14, background: `rgba(212,168,95,0.08)`, border: `1px solid rgba(212,168,95,0.2)` }}>
-            <span style={{ fontSize: 28 }}>⏱</span>
-            <div>
-              <div style={{ fontFamily: '"Geist",sans-serif', fontWeight: 600, fontSize: 15, color: ACCENT }}>Save 40% of your time and money</div>
-              <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, color: "rgba(244,241,234,0.55)", marginTop: 2 }}>compared to traditional event planning tools and manual workflows</div>
-            </div>
+
+        {/* Feature comparison table */}
+        <Reveal delay={80}>
+          <div style={{ overflowX: "auto", marginBottom: 80, borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: '"Geist",sans-serif', fontSize: 13 }}>
+              <thead>
+                <tr style={{ background: "rgba(255,255,255,0.025)" }}>
+                  <th style={{ ...thStyle, color: "rgba(244,241,234,0.5)" }}>Feature</th>
+                  <th style={{ ...thStyle, color: ACCENT, fontFamily: '"JetBrains Mono",monospace' }}>Kunjara OS™</th>
+                  <th style={{ ...thStyle, color: "rgba(244,241,234,0.4)", fontFamily: '"JetBrains Mono",monospace' }}>WhatsApp + Excel</th>
+                  <th style={{ ...thStyle, color: "rgba(244,241,234,0.4)", fontFamily: '"JetBrains Mono",monospace' }}>Zoho Backstage</th>
+                  <th style={{ ...thStyle, color: "rgba(244,241,234,0.4)", fontFamily: '"JetBrains Mono",monospace' }}>Cvent</th>
+                </tr>
+              </thead>
+              <tbody>
+                {features.map((f, i) => (
+                  <tr key={f.feat} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.012)" : "transparent" }}>
+                    <td style={{ ...tdStyle, color: "#F4F1EA", fontWeight: 500 }}>
+                      {f.feat}
+                      {f.note && <span style={{ marginLeft: 8, fontSize: 10, color: "#2F7A78", fontFamily: '"JetBrains Mono",monospace', letterSpacing: "0.07em" }}>coming soon</span>}
+                    </td>
+                    <td style={{ ...tdStyle, color: ACCENT, fontFamily: '"JetBrains Mono",monospace', fontWeight: 600 }}>{f.us}</td>
+                    <td style={{ ...tdStyle, color: "rgba(244,241,234,0.38)", fontFamily: '"JetBrains Mono",monospace' }}>{f.whatsapp}</td>
+                    <td style={{ ...tdStyle, color: "rgba(244,241,234,0.38)", fontFamily: '"JetBrains Mono",monospace' }}>{f.zoho}</td>
+                    <td style={{ ...tdStyle, color: "rgba(244,241,234,0.38)", fontFamily: '"JetBrains Mono",monospace' }}>{f.cvent}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </Reveal>
-        <div className="compare-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
-          {features.map((f, i) => (
-            <Reveal key={f.feat} delay={i * 50}>
-              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", alignItems: "center", gap: 16, padding: "20px 24px", background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 12 }}>
-                <div style={{ fontSize: 14, fontWeight: 500, color: "#F4F1EA" }}>{f.feat}</div>
-                <div style={{ fontSize: 13, color: ACCENT, fontFamily: '"JetBrains Mono",monospace' }}>✦ {f.us}</div>
-                <div style={{ fontSize: 13, color: "rgba(244,241,234,0.4)", fontFamily: '"JetBrains Mono",monospace', textDecoration: "line-through" }}>{f.them}</div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+
+        {/* Platform analysis table */}
+        <Reveal delay={140}>
+          <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.22em", color: ACCENT, marginBottom: 20 }}>◆ EVERY PLATFORM WE STUDIED · WHY NONE FIT INDIAN EVENTS</div>
+          <div style={{ overflowX: "auto", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: '"Geist",sans-serif', fontSize: 13 }}>
+              <thead>
+                <tr style={{ background: "rgba(255,255,255,0.025)" }}>
+                  <th style={{ ...thStyle, color: "rgba(244,241,234,0.5)" }}>Platform</th>
+                  <th style={{ ...thStyle, color: "rgba(244,241,234,0.5)" }}>What It Is</th>
+                  <th style={{ ...thStyle, color: "rgba(244,241,234,0.5)" }}>Threat Level</th>
+                  <th style={{ ...thStyle, color: ACCENT, fontFamily: '"JetBrains Mono",monospace' }}>Kunjara Advantage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {platforms.map((p, i) => (
+                  <tr key={p.name} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.012)" : "transparent" }}>
+                    <td style={{ ...tdStyle, color: "#F4F1EA", fontWeight: 500, whiteSpace: "nowrap" }}>{p.name}</td>
+                    <td style={{ ...tdStyle, color: "rgba(244,241,234,0.65)" }}>{p.what}</td>
+                    <td style={{ ...tdStyle, fontFamily: '"JetBrains Mono",monospace', fontSize: 12, color: threatColor(p.threat), whiteSpace: "nowrap" }}>{p.threat}</td>
+                    <td style={{ ...tdStyle, color: "rgba(244,241,234,0.75)" }}>{p.adv}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -661,11 +776,6 @@ const AtlasXSection = () => (
                   </div>
                 </div>
               ))}
-            </div>
-            <div style={{ marginTop: 40 }}>
-              <a href="/signup" style={{ padding: "14px 26px", borderRadius: 999, background: `linear-gradient(135deg,${ACCENT},#E5C07B)`, color: "#0A0A0C", fontFamily: '"Geist",sans-serif', fontSize: 14, fontWeight: 600, textDecoration: "none", display: "inline-block" }}>
-                Try Atlas X free →
-              </a>
             </div>
           </div>
         </div>
@@ -958,6 +1068,7 @@ function App() {
     <>
       <Nav />
       <ScrollStage />
+      <ProposalSection />
       <PillarsDetailed />
       <EventsSection />
       <ComparisonSection />

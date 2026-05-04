@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
     password,
     email_confirm: true,
     user_metadata: { full_name: name },
+    app_metadata:  { subscription_active: false },
   });
 
   if (createError) {

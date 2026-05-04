@@ -8,15 +8,13 @@ import { getPlan, type PlanId } from "@/lib/plans";
 import { parseJson } from "@/lib/validate";
 import { billingLimiter, limit, ipFromRequest } from "@/lib/ratelimit";
 
-// Razorpay IDs look like "pay_XXXX" / "order_XXXX" / hex. Tight length bounds
-// plus an allow-listed charset rejects obvious injection noise at the edge.
-const RZP_ID  = z.string().min(5).max(64).regex(/^[A-Za-z0-9_\-]+$/);
-const RZP_SIG = z.string().min(32).max(256).regex(/^[a-f0-9]+$/i);
-
+// Loose shape validation — the cryptographic HMAC check below is the real
+// security gate. Regex patterns on Razorpay IDs/signatures were causing
+// silent 400s when Razorpay's format drifted slightly from expectations.
 const BodySchema = z.object({
-  razorpay_payment_id: RZP_ID,
-  razorpay_order_id:   RZP_ID,
-  razorpay_signature:  RZP_SIG,
+  razorpay_payment_id: z.string().min(1).max(128),
+  razorpay_order_id:   z.string().min(1).max(128),
+  razorpay_signature:  z.string().min(1).max(512),
 });
 
 // Webhook is the sole writer of credits (Razorpay's recommended pattern and
@@ -34,7 +32,10 @@ export async function POST(req: NextRequest) {
     if (rl) return rl;
 
     const bodyResult = await parseJson(req, BodySchema);
-    if (bodyResult.error) return bodyResult.error;
+    if (bodyResult.error) {
+      console.warn("[verify] Body schema rejected", await bodyResult.error.json().catch(() => null));
+      return bodyResult.error;
+    }
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = bodyResult.data;
 
     const secret = process.env.RAZORPAY_KEY_SECRET;

@@ -97,18 +97,22 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Authenticated but no active subscription → send to onboarding.
-  if (isProtected && user && !user.app_metadata?.subscription_active) {
+  const isSubscribed = user?.app_metadata?.subscription_active === true;
+
+  // Only gate users where subscription_active is explicitly false.
+  // Users who signed up before the payment gate (undefined) are let through.
+  if (isProtected && user && user.app_metadata?.subscription_active === false) {
     return NextResponse.redirect(new URL("/onboarding", request.url));
   }
 
   // Subscribed user lands on /onboarding → skip to dashboard.
-  if (pathname === "/onboarding" && user?.app_metadata?.subscription_active) {
+  if (pathname === "/onboarding" && isSubscribed) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
+  // Logged-in user on auth routes: send straight to the right destination.
   if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL(isSubscribed ? "/dashboard" : "/onboarding", request.url));
   }
 
   return response;

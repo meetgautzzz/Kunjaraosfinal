@@ -4,7 +4,8 @@ export const maxDuration = 60;
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 import { createClient } from "@/lib/supabase/server";
 import { parseParams } from "@/lib/validate";
 import { apiLimiter, limit } from "@/lib/ratelimit";
@@ -20,23 +21,37 @@ let _browser: Awaited<ReturnType<typeof puppeteer.launch>> | null = null;
 async function getBrowser() {
   if (_browser) {
     try {
-      // Check the browser is still running.
       await _browser.version();
       return _browser;
     } catch {
       _browser = null;
     }
   }
+
+  const isDev = process.env.NODE_ENV !== "production";
+
+  const executablePath = isDev
+    // Use local Chrome in development — no Lambda binary needed.
+    ? process.platform === "win32"
+        ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        : process.platform === "darwin"
+          ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+          : "/usr/bin/google-chrome"
+    : await chromium.executablePath();
+
   _browser = await puppeteer.launch({
-    headless: true,
     args: [
+      ...chromium.args,
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
       "--disable-gpu",
-      "--font-render-hinting=none",
     ],
+    executablePath,
+    headless: true,
+    defaultViewport: { width: 1280, height: 900 },
   });
+
   return _browser;
 }
 

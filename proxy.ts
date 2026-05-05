@@ -14,6 +14,7 @@ const PROTECTED = [
   "/billing",
   "/settings",
   "/room",
+  "/toolkit",
 ];
 const AUTH_ONLY = ["/login", "/signup"];
 
@@ -111,8 +112,11 @@ export async function proxy(request: NextRequest) {
   }
 
   // Logged-in user on auth routes: send straight to the right destination.
+  // Use === false so users with subscription_active: undefined (pre-gate
+  // signups) are not incorrectly bounced to /onboarding.
   if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL(isSubscribed ? "/dashboard" : "/onboarding", request.url));
+    const needsOnboarding = user.app_metadata?.subscription_active === false;
+    return NextResponse.redirect(new URL(needsOnboarding ? "/onboarding" : "/dashboard", request.url));
   }
 
   return response;
@@ -137,6 +141,8 @@ export const config = {
     "/ai/:path*",
     "/billing/:path*",
     "/settings/:path*",
+    "/room/:path*",
+    "/toolkit/:path*",
     "/login",
     "/signup",
     "/onboarding",

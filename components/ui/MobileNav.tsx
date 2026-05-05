@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
@@ -18,7 +18,7 @@ const NAV = [
       { href: "/proposals",  label: "Vision Board", badge: "AI" },
       { href: "/brain",      label: "Atlas X",      badge: "AI" },
       { href: "/budget",     label: "Budget Builder" },
-      { href: "/events",     label: "Events" },
+      { href: "/events",     label: "Event Room™" },
       { href: "/vendors",    label: "Vendors" },
     ],
   },
@@ -28,13 +28,22 @@ const NAV = [
       { href: "/compliance", label: "Compliance" },
     ],
   },
-  {
-    label: "Account",
-    items: [
-      { href: "/billing",   label: "Billing" },
-      { href: "/settings",  label: "Settings" },
-    ],
-  },
+];
+
+const TOOLKIT_ITEMS: {
+  href?: string;
+  label: string;
+  soon?: boolean;
+}[] = [
+  { href: "/toolkit/budget-builder", label: "Budget Builder" },
+  { href: "/toolkit/run-of-show",    label: "Run of Show" },
+  { href: "/toolkit/social-caption", label: "Social Caption" },
+  { label: "Canva Pitch Deck", soon: true },
+  { label: "Blender 3D",       soon: true },
+];
+
+const ACCOUNT_NAV = [
+  { href: "/settings", label: "Settings" },
 ];
 
 export default function MobileNav({
@@ -45,9 +54,15 @@ export default function MobileNav({
   onClose: () => void;
 }) {
   const path = usePathname();
+  const [toolkitOpen, setToolkitOpen] = useState(false);
 
   // Close on route change.
   useEffect(() => { onClose(); }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-expand toolkit when the active route is inside it.
+  useEffect(() => {
+    if (path.startsWith("/toolkit")) setToolkitOpen(true);
+  }, [path]);
 
   // Esc to close + lock body scroll while open.
   useEffect(() => {
@@ -110,6 +125,8 @@ export default function MobileNav({
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-5">
+
+          {/* Standard groups */}
           {NAV.map((group) => (
             <div key={group.label}>
               <p className="text-[var(--text-3)] text-[10px] uppercase tracking-[0.12em] font-semibold px-2 mb-1.5">
@@ -122,7 +139,6 @@ export default function MobileNav({
                     <li key={item.href}>
                       <Link
                         href={item.href}
-                        // 44px min height per touch-target spec.
                         className={`flex items-center gap-3 px-3 min-h-[44px] rounded-lg text-sm font-medium transition-all ${
                           active
                             ? "border border-[var(--accent)]/20 text-[var(--accent)]"
@@ -142,6 +158,95 @@ export default function MobileNav({
               </ul>
             </div>
           ))}
+
+          {/* ── Toolkit (collapsible) ─────────────────────────────────────── */}
+          <div>
+            <button
+              onClick={() => setToolkitOpen((v) => !v)}
+              className="w-full flex items-center gap-2 px-2 mb-1.5"
+            >
+              <p className="text-[var(--text-3)] text-[10px] uppercase tracking-[0.12em] font-semibold flex-1 text-left">
+                Toolkit
+              </p>
+              <span
+                className="text-[var(--text-3)] transition-transform duration-200"
+                style={{ transform: toolkitOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </span>
+            </button>
+
+            {toolkitOpen && (
+              <ul className="flex flex-col gap-0.5">
+                {TOOLKIT_ITEMS.map((item) => {
+                  if (item.soon) {
+                    return (
+                      <li key={item.label}>
+                        <div
+                          className="flex items-center gap-3 px-3 min-h-[44px] rounded-lg border border-transparent cursor-default select-none"
+                          title="Launching soon"
+                        >
+                          <span className="flex-1 text-sm font-medium text-[var(--text-3)] opacity-50 truncate">
+                            {item.label}
+                          </span>
+                          <span
+                            className="text-[8px] font-bold px-1.5 py-0.5 rounded-full tracking-wide shrink-0"
+                            style={{ background: "rgba(74,69,53,0.25)", color: "#4A4535", border: "1px solid rgba(74,69,53,0.35)" }}
+                          >
+                            Soon
+                          </span>
+                        </div>
+                      </li>
+                    );
+                  }
+                  const active = path === item.href || path.startsWith(item.href + "/");
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href!}
+                        className={`flex items-center gap-3 px-3 min-h-[44px] rounded-lg text-sm font-medium transition-all ${
+                          active
+                            ? "border border-[var(--accent)]/20 text-[var(--accent)]"
+                            : "text-[var(--text-2)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-1)] border border-transparent"
+                        }`}
+                      >
+                        <span className="flex-1 truncate">{item.label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
+          {/* Account */}
+          <div>
+            <p className="text-[var(--text-3)] text-[10px] uppercase tracking-[0.12em] font-semibold px-2 mb-1.5">
+              Account
+            </p>
+            <ul className="flex flex-col gap-0.5">
+              {ACCOUNT_NAV.map((item) => {
+                const active = path === item.href || path.startsWith(item.href + "/");
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={`flex items-center gap-3 px-3 min-h-[44px] rounded-lg text-sm font-medium transition-all ${
+                        active
+                          ? "border border-[var(--accent)]/20 text-[var(--accent)]"
+                          : "text-[var(--text-2)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-1)] border border-transparent"
+                      }`}
+                    >
+                      <span className="flex-1">{item.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
         </nav>
 
         {/* Logout */}

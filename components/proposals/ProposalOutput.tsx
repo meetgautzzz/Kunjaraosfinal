@@ -12,15 +12,10 @@ import {
   generateChecklist, calcScore, deadlineState, STATUS_CONFIG,
   type ComplianceItem, type ComplianceStatus,
 } from "@/lib/compliance";
-import {
-  PAYMENT_STATUS_STYLES,
-  type ProposalPayment, type PaymentMethod, type PaymentStatus,
-} from "@/lib/payments";
-import ToolkitTab from "@/components/proposals/ToolkitTab";
 import { useBranding } from "@/lib/branding";
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
-         | "experience" | "visual" | "stage" | "activations" | "compliance" | "payments" | "toolkit";
+         | "experience" | "visual" | "activations" | "compliance";
 
 
 type Props = {
@@ -39,13 +34,12 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const [tab,             setTab]             = useState<Tab>(hasExperience ? "experience" : "concept");
   const [saved,           setSaved]           = useState(false);
   const [saveError,       setSaveError]       = useState("");
-  const [clientView,      setClientView]      = useState(false);
+  const [editMode,        setEditMode]        = useState(false);
   const [showTplModal,    setShowTplModal]    = useState(false);
   const [templateName,    setTemplateName]    = useState(proposal.concept?.title ?? proposal.title);
   const [savingTemplate,  setSavingTemplate]  = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageGenError,   setImageGenError]   = useState("");
-  const [linkCopied,      setLinkCopied]      = useState(false);
   const [exportOpen,      setExportOpen]      = useState(false);
   const [versionsOpen,    setVersionsOpen]    = useState(false);
   const [regenerating,    setRegenerating]    = useState(false);
@@ -109,28 +103,19 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
 
   function handleExportPDF() {
     setExportOpen(false);
-    setClientView(true);
-    // Wait for ClientView to mount before invoking print.
-    setTimeout(() => window.print(), 300);
+    window.print();
   }
 
-  async function handleCopyShareLink() {
-    try {
-      const url = `${window.location.origin}/p/${proposal.id}`;
-      await navigator.clipboard.writeText(url);
-      setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 1800);
-    } catch {
-      alert("Could not copy link. Long-press to copy from the address bar instead.");
-    }
-  }
+  const canEdit = !proposal.isLocked;
 
   function update(field: keyof ProposalData, value: any) {
+    if (!editMode || !canEdit) return;
     onChange({ ...proposal, [field]: value });
   }
 
   // Update title — works for both classic (concept.title) and Experience Generator (title only)
   function updateTitle(value: string) {
+    if (!editMode || !canEdit) return;
     onChange({
       ...proposal,
       title: value,
@@ -262,19 +247,11 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     { id: "vendors",     label: "Vendors",        icon: "🏪", show: hasVendors || !hasExperience },
     { id: "risks",       label: "Risks & Tips",   icon: "⚠", show: hasRisks   || !hasExperience },
     { id: "experience",  label: "Experience",     icon: "✨", show: hasExperience },
-    { id: "visual",      label: "Visual",         icon: "🎨", show: hasVisual },
-    { id: "stage",       label: "Stage & Decor",  icon: "🏛", show: hasStage },
+    { id: "visual",      label: "Visual & Stage Design", icon: "🎨", show: hasVisual || hasStage },
     { id: "activations", label: "Activations",    icon: "⚡", show: hasActivations },
     { id: "compliance",  label: "Compliance",     icon: "⚖", show: !!proposal.eventType },
-    { id: "payments",    label: "Payments",       icon: "₹", show: true },
-    { id: "toolkit",     label: "AI Toolkit",     icon: "✦", show: true },
   ];
   const TABS = ALL_TABS.filter((t) => t.show);
-
-  // ── Client View ────────────────────────────────────────────────────────────
-  if (clientView) {
-    return <ClientView proposal={proposal} branding={branding} onClose={() => setClientView(false)} />;
-  }
 
   return (
     <div className="max-w-7xl mx-auto" style={{ paddingBottom: 48, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -331,22 +308,17 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             <input
               value={proposal.concept?.title ?? proposal.title}
               onChange={(e) => updateTitle(e.target.value)}
+              readOnly={!editMode || !canEdit}
               style={{
-                fontSize: 22,
-                fontWeight: 700,
-                letterSpacing: "-0.025em",
-                lineHeight: 1.15,
-                color: "var(--text-1)",
-                background: "transparent",
-                borderBottom: "1px solid transparent",
-                outline: "none",
-                width: "100%",
-                transition: "border-color 0.15s",
-                paddingBottom: 2,
+                fontSize: 22, fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1.15,
+                color: "var(--text-1)", background: "transparent",
+                borderBottom: "1px solid transparent", outline: "none",
+                width: "100%", transition: "border-color 0.15s", paddingBottom: 2,
+                cursor: (!editMode || !canEdit) ? "default" : "text",
               }}
-              onMouseEnter={(e) => ((e.target as HTMLElement).style.borderBottomColor = "var(--border)")}
+              onMouseEnter={(e) => { if (editMode && canEdit) (e.target as HTMLElement).style.borderBottomColor = "var(--border)"; }}
               onMouseLeave={(e) => ((e.target as HTMLElement).style.borderBottomColor = "transparent")}
-              onFocus={(e) => ((e.target as HTMLElement).style.borderBottomColor = "rgba(99,102,241,0.45)")}
+              onFocus={(e) => { if (editMode && canEdit) (e.target as HTMLElement).style.borderBottomColor = "rgba(99,102,241,0.45)"; }}
               onBlur={(e) => ((e.target as HTMLElement).style.borderBottomColor = "transparent")}
             />
             <div className="flex items-center flex-wrap" style={{ gap: "6px 10px", marginTop: 10 }}>
@@ -363,11 +335,61 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             </div>
           </div>
 
-          {/* Actions — wraps on mobile so all 8 buttons stay tappable */}
-          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-start sm:justify-end -mx-1 px-1 overflow-x-auto sm:overflow-visible">
-            <button onClick={onBack} className="btn-ghost">
-              ← Back
-            </button>
+          {/* ── Action bar (two groups) ───────────────────────────────────── */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginTop: 2 }}>
+
+            {/* LEFT: Back + Save + Edit toggle */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <button onClick={onBack} className="btn-ghost">← Back</button>
+
+              <button
+                onClick={handleSave}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "8px 14px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+                  cursor: "pointer", transition: "all 0.15s",
+                  ...(saved
+                    ? { background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.28)", color: "#4ade80" }
+                    : { background: "var(--accent)", border: "1px solid transparent", color: "#fff", boxShadow: "var(--shadow-accent)" }
+                  ),
+                }}
+              >
+                {saved ? "✓ Saved" : "Save Proposal"}
+              </button>
+
+              {proposal.isLocked ? (
+                <button
+                  onClick={handleToggleLock}
+                  disabled={lockLoading}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 5,
+                    padding: "8px 12px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+                    border: "1px solid rgba(245,158,11,0.35)", background: "rgba(245,158,11,0.08)",
+                    color: "#fbbf24", cursor: lockLoading ? "not-allowed" : "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {lockLoading ? "…" : "🔒 Unlock to Edit"}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setEditMode((v) => !v)}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    padding: "8px 12px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+                    border: editMode ? "1px solid rgba(99,102,241,0.4)" : "1px solid var(--border)",
+                    background: editMode ? "rgba(99,102,241,0.12)" : "var(--bg-surface)",
+                    color: editMode ? "#a5b4fc" : "var(--text-2)",
+                    cursor: "pointer", transition: "all 0.15s",
+                  }}
+                >
+                  {editMode ? "✓ Done Editing" : "✎ Edit"}
+                </button>
+              )}
+            </div>
+
+            {/* RIGHT: Version + Regenerate + secondary actions */}
+            <div className="flex items-center gap-2 flex-wrap justify-end">
 
             {/* Version chip + dropdown */}
             <div style={{ position: "relative" }}>
@@ -375,18 +397,10 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
                 onClick={() => setVersionsOpen((v) => !v)}
                 title={versions.length ? `Switch between ${versions.length + 1} versions` : "Only one version so far"}
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "8px 12px",
-                  borderRadius: 9,
-                  border: "1px solid var(--border)",
-                  background: "var(--bg-surface)",
-                  color: "var(--text-2)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: versions.length ? "pointer" : "default",
-                  opacity: versions.length ? 1 : 0.6,
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "8px 12px", borderRadius: 9, border: "1px solid var(--border)",
+                  background: "var(--bg-surface)", color: "var(--text-2)", fontSize: 13, fontWeight: 600,
+                  cursor: versions.length ? "pointer" : "default", opacity: versions.length ? 1 : 0.6,
                 }}
                 disabled={versions.length === 0}
               >
@@ -483,45 +497,6 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
               )}
             </button>
 
-            <button
-              onClick={() => setClientView(true)}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 13px",
-                borderRadius: 9,
-                border: "1px solid rgba(139,92,246,0.25)",
-                background: "rgba(139,92,246,0.08)",
-                color: "#c4b5fd",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.15s",
-              }}
-            >
-              <span>◈</span> Client View
-            </button>
-            <button
-              onClick={handleCopyShareLink}
-              title="Copy a shareable link to send to your client"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 13px",
-                borderRadius: 9,
-                border: linkCopied ? "1px solid rgba(34,197,94,0.28)" : "1px solid var(--border)",
-                background: linkCopied ? "rgba(34,197,94,0.12)" : "var(--bg-surface)",
-                color: linkCopied ? "#4ade80" : "var(--text-1)",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.15s",
-              }}
-            >
-              {linkCopied ? <>✓ Link copied</> : <>🔗 Copy share link</>}
-            </button>
             <button onClick={() => setShowTplModal(true)} className="btn-ghost">
               Save Template
             </button>
@@ -536,20 +511,14 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             <button
               onClick={handleToggleLock}
               disabled={lockLoading}
-              title={proposal.isLocked ? "Unlock this proposal to allow edits" : "Lock this version to prevent changes"}
+              title={proposal.isLocked ? "Unlock this proposal" : "Lock this version to prevent changes"}
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 5,
-                padding: "8px 12px",
-                borderRadius: 9,
+                display: "inline-flex", alignItems: "center", gap: 5,
+                padding: "8px 12px", borderRadius: 9, fontSize: 13, fontWeight: 600,
                 border: proposal.isLocked ? "1px solid rgba(245,158,11,0.35)" : "1px solid var(--border)",
                 background: proposal.isLocked ? "rgba(245,158,11,0.08)" : "transparent",
                 color: proposal.isLocked ? "#fbbf24" : "var(--text-3)",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: lockLoading ? "not-allowed" : "pointer",
-                transition: "all 0.15s",
+                cursor: lockLoading ? "not-allowed" : "pointer", transition: "all 0.15s",
               }}
             >
               {lockLoading ? "…" : proposal.isLocked ? "🔒 Locked" : "🔒 Lock"}
@@ -630,52 +599,17 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
               onClick={() => window.location.href = `/proposals/${proposal.id}/pitch-deck`}
               title="Create a client-ready pitch deck from this proposal"
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 13px",
-                borderRadius: 9,
-                border: "1px solid rgba(245,158,11,0.3)",
-                background: "rgba(245,158,11,0.07)",
-                color: "#fbbf24",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.15s",
-                whiteSpace: "nowrap",
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "8px 13px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+                border: "1px solid rgba(245,158,11,0.3)", background: "rgba(245,158,11,0.07)",
+                color: "#fbbf24", cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
               }}
             >
               🎯 Pitch Deck
             </button>
-            <button
-              onClick={handleSave}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 16px",
-                borderRadius: 9,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.15s",
-                ...(saved
-                  ? {
-                      background: "rgba(34,197,94,0.12)",
-                      border: "1px solid rgba(34,197,94,0.28)",
-                      color: "#4ade80",
-                    }
-                  : {
-                      background: "var(--accent)",
-                      border: "1px solid transparent",
-                      color: "#fff",
-                      boxShadow: "var(--shadow-accent)",
-                    }),
-              }}
-            >
-              {saved ? "✓ Saved" : "Save Proposal"}
-            </button>
-          </div>
+
+            </div>{/* end right group */}
+          </div>{/* end action bar */}
         </div>
       </div>
 
@@ -755,6 +689,26 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             style={{ color: "rgba(251,191,36,0.5)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}
           >
             ✕
+          </button>
+        </div>
+      )}
+
+      {/* Edit mode notice */}
+      {!proposal.isLocked && !editMode && (
+        <div
+          style={{
+            padding: "9px 16px", borderRadius: 10,
+            background: "var(--bg-card)", border: "1px solid var(--border)",
+            color: "var(--text-3)", fontSize: 12.5,
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+          }}
+        >
+          <span>View mode — no changes will be saved.</span>
+          <button
+            onClick={() => setEditMode(true)}
+            style={{ fontSize: 12, color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}
+          >
+            Edit
           </button>
         </div>
       )}
@@ -840,20 +794,24 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         {tab === "risks"       && <RisksTab        proposal={proposal} update={update} />}
         {tab === "experience"  && <ExperienceTab   proposal={proposal} update={update} />}
         {tab === "visual"      && (
-          <VisualTab
-            proposal={proposal}
-            update={update}
-            onGenerateImage={handleGenerateImage}
-            onUploadImage={handleUploadImage}
-            generatingImage={generatingImage}
-            imageGenError={imageGenError}
-          />
+          <>
+            <VisualTab
+              proposal={proposal}
+              update={update}
+              onGenerateImage={handleGenerateImage}
+              onUploadImage={handleUploadImage}
+              generatingImage={generatingImage}
+              imageGenError={imageGenError}
+            />
+            {hasStage && (
+              <div style={{ borderTop: "1px solid var(--border)" }}>
+                <StageTab proposal={proposal} update={update} />
+              </div>
+            )}
+          </>
         )}
-        {tab === "stage"       && <StageTab        proposal={proposal} update={update} />}
         {tab === "activations" && <ActivationsTab  proposal={proposal} update={update} />}
-        {tab === "compliance"  && <ComplianceTab   proposal={proposal} update={update} />}
-        {tab === "payments"    && <PaymentsTab     proposal={proposal} />}
-        {tab === "toolkit"     && <ToolkitTab />}
+        {tab === "compliance"  && <ComplianceTab   proposal={proposal} update={update} onDirectChange={onChange} />}
       </div>
 
       {/* ── Save as Template modal ─────────────────────────────────────────── */}
@@ -2160,26 +2118,27 @@ function EditableNumber({ value, onChange, className, prefix, suffix }: {
 const STATUS_CYCLE: ComplianceStatus[] = ["NOT_STARTED", "IN_PROGRESS", "SUBMITTED", "APPROVED"];
 
 function ComplianceTab({
-  proposal, update,
+  proposal, update, onDirectChange,
 }: {
   proposal: ProposalData;
   update: (f: keyof ProposalData, v: any) => void;
+  onDirectChange: (p: ProposalData) => void;
 }) {
   const items = proposal.compliance ?? [];
   const score = items.length ? calcScore(items) : 0;
 
   function regenerate() {
     if (items.length && !confirm("Replace existing checklist with a fresh one from the event type? Statuses will be reset.")) return;
-    update("compliance", generateChecklist(proposal.eventType, proposal.eventDate ?? null));
+    onDirectChange({ ...proposal, compliance: generateChecklist(proposal.eventType, proposal.eventDate ?? null) });
   }
 
   function cycleStatus(id: string) {
-    update("compliance", items.map((it) => {
+    onDirectChange({ ...proposal, compliance: items.map((it) => {
       if (it.id !== id) return it;
       const idx = STATUS_CYCLE.indexOf(it.status);
       const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
       return { ...it, status: next };
-    }));
+    }) });
   }
 
   if (items.length === 0) {
@@ -2266,257 +2225,5 @@ function ComplianceTab({
         Click any status to cycle: Not Started → In Progress → Submitted → Approved. Saves with the proposal.
       </p>
     </div>
-  );
-}
-
-// ── Payments Tab ───────────────────────────────────────────────────────────────
-function PaymentsTab({ proposal }: { proposal: ProposalData }) {
-  const [items,    setItems]    = useState<ProposalPayment[]>([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState("");
-  const [showForm, setShowForm] = useState(false);
-
-  // form state
-  const [amount,        setAmount]        = useState<number>(proposal.budget || 0);
-  const [description,   setDescription]   = useState("Advance · 50% of total");
-  const [dueDate,       setDueDate]       = useState("");
-  const [method,        setMethod]        = useState<PaymentMethod>("UPI");
-  const [paymentTarget, setPaymentTarget] = useState("");
-  const [creating,      setCreating]      = useState(false);
-
-  async function load() {
-    setLoading(true);
-    try {
-      const r = await fetch(`/api/proposals/${proposal.id}/payments`);
-      if (!r.ok) throw new Error("Could not load payments.");
-      setItems(await r.json());
-      setError("");
-    } catch (e: any) {
-      setError(e.message ?? "Could not load payments.");
-    } finally {
-      setLoading(false);
-    }
-  }
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [proposal.id]);
-
-  async function createRequest() {
-    if (!amount || amount <= 0 || !paymentTarget.trim()) return;
-    setCreating(true);
-    try {
-      const r = await fetch(`/api/proposals/${proposal.id}/payments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount, description, method,
-          paymentTarget: paymentTarget.trim(),
-          dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-        }),
-      });
-      if (!r.ok) throw new Error((await r.json()).error ?? "Could not create.");
-      setShowForm(false);
-      setDescription("Balance");
-      setPaymentTarget((prev) => prev); // keep last UPI/bank for convenience
-      await load();
-    } catch (e: any) {
-      alert(e.message ?? "Could not create payment request.");
-    } finally {
-      setCreating(false);
-    }
-  }
-
-  async function patchStatus(p: ProposalPayment, status: PaymentStatus) {
-    if (status === "CONFIRMED" && !confirm(`Confirm that you've received ${formatINR(p.amount)} in your account?`)) return;
-    if (status === "CANCELLED" && !confirm("Cancel this payment request? The client will no longer see it.")) return;
-    try {
-      const r = await fetch(`/api/proposals/${proposal.id}/payments/${p.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      if (!r.ok) throw new Error((await r.json()).error ?? "Update failed.");
-      await load();
-    } catch (e: any) {
-      alert(e.message);
-    }
-  }
-
-  const totals = items.reduce(
-    (acc, p) => {
-      if (p.status === "CONFIRMED") acc.received += p.amount;
-      else if (p.status === "PAID") acc.verifying += p.amount;
-      else if (p.status === "REQUESTED") acc.outstanding += p.amount;
-      return acc;
-    },
-    { received: 0, verifying: 0, outstanding: 0 }
-  );
-
-  return (
-    <div className="p-6 space-y-5">
-      {/* Totals */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Stat label="Received" value={formatINR(totals.received)} tone="emerald" />
-        <Stat label="Verifying" value={formatINR(totals.verifying)} tone="indigo" />
-        <Stat label="Outstanding" value={formatINR(totals.outstanding)} tone="amber" />
-      </div>
-
-      <div className="flex items-center justify-between">
-        <h4 className="text-[var(--text-1)] font-semibold text-sm">Payment requests</h4>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="text-xs px-3 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-semibold transition-colors"
-        >
-          {showForm ? "Close" : "+ Request payment"}
-        </button>
-      </div>
-
-      {showForm && (
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Field label="Amount (₹)">
-              <input
-                type="number" min={1} value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-1)] text-sm outline-none focus:border-indigo-500/50"
-              />
-            </Field>
-            <Field label="Due date (optional)">
-              <input
-                type="date" value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-1)] text-sm outline-none focus:border-indigo-500/50"
-              />
-            </Field>
-          </div>
-          <Field label="Description shown to client">
-            <input
-              type="text" value={description} maxLength={500}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Advance — 50% of total"
-              className="w-full px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-1)] text-sm outline-none focus:border-indigo-500/50"
-            />
-          </Field>
-          <Field label="Payment method">
-            <div className="flex gap-2">
-              {(["UPI", "BANK"] as PaymentMethod[]).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMethod(m)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                    method === m
-                      ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
-                      : "border-[var(--border)] text-[var(--text-2)]"
-                  }`}
-                >
-                  {m === "UPI" ? "UPI" : "Bank transfer"}
-                </button>
-              ))}
-            </div>
-          </Field>
-          <Field label={method === "UPI" ? "Your UPI ID" : "Bank details (account, IFSC, name)"}>
-            <textarea
-              value={paymentTarget} maxLength={500} rows={method === "UPI" ? 1 : 3}
-              onChange={(e) => setPaymentTarget(e.target.value)}
-              placeholder={method === "UPI" ? "you@upi" : "Acc: 1234567890\nIFSC: HDFC0001234\nName: Your Studio Pvt Ltd"}
-              className="w-full px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-1)] text-sm outline-none focus:border-indigo-500/50 resize-y"
-            />
-          </Field>
-          <div className="flex justify-end gap-2 pt-1">
-            <button onClick={() => setShowForm(false)} className="btn-ghost">Cancel</button>
-            <button
-              onClick={createRequest}
-              disabled={creating || !amount || !paymentTarget.trim()}
-              className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold disabled:opacity-40 transition-colors"
-            >
-              {creating ? "Creating…" : "Create request"}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {error && <p className="text-red-400 text-xs">{error}</p>}
-
-      {loading ? (
-        <p className="text-[var(--text-3)] text-xs">Loading…</p>
-      ) : items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-card)] p-10 text-center">
-          <p className="text-[var(--text-2)] text-sm">No payment requests yet.</p>
-          <p className="text-[var(--text-3)] text-xs mt-1">After the client approves, request an advance to start recording payments.</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {items.map((p) => {
-            const cfg = PAYMENT_STATUS_STYLES[p.status];
-            return (
-              <div key={p.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[var(--text-1)] font-semibold text-sm">{formatINR(p.amount)}</span>
-                      <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
-                    </div>
-                    {p.description && <p className="text-[var(--text-2)] text-xs mt-1">{p.description}</p>}
-                    <p className="text-[var(--text-3)] text-xs mt-1">
-                      {p.method === "UPI" ? "UPI" : "Bank"} · {p.paymentTarget.split("\n")[0]}
-                      {p.dueDate && <> · due {new Date(p.dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</>}
-                    </p>
-                    {p.status === "PAID" && p.payerReference && (
-                      <div className="mt-3 p-3 rounded-lg bg-indigo-500/8 border border-indigo-500/20">
-                        <p className="text-indigo-300 text-xs font-semibold">Client says they've paid</p>
-                        <p className="text-[var(--text-2)] text-xs mt-1">
-                          <strong>{p.payerName}</strong> · UTR: <span className="font-mono">{p.payerReference}</span>
-                        </p>
-                        {p.payerNote && <p className="text-[var(--text-3)] text-xs italic mt-1">"{p.payerNote}"</p>}
-                        {p.submittedAt && <p className="text-[var(--text-3)] text-[11px] mt-1">{new Date(p.submittedAt).toLocaleString("en-IN")}</p>}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5 shrink-0">
-                    {p.status === "REQUESTED" && (
-                      <button
-                        onClick={() => patchStatus(p, "CANCELLED")}
-                        className="text-[var(--text-3)] hover:text-red-400 text-xs transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                    {p.status === "PAID" && (
-                      <button
-                        onClick={() => patchStatus(p, "CONFIRMED")}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-semibold transition-colors"
-                      >
-                        ✓ Confirm received
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Stat({ label, value, tone }: { label: string; value: string; tone: "emerald" | "indigo" | "amber" }) {
-  const map = {
-    emerald: "border-emerald-500/20 bg-emerald-500/5 text-emerald-400",
-    indigo:  "border-indigo-500/20  bg-indigo-500/5  text-indigo-400",
-    amber:   "border-amber-500/20   bg-amber-500/5   text-amber-400",
-  };
-  return (
-    <div className={`rounded-xl border p-3 ${map[tone]}`}>
-      <p className="text-[11px] uppercase tracking-wide font-medium opacity-80">{label}</p>
-      <p className="text-lg font-bold mt-0.5 tabular-nums text-[var(--text-1)]">{value}</p>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="text-[var(--text-3)] text-[11px] uppercase tracking-wide font-medium">{label}</span>
-      <div className="mt-1">{children}</div>
-    </label>
   );
 }

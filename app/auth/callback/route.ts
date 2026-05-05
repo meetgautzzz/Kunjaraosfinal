@@ -24,8 +24,10 @@ export async function GET(req: NextRequest) {
   }
 
   // Gate new OAuth users who haven't subscribed yet to /onboarding.
+  // Only redirect when subscription_active is explicitly false — users who
+  // signed up before the payment gate have undefined, and must not be blocked.
   const { data: { user } } = await supabase.auth.getUser();
-  if (user && !user.app_metadata?.subscription_active) {
+  if (user && user.app_metadata?.subscription_active === false) {
     return NextResponse.redirect(new URL("/onboarding", req.url));
   }
 

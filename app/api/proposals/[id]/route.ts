@@ -13,7 +13,7 @@ const ParamsSchema = z.object({ id: z.string().uuid() });
 // etc.) survive validation without us having to mirror their shapes here.
 const PatchSchema = z.object({
   title:              z.string().trim().max(300).optional(),
-  status:             z.enum(["DRAFT","GENERATED","SAVED","SHARED","APPROVED","CHANGES_REQUESTED"]).optional(),
+  status:             z.enum(["DRAFT","GENERATED","SAVED","SENT","SHARED","APPROVED","CHANGES_REQUESTED","LOST"]).optional(),
   concept:            z.unknown().optional(),
   budgetBreakdown:    z.unknown().optional(),
   timeline:           z.unknown().optional(),
@@ -26,7 +26,8 @@ const PatchSchema = z.object({
   decorPlan:          z.unknown().optional(),
   experienceElements: z.unknown().optional(),
   compliance:         z.unknown().optional(),
-  isLocked:           z.boolean().optional(),
+  isLocked:                  z.boolean().optional(),
+  proposal_ready_for_client: z.boolean().optional(),
 }).strict();
 
 export async function GET(

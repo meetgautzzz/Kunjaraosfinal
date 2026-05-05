@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import BrandingSection from "@/components/settings/BrandingSection";
 import ProfileSection  from "@/components/settings/ProfileSection";
 import BillingSection  from "@/components/settings/BillingSection";
@@ -13,8 +14,14 @@ const TABS = [
 
 type Tab = typeof TABS[number]["id"];
 
-export default function SettingsPage() {
-  const [tab, setTab] = useState<Tab>("branding");
+function isValidTab(v: string | null): v is Tab {
+  return TABS.some((t) => t.id === v);
+}
+
+function SettingsInner() {
+  const searchParams = useSearchParams();
+  const raw = searchParams.get("tab");
+  const [tab, setTab] = useState<Tab>(isValidTab(raw) ? raw : "branding");
 
   return (
     <div className="max-w-2xl mx-auto" style={{ paddingBottom: 64 }}>
@@ -36,7 +43,7 @@ export default function SettingsPage() {
               color: tab === t.id ? "var(--text-1)" : "var(--text-3)",
               background: "none",
               border: "none",
-              borderBottom: tab === t.id ? "2px solid #6366f1" : "2px solid transparent",
+              borderBottom: tab === t.id ? "2px solid var(--accent)" : "2px solid transparent",
               cursor: "pointer",
               transition: "all 0.15s",
               marginBottom: -1,
@@ -53,5 +60,13 @@ export default function SettingsPage() {
         {tab === "billing"  && <BillingSection  />}
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense>
+      <SettingsInner />
+    </Suspense>
   );
 }

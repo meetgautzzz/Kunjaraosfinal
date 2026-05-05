@@ -5,12 +5,10 @@ import Link from "next/link";
 import { Suspense } from "react";
 import UpgradeBanner from "./UpgradeBanner";
 import QuickActions from "@/components/ui/QuickActions";
-import ReceivablesWidget from "@/components/dashboard/ReceivablesWidget";
 import { formatINR } from "@/lib/proposals";
 import type { ProposalData } from "@/lib/proposals";
 
 type ProposalRow = { id: string; data: ProposalData; created_at: string };
-type CreditsData = { credits_added: number; events_used: number; plan: string | null };
 
 // ── Status config ─────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<string, string> = {
@@ -31,16 +29,15 @@ function statusLabel(s: string | undefined) {
 
 // ── Pipeline stage definitions ────────────────────────────────────────────────
 const PIPELINE_STAGES = [
-  { key: "lead",        label: "Lead",        statuses: ["SAVED", "GENERATED", "DRAFT"], dot: "#38bdf8", bg: "#0c1a2b" },
-  { key: "proposal",    label: "Proposal",    statuses: ["SENT", "SHARED"],              dot: "#818cf8", bg: "#13143a" },
-  { key: "negotiation", label: "Negotiation", statuses: ["CHANGES_REQUESTED"],           dot: "#fbbf24", bg: "#1c1508" },
-  { key: "won",         label: "Won",         statuses: ["APPROVED"],                    dot: "#34d399", bg: "#091c12" },
+  { key: "lead",        label: "Lead",        statuses: ["SAVED", "GENERATED", "DRAFT"],           dot: "#38bdf8", bg: "#0c1a2b" },
+  { key: "negotiation", label: "Negotiation", statuses: ["SENT", "SHARED", "CHANGES_REQUESTED"],   dot: "#fbbf24", bg: "#1c1508" },
+  { key: "won",         label: "Won",         statuses: ["APPROVED"],                              dot: "#34d399", bg: "#091c12" },
+  { key: "lost",        label: "Lost",        statuses: ["LOST"],                                  dot: "#f87171", bg: "#1c0a0a" },
 ] as const;
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const [proposals, setProposals] = useState<ProposalRow[]>([]);
-  const [credits,   setCredits]   = useState<CreditsData | null>(null);
   const [vendors,   setVendors]   = useState<number>(0);
   const [loading,   setLoading]   = useState(true);
   const [userName,  setUserName]  = useState("");
@@ -55,17 +52,13 @@ export default function DashboardPage() {
 
     Promise.allSettled([
       fetch("/api/proposals").then((r) => r.ok ? r.json() : []),
-      fetch("/api/credits/summary").then((r) => r.ok ? r.json() : null),
       fetch("/api/vendors").then((r) => r.ok ? r.json() : []),
-    ]).then(([propRes, credRes, vendRes]) => {
+    ]).then(([propRes, vendRes]) => {
       if (propRes.status === "fulfilled") setProposals(Array.isArray(propRes.value) ? propRes.value : []);
-      if (credRes.status === "fulfilled" && credRes.value) setCredits(credRes.value);
       if (vendRes.status === "fulfilled") setVendors(Array.isArray(vendRes.value) ? vendRes.value.length : 0);
       setLoading(false);
     });
   }, []);
-
-  const creditsLeft   = credits ? Math.max(0, (credits.credits_added ?? 0) - (credits.events_used ?? 0)) : null;
   const approved      = proposals.filter((p) => p.data?.status === "APPROVED").length;
   const actionNeeded  = proposals.filter((p) => ["DRAFT", "CHANGES_REQUESTED"].includes(p.data?.status ?? "")).length;
   const totalBudget   = proposals.reduce((s, p) => s + (p.data?.budget ?? 0), 0);
@@ -283,42 +276,6 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <QuickActions />
-
-          {/* Receivables */}
-          <ReceivablesWidget />
-
-          {/* AI Credits */}
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[var(--text-1)] font-semibold text-sm">AI Credits</h3>
-              <Link href="/billing" className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors">
-                Top up →
-              </Link>
-            </div>
-            {creditsLeft === null ? (
-              <p className="text-[var(--text-3)] text-xs">No active plan.</p>
-            ) : (
-              <>
-                <div className="flex items-end gap-2 mb-2">
-                  <span className={`text-2xl font-black tabular-nums ${creditsLeft <= 5 ? "text-amber-400" : "text-[var(--text-1)]"}`}>
-                    {creditsLeft}
-                  </span>
-                  <span className="text-[var(--text-3)] text-xs mb-1">
-                    / {credits?.credits_added ?? 0} remaining
-                  </span>
-                </div>
-                <div className="h-1.5 rounded-full bg-[var(--border)] overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${creditsLeft <= 5 ? "bg-amber-400" : "bg-indigo-500"}`}
-                    style={{ width: `${Math.min(100, (creditsLeft / Math.max(1, credits?.credits_added ?? 1)) * 100)}%` }}
-                  />
-                </div>
-                <p className="text-[var(--text-3)] text-[10px] mt-1.5">
-                  {credits?.plan ? `${credits.plan} plan` : "Pay-as-you-go"}
-                </p>
-              </>
-            )}
-          </div>
 
         </div>{/* end sidebar */}
 

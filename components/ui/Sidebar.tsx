@@ -30,10 +30,12 @@ const TOOLKIT_ITEMS: {
   label: string;
   icon: React.ReactNode;
   soon?: boolean;
+  badge?: string;
 }[] = [
-  { href: "/toolkit/social-caption", icon: <ToolSocialIcon />,    label: "Social Captions" },
-  { href: "/toolkit/presentation",   icon: <ToolPresIcon />,      label: "Presentation" },
-  { href: "/toolkit/floor-plan",     icon: <ToolFloorPlanIcon />, label: "Floor Plan" },
+  { href: "/toolkit/social-caption",  icon: <ToolSocialIcon />,    label: "Social Captions" },
+  { href: "/toolkit/presentation",    icon: <ToolPresIcon />,      label: "Presentation" },
+  { href: "/toolkit/floor-plan",      icon: <ToolFloorPlanIcon />, label: "Floor Plan" },
+  { href: "/toolkit/event-visual",    icon: <ToolVisualIcon />,    label: "3D Event Visual", badge: "AI" },
   { icon: <ToolCanvaIcon />,   label: "Canva Pitch Deck", soon: true },
   { icon: <ToolBlenderIcon />, label: "Blender 3D",       soon: true },
 ];
@@ -190,6 +192,12 @@ export default function Sidebar() {
                         {item.icon}
                       </span>
                       <span className="flex-1 truncate">{item.label}</span>
+                      {item.badge && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full tracking-wide shrink-0"
+                          style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.25)" }}>
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );
@@ -315,3 +323,4 @@ function ToolPresIcon()    { return <svg viewBox="0 0 24 24" fill="none" stroke=
 function ToolCanvaIcon()   { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" /></svg>; }
 function ToolBlenderIcon()   { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3z" /><path d="M12 8v8M8 12h8" /></svg>; }
 function ToolFloorPlanIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="1" /><path d="M3 9h18M9 9v12M3 15h6" /></svg>; }
+function ToolVisualIcon()    { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="14" rx="2" /><path d="M3 13l4-4 4 4 3-3 5 5" /><path d="M8 21h8M12 17v4" /></svg>; }

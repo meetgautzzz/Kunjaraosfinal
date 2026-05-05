@@ -34,10 +34,12 @@ const TOOLKIT_ITEMS: {
   href?: string;
   label: string;
   soon?: boolean;
+  badge?: string;
 }[] = [
   { href: "/toolkit/social-caption", label: "Social Captions" },
   { href: "/toolkit/presentation",   label: "Presentation" },
   { href: "/toolkit/floor-plan",     label: "Floor Plan" },
+  { href: "/toolkit/event-visual",   label: "3D Event Visual", badge: "AI" },
   { label: "Canva Pitch Deck", soon: true },
   { label: "Blender 3D",       soon: true },
 ];
@@ -213,6 +215,12 @@ export default function MobileNav({
                         }`}
                       >
                         <span className="flex-1 truncate">{item.label}</span>
+                        {item.badge && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full tracking-wide shrink-0"
+                            style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.25)" }}>
+                            {item.badge}
+                          </span>
+                        )}
                       </Link>
                     </li>
                   );

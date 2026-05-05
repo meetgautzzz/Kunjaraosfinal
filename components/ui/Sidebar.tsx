@@ -225,6 +225,13 @@ export default function Sidebar() {
 
       </nav>
 
+      {/* Version badge */}
+      <div className="shrink-0 px-4 py-2" style={{ borderTop: "1px solid var(--border)" }}>
+        <p style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", color: "var(--text-3)", opacity: 0.5 }}>
+          v1.0.0 · KOS-2026-001
+        </p>
+      </div>
+
       {/* User footer — opens popup menu */}
       <div className="relative shrink-0 px-3 py-3 border-t border-[var(--border)]" ref={menuRef}>
         {/* Popup menu — renders above the trigger */}

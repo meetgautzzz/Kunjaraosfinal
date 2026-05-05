@@ -35,9 +35,9 @@ const TOOLKIT_ITEMS: {
   label: string;
   soon?: boolean;
 }[] = [
-  { href: "/toolkit/budget-builder", label: "Budget Builder" },
-  { href: "/toolkit/run-of-show",    label: "Run of Show" },
-  { href: "/toolkit/social-caption", label: "Social Caption" },
+  { href: "/toolkit/social-caption", label: "Social Captions" },
+  { href: "/toolkit/presentation",   label: "Presentation" },
+  { href: "/toolkit/floor-plan",     label: "Floor Plan" },
   { label: "Canva Pitch Deck", soon: true },
   { label: "Blender 3D",       soon: true },
 ];
@@ -54,7 +54,7 @@ export default function MobileNav({
   onClose: () => void;
 }) {
   const path = usePathname();
-  const [toolkitOpen, setToolkitOpen] = useState(false);
+  const [toolkitOpen, setToolkitOpen] = useState(true);
 
   // Close on route change.
   useEffect(() => { onClose(); }, [path]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -156,9 +156,8 @@ export default function EventsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((e) => (
-            <Link
+            <div
               key={e.id}
-              href={`/proposals/${e.id}`}
               className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 flex flex-col gap-3 hover:border-indigo-500/30 transition-colors group"
             >
               <div className="flex items-start justify-between gap-2">
@@ -178,12 +177,29 @@ export default function EventsPage() {
               </div>
 
               {e.budget > 0 && (
-                <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between">
+                <div className="pt-1 border-t border-[var(--border)] flex items-center justify-between">
                   <span className="text-[var(--text-3)] text-xs">Budget</span>
                   <span className="text-[var(--text-1)] font-bold text-sm tabular-nums">{formatINR(e.budget)}</span>
                 </div>
               )}
-            </Link>
+
+              <div className="flex gap-2 pt-1">
+                <Link
+                  href={`/events/${e.id}/room`}
+                  className="flex-1 text-center text-xs font-semibold py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition-colors"
+                  onClick={(ev) => ev.stopPropagation()}
+                >
+                  Open Event Room →
+                </Link>
+                <Link
+                  href={`/proposals/${e.id}`}
+                  className="px-3 py-2 text-xs font-medium rounded-lg border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:border-indigo-500/30 transition-colors"
+                  onClick={(ev) => ev.stopPropagation()}
+                >
+                  Proposal
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       )}

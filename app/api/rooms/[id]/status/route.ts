@@ -34,7 +34,7 @@ export async function PATCH(
 
   const { data: room, error: fetchErr } = await supabase
     .from("event_rooms")
-    .select("id, status")
+    .select("id, status, proposal_id")
     .eq("id", parsed.data.id)
     .eq("planner_id", user.id)
     .single();
@@ -60,6 +60,30 @@ export async function PATCH(
 
   if (error || !data) {
     return NextResponse.json({ error: "Could not update status." }, { status: 500 });
+  }
+
+  // Keep proposal status in sync with room status for dashboard pipeline.
+  const ROOM_TO_PROPOSAL: Partial<Record<string, string>> = {
+    won:        "APPROVED",
+    approved:   "APPROVED",
+    lost:       "LOST",
+    revision:   "CHANGES_REQUESTED",
+    discussion: "SENT",
+    draft:      "DRAFT",
+  };
+  const proposalStatus = ROOM_TO_PROPOSAL[to];
+  if (room.proposal_id && proposalStatus) {
+    const { data: propRow } = await supabase
+      .from("proposals")
+      .select("data")
+      .eq("id", room.proposal_id)
+      .single();
+    if (propRow) {
+      void supabase
+        .from("proposals")
+        .update({ data: { ...(propRow.data as object), status: proposalStatus } })
+        .eq("id", room.proposal_id);
+    }
   }
 
   return NextResponse.json(data);

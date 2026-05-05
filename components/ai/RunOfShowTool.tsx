@@ -15,12 +15,13 @@ const CAT_CONFIG: Record<RosCategory, { label: string; color: string; dot: strin
 
 // ── Form ───────────────────────────────────────────────────────────────────────
 
-type FormProps = { onGenerate: (input: RunOfShowInput) => void };
+type FormProps = { onGenerate: (input: RunOfShowInput) => void; initialValues?: Partial<RunOfShowInput> };
 
-export function RunOfShowForm({ onGenerate }: FormProps) {
+export function RunOfShowForm({ onGenerate, initialValues }: FormProps) {
   const [form, setForm] = useState<RunOfShowInput>({
     eventType: "", eventName: "", eventDate: "", startTime: "18:00", endTime: "23:00",
     venue: "", guestCount: 0, requirements: "",
+    ...initialValues,
   });
 
   function set<K extends keyof RunOfShowInput>(k: K, v: RunOfShowInput[K]) {

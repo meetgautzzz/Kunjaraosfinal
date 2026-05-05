@@ -13,7 +13,6 @@ const PROTECTED = [
   "/brain",
   "/billing",
   "/settings",
-  "/room",
   "/toolkit",
 ];
 const AUTH_ONLY = ["/login", "/signup"];
@@ -141,7 +140,6 @@ export const config = {
     "/ai/:path*",
     "/billing/:path*",
     "/settings/:path*",
-    "/room/:path*",
     "/toolkit/:path*",
     "/login",
     "/signup",

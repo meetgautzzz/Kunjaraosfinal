@@ -26,6 +26,7 @@ const PatchSchema = z.object({
   decorPlan:          z.unknown().optional(),
   experienceElements: z.unknown().optional(),
   compliance:         z.unknown().optional(),
+  floorPlan:          z.unknown().optional(),
   isLocked:                  z.boolean().optional(),
   proposal_ready_for_client: z.boolean().optional(),
 }).strict();

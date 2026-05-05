@@ -13,9 +13,11 @@ import {
   type ComplianceItem, type ComplianceStatus,
 } from "@/lib/compliance";
 import { useBranding } from "@/lib/branding";
+import FloorPlanBuilder, { CELL as FP_CELL, GW as FP_GW, GH as FP_GH, KINDS as FP_KINDS } from "@/components/toolkit/FloorPlanBuilder";
+import type { FpElement } from "@/components/toolkit/FloorPlanBuilder";
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
-         | "experience" | "visual" | "activations" | "compliance";
+         | "experience" | "visual" | "activations" | "compliance" | "floor-plan";
 
 
 type Props = {
@@ -40,6 +42,8 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const [savingTemplate,  setSavingTemplate]  = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageGenError,   setImageGenError]   = useState("");
+  const [exportingPDF,    setExportingPDF]    = useState(false);
+  const [pdfError,        setPdfError]        = useState("");
   const [exportOpen,      setExportOpen]      = useState(false);
   const [versionsOpen,    setVersionsOpen]    = useState(false);
   const [regenerating,    setRegenerating]    = useState(false);
@@ -101,9 +105,32 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     }
   }
 
-  function handleExportPDF() {
+  async function handleExportPDF() {
     setExportOpen(false);
-    window.print();
+    if (exportingPDF) return;
+    setPdfError("");
+    setExportingPDF(true);
+    try {
+      const res = await fetch(`/api/proposals/${proposal.id}/pdf`);
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j?.error ?? "PDF generation failed.");
+      }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `${(proposal.concept?.title ?? proposal.title ?? "proposal")
+        .replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 60)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      setPdfError(e.message ?? "Could not generate PDF.");
+    } finally {
+      setExportingPDF(false);
+    }
   }
 
   const canEdit = !proposal.isLocked;
@@ -139,6 +166,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         decorPlan:         proposal.decorPlan,
         experienceElements:proposal.experienceElements,
         compliance:        proposal.compliance,
+        floorPlan:         proposal.floorPlan,
         status:            "SAVED",
       });
       setSaved(true);
@@ -210,7 +238,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         // Retry once on transient failure
         result = await attempt();
       }
-      update("visualDirection", { ...proposal.visualDirection, generatedImageUrl: result.imageUrl });
+      onChange({ ...proposal, visualDirection: { ...proposal.visualDirection!, generatedImageUrl: result.imageUrl } as any });
     } catch (err: any) {
       setImageGenError(err.message ?? "Image generation failed. Try again.");
     } finally {
@@ -230,7 +258,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
-      update("visualDirection", { ...proposal.visualDirection, generatedImageUrl: dataUrl });
+      onChange({ ...proposal, visualDirection: { ...proposal.visualDirection!, generatedImageUrl: dataUrl } as any });
     };
     reader.onerror = () => alert("Failed to read image. Try again.");
     reader.readAsDataURL(file);
@@ -250,6 +278,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     { id: "visual",      label: "Visual & Stage Design", icon: "🎨", show: hasVisual || hasStage },
     { id: "activations", label: "Activations",    icon: "⚡", show: hasActivations },
     { id: "compliance",  label: "Compliance",     icon: "⚖", show: !!proposal.eventType },
+    { id: "floor-plan",  label: "Floor Plan",     icon: "⬛", show: true },
   ];
   const TABS = ALL_TABS.filter((t) => t.show);
 
@@ -526,10 +555,14 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
             <div style={{ position: "relative" }}>
               <button
                 onClick={() => setExportOpen((v) => !v)}
+                disabled={exportingPDF}
                 className="btn-ghost"
                 aria-expanded={exportOpen}
+                title={exportingPDF ? "Generating PDF…" : undefined}
               >
-                Export ▾
+                {exportingPDF
+                  ? <><span className="inline-block w-3 h-3 rounded-full border-2 border-indigo-400/30 border-t-indigo-400 animate-spin mr-1.5" />PDF…</>
+                  : "Export ▾"}
               </button>
               {exportOpen && (
                 <>
@@ -551,11 +584,15 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
                       padding: 6,
                     }}
                   >
-                    <button onClick={handleExportPDF} className="export-row">
-                      <span>📄</span>
+                    <button onClick={handleExportPDF} disabled={exportingPDF} className="export-row">
+                      <span>{exportingPDF ? "⏳" : "📄"}</span>
                       <div style={{ flex: 1, textAlign: "left" }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)" }}>Export as PDF</div>
-                        <div style={{ fontSize: 11, color: "var(--text-3)" }}>Opens print dialog · save as PDF</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)" }}>
+                          {exportingPDF ? "Generating PDF…" : "Download as PDF"}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--text-3)" }}>
+                          {exportingPDF ? "This may take up to 30 seconds" : "Full multi-page · includes floor plan"}
+                        </div>
                       </div>
                     </button>
                     <button
@@ -645,6 +682,17 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
               </p>
             )}
           </div>
+        </div>
+      )}
+
+      {/* PDF error */}
+      {pdfError && (
+        <div
+          className="flex items-center justify-between gap-4"
+          style={{ padding: "11px 16px", borderRadius: 10, background: "var(--red-dim)", border: "1px solid rgba(239,68,68,0.2)", color: "#fca5a5", fontSize: 13.5 }}
+        >
+          <span>PDF: {pdfError}</span>
+          <button onClick={() => setPdfError("")} style={{ color: "rgba(252,165,165,0.5)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}>✕</button>
         </div>
       )}
 
@@ -812,6 +860,42 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         )}
         {tab === "activations" && <ActivationsTab  proposal={proposal} update={update} />}
         {tab === "compliance"  && <ComplianceTab   proposal={proposal} update={update} onDirectChange={onChange} />}
+        {tab === "floor-plan"  && (
+          <div>
+            {(editMode && canEdit) ? (
+              <div style={{ height: 560 }}>
+                <FloorPlanBuilder
+                  initialElements={proposal.floorPlan}
+                  onElementsChange={(els: FpElement[]) => update("floorPlan", els)}
+                />
+              </div>
+            ) : (
+              <div style={{ padding: "20px" }}>
+                {proposal.floorPlan?.length ? (
+                  <>
+                    <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 12 }}>
+                      Floor plan · {proposal.floorPlan.length} element{proposal.floorPlan.length !== 1 ? "s" : ""}
+                      {" · "}
+                      <button onClick={() => setEditMode(true)} style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", fontSize: 12 }}>Edit</button>
+                    </p>
+                    <div style={{ height: 420, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)", background: "#0d0e11" }}>
+                      <FloorPlanViewerInline elements={proposal.floorPlan} />
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ padding: "48px 0", textAlign: "center" }}>
+                    <p style={{ fontSize: 14, color: "var(--text-3)", marginBottom: 12 }}>No floor plan yet.</p>
+                    {canEdit && (
+                      <button onClick={() => setEditMode(true)} style={{ fontSize: 13, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
+                        Switch to edit mode to create one
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ── Save as Template modal ─────────────────────────────────────────── */}
@@ -2225,5 +2309,62 @@ function ComplianceTab({
         Click any status to cycle: Not Started → In Progress → Submitted → Approved. Saves with the proposal.
       </p>
     </div>
+  );
+}
+
+// ── Floor Plan viewer (inline, fills container) ───────────────────────────────
+
+function FloorPlanViewerInline({ elements }: { elements: FpElement[] }) {
+  const vw = FP_CELL * FP_GW;
+  const vh = FP_CELL * FP_GH;
+  return (
+    <svg
+      viewBox={`0 0 ${vw} ${vh}`}
+      width="100%"
+      height="100%"
+      preserveAspectRatio="xMidYMid meet"
+      style={{ display: "block" }}
+    >
+      <defs>
+        <pattern id="fpv-cell" width={FP_CELL} height={FP_CELL} patternUnits="userSpaceOnUse">
+          <path d={`M ${FP_CELL} 0 L 0 0 0 ${FP_CELL}`} fill="none" stroke="#1e2028" strokeWidth="1" />
+        </pattern>
+        <pattern id="fpv-major" width={FP_CELL * 5} height={FP_CELL * 5} patternUnits="userSpaceOnUse">
+          <rect width={FP_CELL * 5} height={FP_CELL * 5} fill="url(#fpv-cell)" />
+          <path d={`M ${FP_CELL * 5} 0 L 0 0 0 ${FP_CELL * 5}`} fill="none" stroke="#252830" strokeWidth="1.5" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="#0d0e11" />
+      <rect width="100%" height="100%" fill="url(#fpv-major)" />
+      {elements.map((el) => {
+        const cfg = FP_KINDS[el.kind];
+        const px  = el.x * FP_CELL;
+        const py  = el.y * FP_CELL;
+        const pw  = el.w * FP_CELL;
+        const ph  = el.h * FP_CELL;
+        const cx  = px + pw / 2;
+        const cy  = py + ph / 2;
+        return (
+          <g key={el.id} transform={`rotate(${el.rotation}, ${cx}, ${cy})`}>
+            <rect
+              x={px} y={py} width={pw} height={ph}
+              rx={el.kind === "table" ? pw / 2 : 4}
+              fill={cfg.fill} stroke={`${cfg.stroke}99`} strokeWidth={1}
+            />
+            <text
+              x={cx} y={cy} dy="0.4em"
+              fill={cfg.stroke}
+              fontSize={Math.max(8, Math.min(12, pw / 5))}
+              textAnchor="middle"
+              fontFamily="sans-serif"
+              fontWeight="600"
+              pointerEvents="none"
+            >
+              {el.label}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
   );
 }

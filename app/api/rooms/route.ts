@@ -27,7 +27,8 @@ export async function GET() {
     .from("event_rooms")
     .select(`
       id, proposal_id, client_name, client_email, status,
-      deal_value, created_at, updated_at,
+      deal_value, share_token, view_count, last_viewed_at, client_response,
+      created_at, updated_at,
       proposals ( data->title, data->eventType, data->status )
     `)
     .eq("planner_id", user.id)

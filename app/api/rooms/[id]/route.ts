@@ -10,7 +10,9 @@ const PatchSchema = z.object({
   client_name:  z.string().trim().min(1).max(200).optional(),
   client_email: z.string().email().max(320).nullable().optional(),
   deal_value:   z.number().min(0).optional(),
-}).strict();
+  run_of_show:  z.any().optional(),
+  floor_plan:   z.any().optional(),
+});
 
 // GET /api/rooms/[id] — room details + joined proposal snapshot.
 export async function GET(

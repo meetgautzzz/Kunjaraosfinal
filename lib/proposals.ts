@@ -149,6 +149,8 @@ export type ProposalData = {
   isLocked?:   boolean; // planner has locked this version from further edits
   // Pitch deck generated from this proposal
   pitchDeck?:  PitchDeck;
+  // Floor plan designed inside the proposal
+  floorPlan?:  import("@/components/toolkit/FloorPlanBuilder").FpElement[];
 };
 
 export type OriginalBrief = {

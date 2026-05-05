@@ -31,9 +31,9 @@ const TOOLKIT_ITEMS: {
   icon: React.ReactNode;
   soon?: boolean;
 }[] = [
-  { href: "/toolkit/budget-builder", icon: <ToolBudgetIcon />, label: "Budget Builder" },
-  { href: "/toolkit/run-of-show",    icon: <ToolRunIcon />,    label: "Run of Show" },
-  { href: "/toolkit/social-caption", icon: <ToolSocialIcon />, label: "Social Caption" },
+  { href: "/toolkit/social-caption", icon: <ToolSocialIcon />,    label: "Social Captions" },
+  { href: "/toolkit/presentation",   icon: <ToolPresIcon />,      label: "Presentation" },
+  { href: "/toolkit/floor-plan",     icon: <ToolFloorPlanIcon />, label: "Floor Plan" },
   { icon: <ToolCanvaIcon />,   label: "Canva Pitch Deck", soon: true },
   { icon: <ToolBlenderIcon />, label: "Blender 3D",       soon: true },
 ];
@@ -42,7 +42,7 @@ export default function Sidebar() {
   const path = usePathname();
   const [userEmail,   setUserEmail]   = useState("");
   const [userInitial, setUserInitial] = useState("?");
-  const [toolkitOpen, setToolkitOpen] = useState(false);
+  const [toolkitOpen, setToolkitOpen] = useState(true);
   const [menuOpen,    setMenuOpen]    = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -311,5 +311,7 @@ function LogoutIcon()  { return <svg className="w-4 h-4" viewBox="0 0 24 24" fil
 function ToolBudgetIcon()  { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3" /><rect x="9" y="3" width="6" height="5" rx="1" /><path d="M9 14h.01M12 14h.01M15 14h.01M9 17h.01M12 17h.01" /></svg>; }
 function ToolRunIcon()     { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>; }
 function ToolSocialIcon()  { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13" /><path d="M22 2L15 22l-4-9-9-4 20-7z" /></svg>; }
+function ToolPresIcon()    { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></svg>; }
 function ToolCanvaIcon()   { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" /></svg>; }
-function ToolBlenderIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3z" /><path d="M12 8v8M8 12h8" /></svg>; }
+function ToolBlenderIcon()   { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3z" /><path d="M12 8v8M8 12h8" /></svg>; }
+function ToolFloorPlanIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="1" /><path d="M3 9h18M9 9v12M3 15h6" /></svg>; }

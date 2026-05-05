@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import type { ProposalData } from "@/lib/proposals";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -8,12 +10,13 @@ type EventType = "booth" | "stage" | "concert" | "festival";
 type Theme = "tropical" | "luxury" | "modern" | "gaming" | "futuristic" | "corporate" | "minimal" | "traditional";
 
 interface FormState {
-  eventType:  EventType;
-  brandName:  string;
-  dimensions: string;
-  theme:      Theme;
-  features:   string[];
-  budget:     string;
+  eventType:    EventType;
+  brandName:    string;
+  dimensions:   string;
+  theme:        Theme;
+  features:     string[];
+  budget:       string;
+  audienceType: string;
 }
 
 const EVENT_TYPES: { value: EventType; label: string; desc: string; icon: string }[] = [
@@ -62,24 +65,131 @@ const GENERATING_STEPS = [
 ];
 
 const DEFAULT_FORM: FormState = {
-  eventType:  "booth",
-  brandName:  "",
-  dimensions: "",
-  theme:      "modern",
-  features:   ["LED Panels", "Branded Bar Counter"],
-  budget:     "",
+  eventType:    "booth",
+  brandName:    "",
+  dimensions:   "",
+  theme:        "modern",
+  features:     ["LED Panels", "Branded Bar Counter"],
+  budget:       "",
+  audienceType: "",
 };
 
-// ── Page ─────────────────────────────────────────────────────────────────────
+// ── Proposal → form mapping ───────────────────────────────────────────────────
 
-export default function EventVisualPage() {
-  const [form,     setForm]     = useState<FormState>(DEFAULT_FORM);
-  const [view,     setView]     = useState<"form" | "generating" | "result">("form");
-  const [step,     setStep]     = useState(0);
-  const [image,    setImage]    = useState<string | null>(null);
-  const [prompt,   setPrompt]   = useState<string>("");
-  const [error,    setError]    = useState<string>("");
-  const [copyDone, setCopyDone] = useState(false);
+function mapEventType(raw?: string): EventType {
+  if (!raw) return "booth";
+  const s = raw.toLowerCase();
+  if (s.includes("stage") || s.includes("concert") && s.includes("stage")) return "stage";
+  if (s.includes("concert") || s.includes("music") || s.includes("live")) return "concert";
+  if (s.includes("festival") || s.includes("outdoor") || s.includes("multi")) return "festival";
+  if (s.includes("booth") || s.includes("expo") || s.includes("trade") || s.includes("exhibition")) return "booth";
+  return "booth";
+}
+
+const THEME_KEYWORDS: Record<Theme, string[]> = {
+  luxury:      ["luxury", "premium", "opulent", "gold", "champagne", "royal", "elite"],
+  modern:      ["modern", "contemporary", "clean", "minimal", "sleek"],
+  futuristic:  ["futuristic", "sci-fi", "tech", "digital", "cyber", "holographic"],
+  gaming:      ["gaming", "neon", "rgb", "esports", "game", "cyberpunk"],
+  tropical:    ["tropical", "beach", "island", "nature", "green", "botanical"],
+  corporate:   ["corporate", "business", "professional", "executive", "formal"],
+  minimal:     ["minimal", "minimalist", "simple", "understated", "white"],
+  traditional: ["traditional", "cultural", "ethnic", "classic", "heritage", "rustic"],
+};
+
+function mapTheme(raw?: string): Theme {
+  if (!raw) return "modern";
+  const s = raw.toLowerCase();
+  for (const [theme, keywords] of Object.entries(THEME_KEYWORDS) as [Theme, string[]][]) {
+    if (keywords.some((k) => s.includes(k))) return theme;
+  }
+  return "modern";
+}
+
+function mapFeatures(proposal: ProposalData): string[] {
+  const candidates: string[] = [];
+
+  // Pull from activations
+  const activations = proposal.experienceElements?.activations ?? [];
+  for (const a of activations) {
+    if (a.name) candidates.push(a.name.toLowerCase());
+  }
+  // Pull from budget categories
+  const budget = proposal.budgetBreakdown ?? [];
+  for (const b of budget) {
+    if (b.category) candidates.push(b.category.toLowerCase());
+  }
+
+  const matched: string[] = [];
+  for (const feature of FEATURE_OPTIONS) {
+    const fl = feature.toLowerCase();
+    if (candidates.some((c) => c.includes(fl.split(" ")[0]) || fl.includes(c.split(" ")[0]))) {
+      matched.push(feature);
+    }
+  }
+  return matched.length >= 1 ? matched.slice(0, 8) : DEFAULT_FORM.features;
+}
+
+function proposalToForm(proposal: ProposalData): FormState {
+  const brandName =
+    proposal.client?.name ??
+    proposal.client?.companyName ??
+    (proposal.concept as { title?: string } | undefined)?.title ??
+    "";
+
+  const themeRaw =
+    (proposal.concept as { theme?: string } | undefined)?.theme ??
+    (proposal.eventConcept as { theme?: string } | undefined)?.theme ??
+    proposal.visualDirection?.overallAesthetic ??
+    "";
+
+  return {
+    eventType:    mapEventType(proposal.eventType),
+    brandName,
+    dimensions:   "",
+    theme:        mapTheme(themeRaw),
+    features:     mapFeatures(proposal),
+    budget:       proposal.budget ? String(proposal.budget) : "",
+    audienceType: (proposal as Record<string, unknown>).audienceType as string ?? "",
+  };
+}
+
+// ── Page inner (needs useSearchParams) ───────────────────────────────────────
+
+function EventVisualPageInner() {
+  const searchParams = useSearchParams();
+  const fromId = searchParams.get("from");
+
+  const [form,      setForm]      = useState<FormState>(DEFAULT_FORM);
+  const [view,      setView]      = useState<"form" | "generating" | "result">("form");
+  const [step,      setStep]      = useState(0);
+  const [image,     setImage]     = useState<string | null>(null);
+  const [prompt,    setPrompt]    = useState<string>("");
+  const [error,     setError]     = useState<string>("");
+  const [copyDone,   setCopyDone]   = useState(false);
+  const [prefilling, setPrefilling] = useState(!!fromId);
+  const [inserting,  setInserting]  = useState(false);
+  const [inserted,   setInserted]   = useState(false);
+
+  // Pre-fill from proposal when ?from= is present
+  useEffect(() => {
+    if (!fromId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/proposals/${fromId}`);
+        if (!res.ok) throw new Error("Could not load proposal");
+        const data = await res.json();
+        const proposal: ProposalData = data.data ?? data;
+        if (!cancelled) setForm(proposalToForm(proposal));
+      } catch {
+        // silently fall back to default form
+      } finally {
+        if (!cancelled) setPrefilling(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [fromId]);
 
   function toggleFeature(f: string) {
     setForm((prev) => ({
@@ -96,7 +206,6 @@ export default function EventVisualPage() {
     setView("generating");
     setStep(0);
 
-    // Animate steps while waiting for API
     const interval = setInterval(() => {
       setStep((s) => (s < GENERATING_STEPS.length - 1 ? s + 1 : s));
     }, 2800);
@@ -139,6 +248,33 @@ export default function EventVisualPage() {
     });
   }
 
+  async function handleInsertIntoProposal() {
+    if (!image || !fromId || inserting) return;
+    setInserting(true);
+    try {
+      const visual = {
+        id:        crypto.randomUUID(),
+        image,
+        promptUsed: prompt,
+        createdAt: new Date().toISOString(),
+        eventType: form.eventType,
+        theme:     form.theme,
+        brandName: form.brandName,
+      };
+      const res = await fetch(`/api/proposals/${fromId}/visuals`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(visual),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      setInserted(true);
+    } catch {
+      // fail silently — user can download manually
+    } finally {
+      setInserting(false);
+    }
+  }
+
   // ── Generating ──────────────────────────────────────────────────────────────
   if (view === "generating") {
     return (
@@ -173,7 +309,6 @@ export default function EventVisualPage() {
   if (view === "result" && image) {
     return (
       <div className="max-w-5xl mx-auto space-y-5 px-4 py-6">
-        {/* Header */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             <button
@@ -185,7 +320,7 @@ export default function EventVisualPage() {
             <div className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center text-lg">🎨</div>
             <h2 className="text-lg font-bold text-[var(--text-1)]">3D Event Visual</h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             <button
               onClick={() => { setImage(null); handleGenerate(); }}
               className="px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] text-sm transition-colors"
@@ -194,14 +329,37 @@ export default function EventVisualPage() {
             </button>
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold transition-colors"
+              className="px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] text-sm transition-colors"
             >
-              ↓ Download PNG
+              ↓ Download
             </button>
+            {fromId && (
+              <button
+                onClick={inserted ? () => { window.location.href = `/proposals`; } : handleInsertIntoProposal}
+                disabled={inserting}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "8px 16px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+                  cursor: inserting ? "not-allowed" : "pointer",
+                  transition: "all 0.15s",
+                  ...(inserted
+                    ? { background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.3)", color: "#4ade80" }
+                    : { background: "linear-gradient(135deg, #7c3aed, #6d28d9)", border: "1px solid transparent", color: "#fff" }
+                  ),
+                }}
+              >
+                {inserting ? (
+                  <><span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />Saving…</>
+                ) : inserted ? (
+                  "✓ Saved — View Proposal →"
+                ) : (
+                  "Insert into Proposal"
+                )}
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Image */}
         <div className="rounded-2xl overflow-hidden border border-[var(--border)] bg-[#0d0e11]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -212,7 +370,6 @@ export default function EventVisualPage() {
           />
         </div>
 
-        {/* Meta row */}
         <div className="flex flex-wrap gap-2">
           {[
             { label: "Type",  value: EVENT_TYPES.find((e) => e.value === form.eventType)?.label ?? form.eventType },
@@ -237,7 +394,6 @@ export default function EventVisualPage() {
           ))}
         </div>
 
-        {/* Prompt used */}
         {prompt && (
           <div style={{
             borderRadius: 12, border: "1px solid var(--border)",
@@ -276,7 +432,6 @@ export default function EventVisualPage() {
   // ── Form ────────────────────────────────────────────────────────────────────
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center text-2xl shrink-0">
           🎨
@@ -285,6 +440,15 @@ export default function EventVisualPage() {
           <h1 className="text-xl font-bold text-[var(--text-1)]">3D Event Visual Generator</h1>
           <p className="text-[var(--text-3)] text-xs">Photorealistic 3D renders of your event setup · Powered by GPT-Image-1</p>
         </div>
+        {fromId && (
+          <span style={{
+            marginLeft: "auto", fontSize: 11, padding: "4px 10px", borderRadius: 20,
+            background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.25)",
+            color: "#a78bfa", fontWeight: 600,
+          }}>
+            {prefilling ? "Loading proposal…" : "From Proposal"}
+          </span>
+        )}
       </div>
 
       {error && (
@@ -418,22 +582,32 @@ export default function EventVisualPage() {
       {/* Generate */}
       <button
         onClick={handleGenerate}
-        disabled={!form.brandName.trim() || !form.dimensions.trim() || form.features.length === 0}
+        disabled={prefilling || !form.brandName.trim() || !form.dimensions.trim() || form.features.length === 0}
         style={{
           width: "100%", padding: "14px", borderRadius: 12, fontSize: 15, fontWeight: 700,
-          cursor: (!form.brandName.trim() || !form.dimensions.trim() || form.features.length === 0) ? "not-allowed" : "pointer",
-          opacity: (!form.brandName.trim() || !form.dimensions.trim() || form.features.length === 0) ? 0.5 : 1,
+          cursor: (prefilling || !form.brandName.trim() || !form.dimensions.trim() || form.features.length === 0) ? "not-allowed" : "pointer",
+          opacity: (prefilling || !form.brandName.trim() || !form.dimensions.trim() || form.features.length === 0) ? 0.5 : 1,
           background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
           border: "none", color: "#fff", transition: "opacity 0.15s",
           letterSpacing: "0.01em",
         }}
       >
-        Generate 3D Visual →
+        {prefilling ? "Loading proposal…" : "Generate 3D Visual →"}
       </button>
 
       <p style={{ fontSize: 11, color: "var(--text-3)", textAlign: "center" }}>
         Each generation uses 1 AI credit · Takes 15–30 seconds · 1536×1024 resolution
       </p>
     </div>
+  );
+}
+
+// ── Page (Suspense wrapper required for useSearchParams) ──────────────────────
+
+export default function EventVisualPage() {
+  return (
+    <Suspense fallback={null}>
+      <EventVisualPageInner />
+    </Suspense>
   );
 }

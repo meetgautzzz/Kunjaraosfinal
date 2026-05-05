@@ -6,7 +6,7 @@ import type {
   ProposalData, BudgetLine, TimelinePhase, ProposalVendor,
   ExperienceActivation, ColorSwatch, ProposalVersionSnapshot,
 } from "@/lib/proposals";
-import { formatINR, MAX_REGENERATIONS } from "@/lib/proposals";
+import { formatINR, MAX_REGENERATIONS, type GeneratedVisual } from "@/lib/proposals";
 import { useCredits } from "@/components/credits/useCredits";
 import {
   generateChecklist, calcScore, deadlineState, STATUS_CONFIG,
@@ -17,7 +17,7 @@ import FloorPlanBuilder, { CELL as FP_CELL, GW as FP_GW, GH as FP_GH, KINDS as F
 import type { FpElement } from "@/components/toolkit/FloorPlanBuilder";
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
-         | "experience" | "visual" | "activations" | "compliance" | "floor-plan";
+         | "experience" | "visual" | "activations" | "compliance" | "floor-plan" | "visuals";
 
 
 type Props = {
@@ -279,6 +279,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
     { id: "activations", label: "Activations",    icon: "⚡", show: hasActivations },
     { id: "compliance",  label: "Compliance",     icon: "⚖", show: !!proposal.eventType },
     { id: "floor-plan",  label: "Floor Plan",     icon: "⬛", show: true },
+    { id: "visuals",     label: "3D Visuals",     icon: "🎨", show: true },
   ];
   const TABS = ALL_TABS.filter((t) => t.show);
 
@@ -551,6 +552,20 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
               }}
             >
               {lockLoading ? "…" : proposal.isLocked ? "🔒 Locked" : "🔒 Lock"}
+            </button>
+            <button
+              onClick={() => { window.location.href = `/toolkit/event-visual?from=${proposal.id}`; }}
+              title="Generate a photorealistic 3D render from this proposal"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "8px 13px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+                border: "1px solid rgba(139,92,246,0.3)",
+                background: "rgba(139,92,246,0.08)",
+                color: "#a78bfa",
+                cursor: "pointer", transition: "all 0.15s",
+              }}
+            >
+              🎨 3D Visual
             </button>
             <div style={{ position: "relative" }}>
               <button
@@ -860,6 +875,9 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         )}
         {tab === "activations" && <ActivationsTab  proposal={proposal} update={update} />}
         {tab === "compliance"  && <ComplianceTab   proposal={proposal} update={update} onDirectChange={onChange} />}
+        {tab === "visuals" && (
+          <VisualsTab proposal={proposal} onChange={onChange} />
+        )}
         {tab === "floor-plan"  && (
           <div>
             {(editMode && canEdit) ? (
@@ -2315,27 +2333,28 @@ function ComplianceTab({
 // ── Floor Plan viewer (inline, fills container) ───────────────────────────────
 
 function FloorPlanViewerInline({ elements }: { elements: FpElement[] }) {
-  const vw = FP_CELL * FP_GW;
-  const vh = FP_CELL * FP_GH;
+  const maxX = Math.max(FP_GW, ...elements.map((el) => el.x + el.w)) + 2;
+  const maxY = Math.max(FP_GH, ...elements.map((el) => el.y + el.h)) + 2;
+  const vw   = maxX * FP_CELL;
+  const vh   = maxY * FP_CELL;
   return (
     <svg
       viewBox={`0 0 ${vw} ${vh}`}
-      width="100%"
-      height="100%"
+      width="100%" height="100%"
       preserveAspectRatio="xMidYMid meet"
       style={{ display: "block" }}
     >
       <defs>
-        <pattern id="fpv-cell" width={FP_CELL} height={FP_CELL} patternUnits="userSpaceOnUse">
-          <path d={`M ${FP_CELL} 0 L 0 0 0 ${FP_CELL}`} fill="none" stroke="#1e2028" strokeWidth="1" />
+        <pattern id="fpvi-cell" width={FP_CELL} height={FP_CELL} patternUnits="userSpaceOnUse">
+          <path d={`M ${FP_CELL} 0 L 0 0 0 ${FP_CELL}`} fill="none" stroke="#1e2028" strokeWidth="0.5" />
         </pattern>
-        <pattern id="fpv-major" width={FP_CELL * 5} height={FP_CELL * 5} patternUnits="userSpaceOnUse">
-          <rect width={FP_CELL * 5} height={FP_CELL * 5} fill="url(#fpv-cell)" />
-          <path d={`M ${FP_CELL * 5} 0 L 0 0 0 ${FP_CELL * 5}`} fill="none" stroke="#252830" strokeWidth="1.5" />
+        <pattern id="fpvi-major" width={FP_CELL * 5} height={FP_CELL * 5} patternUnits="userSpaceOnUse">
+          <rect width={FP_CELL * 5} height={FP_CELL * 5} fill="url(#fpvi-cell)" />
+          <path d={`M ${FP_CELL * 5} 0 L 0 0 0 ${FP_CELL * 5}`} fill="none" stroke="#252830" strokeWidth="1" />
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill="#0d0e11" />
-      <rect width="100%" height="100%" fill="url(#fpv-major)" />
+      <rect width="100%" height="100%" fill="url(#fpvi-major)" />
       {elements.map((el) => {
         const cfg = FP_KINDS[el.kind];
         const px  = el.x * FP_CELL;
@@ -2348,16 +2367,13 @@ function FloorPlanViewerInline({ elements }: { elements: FpElement[] }) {
           <g key={el.id} transform={`rotate(${el.rotation}, ${cx}, ${cy})`}>
             <rect
               x={px} y={py} width={pw} height={ph}
-              rx={el.kind === "table" ? pw / 2 : 4}
-              fill={cfg.fill} stroke={`${cfg.stroke}99`} strokeWidth={1}
+              rx={el.kind === "table" ? Math.min(pw, ph) / 2 : 4}
+              fill={cfg.fill} stroke={`${cfg.stroke}88`} strokeWidth={1}
             />
             <text
-              x={cx} y={cy} dy="0.4em"
-              fill={cfg.stroke}
-              fontSize={Math.max(8, Math.min(12, pw / 5))}
-              textAnchor="middle"
-              fontFamily="sans-serif"
-              fontWeight="600"
+              x={cx} y={cy} dy="0.4em" fill={cfg.stroke}
+              fontSize={Math.max(7, Math.min(12, pw / 5))}
+              textAnchor="middle" fontFamily="sans-serif" fontWeight="600"
               pointerEvents="none"
             >
               {el.label}
@@ -2366,5 +2382,163 @@ function FloorPlanViewerInline({ elements }: { elements: FpElement[] }) {
         );
       })}
     </svg>
+  );
+}
+
+// ── VisualsTab ────────────────────────────────────────────────────────────────
+
+function VisualsTab({
+  proposal,
+  onChange,
+}: {
+  proposal: ProposalData;
+  onChange:  (p: ProposalData) => void;
+}) {
+  const [deleting, setDeleting] = React.useState<string | null>(null);
+
+  const visuals: GeneratedVisual[] = proposal.generatedVisuals ?? [];
+
+  async function handleDelete(id: string) {
+    setDeleting(id);
+    try {
+      await fetch(`/api/proposals/${proposal.id}/visuals?visualId=${id}`, { method: "DELETE" });
+      onChange({ ...proposal, generatedVisuals: visuals.filter((v) => v.id !== id) });
+    } finally {
+      setDeleting(null);
+    }
+  }
+
+  function handleDownload(v: GeneratedVisual) {
+    const a = document.createElement("a");
+    a.href = v.image;
+    a.download = `${(v.brandName ?? "event").replace(/\s+/g, "-").toLowerCase()}-visual.png`;
+    a.click();
+  }
+
+  return (
+    <div style={{ padding: "20px" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)" }}>
+            Generated 3D Visuals
+          </p>
+          <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>
+            {visuals.length > 0
+              ? `${visuals.length} render${visuals.length !== 1 ? "s" : ""} saved to this proposal`
+              : "No renders yet — generate one from the Toolkit"}
+          </p>
+        </div>
+        <a
+          href={`/toolkit/event-visual?from=${proposal.id}`}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "8px 14px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+            background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.3)",
+            color: "#a78bfa", textDecoration: "none", transition: "all 0.15s",
+          }}
+        >
+          🎨 Generate New
+        </a>
+      </div>
+
+      {visuals.length === 0 ? (
+        <div style={{
+          padding: "60px 0", textAlign: "center",
+          border: "1px dashed var(--border)", borderRadius: 14,
+          background: "var(--bg-card)",
+        }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🎨</div>
+          <p style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 600 }}>No visuals yet</p>
+          <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 4, marginBottom: 20 }}>
+            Generate a photorealistic 3D render of this event
+          </p>
+          <a
+            href={`/toolkit/event-visual?from=${proposal.id}`}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "10px 20px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+              background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
+              color: "#fff", textDecoration: "none",
+            }}
+          >
+            Generate 3D Visual →
+          </a>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+          {visuals.map((v) => (
+            <div
+              key={v.id}
+              style={{
+                borderRadius: 14, border: "1px solid var(--border)",
+                background: "var(--bg-card)", overflow: "hidden",
+              }}
+            >
+              {/* Image */}
+              <div style={{ position: "relative", background: "#0d0e11" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={v.image}
+                  alt={`3D visual for ${v.brandName ?? proposal.title}`}
+                  style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+                />
+              </div>
+
+              {/* Meta */}
+              <div style={{ padding: "12px 14px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+                  {v.eventType && (
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+                      background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)",
+                      color: "#a78bfa", textTransform: "capitalize",
+                    }}>{v.eventType}</span>
+                  )}
+                  {v.theme && (
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+                      background: "var(--bg-surface)", border: "1px solid var(--border)",
+                      color: "var(--text-3)", textTransform: "capitalize",
+                    }}>{v.theme}</span>
+                  )}
+                  <span style={{ fontSize: 10, color: "var(--text-3)", marginLeft: "auto" }}>
+                    {new Date(v.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    onClick={() => handleDownload(v)}
+                    style={{
+                      flex: 1, padding: "7px 0", borderRadius: 8, fontSize: 12, fontWeight: 600,
+                      background: "var(--bg-surface)", border: "1px solid var(--border)",
+                      color: "var(--text-2)", cursor: "pointer", transition: "all 0.15s",
+                    }}
+                  >
+                    ↓ Download
+                  </button>
+                  <button
+                    onClick={() => handleDelete(v.id)}
+                    disabled={deleting === v.id}
+                    style={{
+                      padding: "7px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+                      background: "transparent",
+                      border: "1px solid rgba(239,68,68,0.2)",
+                      color: deleting === v.id ? "var(--text-3)" : "rgba(239,68,68,0.6)",
+                      cursor: deleting === v.id ? "not-allowed" : "pointer",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    {deleting === v.id ? "…" : "✕"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

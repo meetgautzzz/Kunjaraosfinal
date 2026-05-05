@@ -151,6 +151,18 @@ export type ProposalData = {
   pitchDeck?:  PitchDeck;
   // Floor plan designed inside the proposal
   floorPlan?:  import("@/components/toolkit/FloorPlanBuilder").FpElement[];
+  // AI-generated 3D event visuals (data URIs or URLs)
+  generatedVisuals?: GeneratedVisual[];
+};
+
+export type GeneratedVisual = {
+  id:          string;   // uuid v4 generated client-side
+  image:       string;   // data URI or URL
+  promptUsed:  string;
+  createdAt:   string;   // ISO timestamp
+  eventType?:  string;
+  theme?:      string;
+  brandName?:  string;
 };
 
 export type OriginalBrief = {

@@ -5,6 +5,7 @@ import type { ProposalData, BudgetLine, TimelinePhase, ProposalVendor } from "@/
 import { formatINR } from "@/lib/proposals";
 import { STATUS_CONFIG } from "@/lib/compliance";
 import type { ComplianceItem } from "@/lib/compliance";
+import { FloorPlanViewer } from "@/components/toolkit/FloorPlanBuilder";
 
 type SectionRef = "concept" | "experience" | "visual" | "activation" | "timeline" | "budget" | "vendors" | "compliance" | "risks";
 
@@ -473,6 +474,31 @@ export default function ProposalClientView({ proposal, highlightSection }: Props
             )}
           </div>
         </Section>
+      )}
+
+      {/* ── Floor Plan ───────────────────────────────────────────────────── */}
+      {(proposal.floorPlan?.length ?? 0) > 0 && (
+        <div style={{
+          borderRadius: 14, border: "1px solid var(--border)",
+          background: "var(--bg-card)", overflow: "hidden",
+        }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 10,
+            padding: "14px 20px", borderBottom: "1px solid var(--border)",
+            background: "var(--bg-surface)",
+          }}>
+            <span style={{ fontSize: 15 }}>⬛</span>
+            <h3 style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-2)" }}>
+              Event Floor Plan
+            </h3>
+            <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)" }}>
+              {proposal.floorPlan!.length} element{proposal.floorPlan!.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div style={{ padding: "16px" }}>
+            <FloorPlanViewer elements={proposal.floorPlan!} height={380} />
+          </div>
+        </div>
       )}
 
       {/* ── Compliance ────────────────────────────────────────────────────── */}

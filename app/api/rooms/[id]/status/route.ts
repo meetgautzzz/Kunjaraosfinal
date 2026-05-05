@@ -79,9 +79,16 @@ export async function PATCH(
       .eq("id", room.proposal_id)
       .single();
     if (propRow) {
+      const isLocked = to === "approved" || to === "won";
       void supabase
         .from("proposals")
-        .update({ data: { ...(propRow.data as object), status: proposalStatus } })
+        .update({
+          data: {
+            ...(propRow.data as object),
+            status: proposalStatus,
+            ...(isLocked ? { isLocked: true } : {}),
+          },
+        })
         .eq("id", room.proposal_id);
     }
   }

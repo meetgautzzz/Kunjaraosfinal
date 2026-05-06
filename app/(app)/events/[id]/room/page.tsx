@@ -249,13 +249,18 @@ export default function EventRoomPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Load comments when room is known
+  // Load + poll comments every 30s so client messages appear without refresh
   useEffect(() => {
     if (!room?.id) return;
-    fetch(`/api/rooms/${room.id}/comments`)
-      .then((r) => r.ok ? r.json() : [])
-      .then((data) => setComments(Array.isArray(data) ? data as RoomComment[] : []))
-      .catch(() => {});
+    const roomId = room.id;
+    const load = () =>
+      fetch(`/api/rooms/${roomId}/comments`)
+        .then((r) => r.ok ? r.json() : [])
+        .then((data) => setComments(Array.isArray(data) ? data as RoomComment[] : []))
+        .catch(() => {});
+    load();
+    const interval = setInterval(load, 30_000);
+    return () => clearInterval(interval);
   }, [room?.id]);
 
   // Clear highlight after 3s

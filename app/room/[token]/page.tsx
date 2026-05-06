@@ -195,6 +195,118 @@ function ActionPanel({
   );
 }
 
+// ── Comments thread (client ↔ planner) ───────────────────────────────────────
+
+type PublicComment = {
+  id:          string;
+  author_name: string;
+  author_type: "planner" | "client";
+  message:     string;
+  type:        string;
+  created_at:  string;
+};
+
+function CommentsSection({ token, clientName, dealStatus }: { token: string; clientName: string; dealStatus: string }) {
+  const [comments,  setComments]  = useState<PublicComment[]>([]);
+  const [text,      setText]      = useState("");
+  const [sending,   setSending]   = useState(false);
+  const [error,     setError]     = useState("");
+
+  useEffect(() => {
+    fetch(`/api/rooms/public/${token}/comments`)
+      .then((r) => r.ok ? r.json() : [])
+      .then((d) => setComments(Array.isArray(d) ? d as PublicComment[] : []))
+      .catch(() => {});
+  }, [token]);
+
+  async function send() {
+    if (!text.trim()) return;
+    setSending(true); setError("");
+    try {
+      const res = await fetch(`/api/rooms/public/${token}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to send.");
+      setComments((prev) => [...prev, data as PublicComment]);
+      setText("");
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const isClosed = dealStatus === "won" || dealStatus === "lost";
+
+  return (
+    <div style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.09)", background: "rgba(255,255,255,0.02)", overflow: "hidden" }}>
+      <div style={{ padding: "12px 18px", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 15 }}>💬</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>Discussion</span>
+        {comments.length > 0 && (
+          <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.25)" }}>{comments.length}</span>
+        )}
+      </div>
+
+      <div style={{ padding: "12px 18px", display: "flex", flexDirection: "column", gap: 10, maxHeight: 320, overflowY: "auto" }}>
+        {comments.length === 0 ? (
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", textAlign: "center", padding: "20px 0" }}>No messages yet. Start the conversation below.</p>
+        ) : comments.map((c) => {
+          const isClient = c.author_type === "client";
+          return (
+            <div key={c.id} style={{ display: "flex", flexDirection: "column", alignItems: isClient ? "flex-end" : "flex-start" }}>
+              <div style={{
+                maxWidth: "80%", padding: "8px 12px", borderRadius: isClient ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
+                background: isClient ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.06)",
+                border: isClient ? "1px solid rgba(99,102,241,0.3)" : "1px solid rgba(255,255,255,0.1)",
+              }}>
+                <p style={{ fontSize: 13, color: "#fff", lineHeight: 1.5, margin: 0 }}>{c.message}</p>
+              </div>
+              <p style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 3 }}>
+                {isClient ? clientName : c.author_name} · {new Date(c.created_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+
+      {!isClosed && (
+        <div style={{ padding: "12px 18px", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+          {error && <p style={{ fontSize: 11, color: "#f87171", marginBottom: 8 }}>{error}</p>}
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
+              placeholder="Type a message…"
+              style={{
+                flex: 1, padding: "8px 12px", borderRadius: 8,
+                border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)",
+                color: "#fff", fontSize: 13, fontFamily: "inherit", outline: "none",
+              }}
+            />
+            <button
+              onClick={send}
+              disabled={sending || !text.trim()}
+              style={{
+                padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+                background: "rgba(99,102,241,0.7)", border: "none", color: "#fff",
+                cursor: (sending || !text.trim()) ? "not-allowed" : "pointer",
+                opacity: (sending || !text.trim()) ? 0.5 : 1,
+              }}
+            >
+              {sending ? "…" : "Send"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Run of Show (read-only for client) ───────────────────────────────────────
 
 const CAT_COLORS: Record<string, string> = {
@@ -373,6 +485,9 @@ export default function ClientRoomPage({ params }: { params: Promise<{ token: st
               <FloorPlanViewer elements={room.floor_plan} height={380} />
             </div>
           )}
+
+          {/* Comments thread */}
+          <CommentsSection token={token} clientName={room.client_name} dealStatus={room.status} />
 
           {/* Second action panel at bottom for long proposals */}
           <ActionPanel

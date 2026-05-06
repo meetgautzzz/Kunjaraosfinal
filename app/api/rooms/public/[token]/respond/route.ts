@@ -35,7 +35,7 @@ export async function POST(
   // Fetch room to verify token + check current status
   const { data: room, error: fetchErr } = await admin
     .from("event_rooms")
-    .select("id, status, client_name, proposal_id")
+    .select("id, status, client_name, planner_id, proposal_id")
     .eq("share_token", token)
     .maybeSingle();
 
@@ -85,6 +85,20 @@ export async function POST(
         .update({ data: { ...(propRow.data as object), status: proposalStatus } })
         .eq("id", room.proposal_id);
     }
+  }
+
+  // Mirror the client message into event_room_comments so the manager sees it.
+  if (body.message && room.planner_id) {
+    await admin.from("event_room_comments").insert({
+      event_room_id: room.id,
+      author_id:     room.planner_id,
+      author_name:   room.client_name ?? "Client",
+      author_type:   "client",
+      message:       body.message,
+      type:          body.action === "revision_requested" ? "request_change" : "comment",
+      section_ref:   null,
+      parent_id:     null,
+    });
   }
 
   return NextResponse.json(data);

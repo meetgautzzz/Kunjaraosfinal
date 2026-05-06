@@ -148,6 +148,15 @@ function P({ children }: { children: React.ReactNode }) {
 function A({ href, children }: { href: string; children: React.ReactNode }) {
   return <a href={href} style={{ color: "var(--accent)", textDecoration: "none" }}>{children}</a>;
 }
+function Bullets({ items }: { items: string[] }) {
+  return (
+    <ul style={{ paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8, margin: "10px 0 14px" }}>
+      {items.map((item, i) => (
+        <li key={i} style={{ fontSize: 14, lineHeight: 1.65, color: "var(--text-2)", paddingLeft: 16, borderLeft: "2px solid var(--border-mid)" }}>{item}</li>
+      ))}
+    </ul>
+  );
+}
 
 const prose:   React.CSSProperties = { maxWidth: 720 };
 const eyebrow: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 12 };

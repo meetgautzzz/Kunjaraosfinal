@@ -80,7 +80,7 @@ export async function POST(
       .eq("id", room.proposal_id)
       .single();
     if (propRow) {
-      void admin
+      await admin
         .from("proposals")
         .update({ data: { ...(propRow.data as object), status: proposalStatus } })
         .eq("id", room.proposal_id);

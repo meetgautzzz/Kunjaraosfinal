@@ -23,10 +23,11 @@ const STAGE_STYLE: Record<Stage, string> = {
 function proposalToStage(status: string | undefined): Stage {
   const s = (status ?? "").toUpperCase();
   if (s === "APPROVED")                    return "Won";
+  if (s === "LOST")                        return "Lost";
   if (s === "CHANGES_REQUESTED")           return "Negotiation";
-  if (s === "DRAFT")                       return "Lead";
   if (s === "SENT" || s === "SHARED")      return "Proposal Sent";
-  if (s === "LOCKED")                      return "Execution";
+  if (s === "GENERATED" || s === "SAVED")  return "Lead";
+  if (s === "DRAFT")                       return "Lead";
   return "Lead";
 }
 
@@ -36,11 +37,17 @@ export default function EventsPage() {
   const [tab,     setTab]     = useState<Stage | "All">("All");
 
   useEffect(() => {
-    fetch("/api/proposals")
-      .then((r) => r.ok ? r.json() : [])
-      .then((data) => setRows(Array.isArray(data) ? data : []))
-      .catch(() => setRows([]))
-      .finally(() => setLoading(false));
+    const load = () =>
+      fetch("/api/proposals")
+        .then((r) => r.ok ? r.json() : [])
+        .then((data) => setRows(Array.isArray(data) ? data : []))
+        .catch(() => setRows([]));
+
+    load().finally(() => setLoading(false));
+
+    const onVisible = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
 
   const events = useMemo(() =>

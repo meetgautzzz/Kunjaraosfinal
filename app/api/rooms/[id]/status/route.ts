@@ -80,7 +80,7 @@ export async function PATCH(
       .single();
     if (propRow) {
       const isLocked = to === "approved" || to === "won";
-      void supabase
+      await supabase
         .from("proposals")
         .update({
           data: {

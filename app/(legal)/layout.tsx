@@ -33,19 +33,29 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
       </main>
 
       {/* Footer */}
-      <footer style={{ borderTop: "1px solid var(--border)", padding: "24px", textAlign: "center" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 20px", fontSize: 12, color: "var(--text-3)" }}>
-          <Link href="/about"         style={{ color: "inherit", textDecoration: "none" }}>About</Link>
-          <Link href="/contact"       style={{ color: "inherit", textDecoration: "none" }}>Contact</Link>
-          <Link href="/support"       style={{ color: "inherit", textDecoration: "none" }}>Support</Link>
-          <Link href="/privacy"       style={{ color: "inherit", textDecoration: "none" }}>Privacy Policy</Link>
-          <Link href="/terms"         style={{ color: "inherit", textDecoration: "none" }}>Terms of Service</Link>
-          <Link href="/dpdp"          style={{ color: "inherit", textDecoration: "none" }}>DPDP Compliance</Link>
-          <Link href="/data-deletion" style={{ color: "inherit", textDecoration: "none" }}>Data Deletion</Link>
+      <footer style={{ borderTop: "1px solid var(--border)", padding: "32px 24px", textAlign: "center" }}>
+        <div style={{ maxWidth: 680, margin: "0 auto" }}>
+          {/* Row 1 — Primary legal */}
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 20px", fontSize: 12, color: "var(--text-3)", marginBottom: 10 }}>
+            <Link href="/terms"         style={{ color: "inherit", textDecoration: "none" }}>Terms of Service</Link>
+            <Link href="/privacy"       style={{ color: "inherit", textDecoration: "none" }}>Privacy Policy</Link>
+            <Link href="/refund"        style={{ color: "inherit", textDecoration: "none" }}>Refund Policy</Link>
+            <Link href="/credits"       style={{ color: "inherit", textDecoration: "none" }}>Credit Usage</Link>
+            <Link href="/dpdp"          style={{ color: "inherit", textDecoration: "none" }}>DPDP Compliance</Link>
+            <Link href="/data-deletion" style={{ color: "inherit", textDecoration: "none" }}>Data Deletion</Link>
+          </div>
+          {/* Row 2 — Secondary */}
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px 20px", fontSize: 11, color: "var(--text-3)", opacity: 0.7, marginBottom: 14 }}>
+            <Link href="/about"        style={{ color: "inherit", textDecoration: "none" }}>About</Link>
+            <Link href="/contact"      style={{ color: "inherit", textDecoration: "none" }}>Contact</Link>
+            <Link href="/support"      style={{ color: "inherit", textDecoration: "none" }}>Support</Link>
+            <Link href="/nda"          style={{ color: "inherit", textDecoration: "none" }}>NDA &amp; IP</Link>
+            <Link href="/api-security" style={{ color: "inherit", textDecoration: "none" }}>API Security</Link>
+          </div>
+          <p style={{ fontSize: 11, color: "var(--text-3)", opacity: 0.5 }}>
+            © {new Date().getFullYear()} Kunjara Technologies. Kunjara OS™ is a registered trademark. All rights reserved.
+          </p>
         </div>
-        <p style={{ marginTop: 14, fontSize: 11, color: "var(--text-3)" }}>
-          © {new Date().getFullYear()} Kunjara OS. All rights reserved.
-        </p>
       </footer>
     </div>
   );

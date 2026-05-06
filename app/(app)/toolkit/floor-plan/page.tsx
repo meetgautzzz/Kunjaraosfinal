@@ -1,8 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import FloorPlanBuilder from "@/components/toolkit/FloorPlanBuilder";
+import dynamic from "next/dynamic";
 import type { FpElement } from "@/components/toolkit/FloorPlanBuilder";
+
+const FloorPlanBuilder = dynamic(
+  () => import("@/components/toolkit/FloorPlanBuilder"),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "var(--text-3)", fontSize: 13 }}>Loading floor plan…</p>
+      </div>
+    ),
+  }
+);
 
 const STORAGE_KEY = "kunjara_floor_plan_v1";
 

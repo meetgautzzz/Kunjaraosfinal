@@ -31,17 +31,14 @@ const NAV = [
 ];
 
 const TOOLKIT_ITEMS: {
-  href?: string;
+  href: string;
   label: string;
-  soon?: boolean;
   badge?: string;
 }[] = [
   { href: "/toolkit/social-caption", label: "Social Captions" },
   { href: "/toolkit/presentation",   label: "Presentation" },
   { href: "/toolkit/floor-plan",     label: "Floor Plan" },
   { href: "/toolkit/event-visual",   label: "3D Event Visual", badge: "AI" },
-  { label: "Canva Pitch Deck", soon: true },
-  { label: "Blender 3D",       soon: true },
 ];
 
 const ACCOUNT_NAV = [
@@ -109,7 +106,7 @@ export default function MobileNav({
               <p className="leading-none" style={{ fontFamily: '"Instrument Serif", serif', fontStyle: "italic", fontSize: 16, color: "#F4F1EA", letterSpacing: "-0.01em" }}>
                 Kunjara
                 <span style={{ fontFamily: "Geist, sans-serif", fontStyle: "normal", fontWeight: 600, fontSize: 12, letterSpacing: "0.04em", marginLeft: 3 }}>OS</span>
-                <sup style={{ fontFamily: "Geist, sans-serif", fontStyle: "normal", fontSize: 7, fontWeight: 600, color: "#4A4535", marginLeft: 1, verticalAlign: "super" }}>™</sup>
+                <sup style={{ fontFamily: "Geist, sans-serif", fontStyle: "normal", fontSize: 7, fontWeight: 600, color: "var(--text-3)", marginLeft: 1, verticalAlign: "super" }}>™</sup>
               </p>
               <p className="text-[var(--text-3)] text-[10px] mt-1 leading-none" style={{ fontFamily: '"JetBrains Mono", monospace', letterSpacing: "0.08em" }}>EVENT INTELLIGENCE</p>
             </div>
@@ -183,31 +180,11 @@ export default function MobileNav({
             {toolkitOpen && (
               <ul className="flex flex-col gap-0.5">
                 {TOOLKIT_ITEMS.map((item) => {
-                  if (item.soon) {
-                    return (
-                      <li key={item.label}>
-                        <div
-                          className="flex items-center gap-3 px-3 min-h-[44px] rounded-lg border border-transparent cursor-default select-none"
-                          title="Launching soon"
-                        >
-                          <span className="flex-1 text-sm font-medium text-[var(--text-3)] opacity-50 truncate">
-                            {item.label}
-                          </span>
-                          <span
-                            className="text-[8px] font-bold px-1.5 py-0.5 rounded-full tracking-wide shrink-0"
-                            style={{ background: "rgba(74,69,53,0.25)", color: "#4A4535", border: "1px solid rgba(74,69,53,0.35)" }}
-                          >
-                            Soon
-                          </span>
-                        </div>
-                      </li>
-                    );
-                  }
                   const active = path === item.href || path.startsWith(item.href + "/");
                   return (
                     <li key={item.href}>
                       <Link
-                        href={item.href!}
+                        href={item.href}
                         className={`flex items-center gap-3 px-3 min-h-[44px] rounded-lg text-sm font-medium transition-all ${
                           active
                             ? "border border-[var(--accent)]/20 text-[var(--accent)]"

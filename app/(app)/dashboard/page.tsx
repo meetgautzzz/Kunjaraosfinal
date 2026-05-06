@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
-import UpgradeBanner from "./UpgradeBanner";
-import QuickActions from "@/components/ui/QuickActions";
+import dynamic from "next/dynamic";
 import { formatINR } from "@/lib/proposals";
 import type { ProposalData } from "@/lib/proposals";
+
+const UpgradeBanner = dynamic(() => import("./UpgradeBanner"), { ssr: false });
+const QuickActions  = dynamic(() => import("@/components/ui/QuickActions"), { ssr: false });
 
 type ProposalRow = { id: string; data: ProposalData; created_at: string };
 
@@ -59,11 +61,14 @@ export default function DashboardPage() {
       setLoading(false);
     });
   }, []);
-  const approved      = proposals.filter((p) => p.data?.status === "APPROVED").length;
-  const actionNeeded  = proposals.filter((p) => ["DRAFT", "CHANGES_REQUESTED"].includes(p.data?.status ?? "")).length;
-  const totalBudget   = proposals.reduce((s, p) => s + (p.data?.budget ?? 0), 0);
-  const conversionPct = proposals.length > 0 ? Math.round((approved / proposals.length) * 100) : 0;
-  const recent        = [...proposals].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 8);
+  const { approved, actionNeeded, totalBudget, conversionPct, recent } = useMemo(() => {
+    const approved     = proposals.filter((p) => p.data?.status === "APPROVED").length;
+    const actionNeeded = proposals.filter((p) => ["DRAFT", "CHANGES_REQUESTED"].includes(p.data?.status ?? "")).length;
+    const totalBudget  = proposals.reduce((s, p) => s + (p.data?.budget ?? 0), 0);
+    const conversionPct = proposals.length > 0 ? Math.round((approved / proposals.length) * 100) : 0;
+    const recent       = [...proposals].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 8);
+    return { approved, actionNeeded, totalBudget, conversionPct, recent };
+  }, [proposals]);
 
   const hour     = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";

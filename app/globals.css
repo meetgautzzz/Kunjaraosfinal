@@ -57,7 +57,7 @@
   --terra:      #C9785F;
   --text-1:     #F4F1EA;
   --text-2:     #9B9080;
-  --text-3:     #4A4535;
+  --text-3:     #8A8070;
 }
 
 html, body {
@@ -133,7 +133,6 @@ textarea.input { min-height: 96px; padding: 12px 14px; resize: vertical; line-he
   padding: 10px 18px;
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
   background: var(--accent);
   border: 1px solid transparent;
   border-radius: 10px;

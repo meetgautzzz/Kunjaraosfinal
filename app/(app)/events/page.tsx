@@ -64,11 +64,17 @@ export default function EventsPage() {
     return c;
   }, [events]);
 
-  const filtered = tab === "All" ? events : events.filter((e) => e.stage === tab);
+  const filtered = useMemo(
+    () => tab === "All" ? events : events.filter((e) => e.stage === tab),
+    [events, tab]
+  );
 
-  const totalRevenue = events
-    .filter((e) => e.stage === "Won" || e.stage === "Execution" || e.stage === "Completed")
-    .reduce((sum, e) => sum + e.budget, 0);
+  const totalRevenue = useMemo(
+    () => events
+      .filter((e) => e.stage === "Won" || e.stage === "Execution" || e.stage === "Completed")
+      .reduce((sum, e) => sum + e.budget, 0),
+    [events]
+  );
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">

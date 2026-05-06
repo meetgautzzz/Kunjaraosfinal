@@ -1,18 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
+import dynamic from "next/dynamic";
+import type {
+  AiToolType, HistoryEntry,
+  BudgetInput, BudgetOutput,
+  RunOfShowInput, RunOfShowOutput,
+  SocialInput, SocialOutput,
+  PresentationInput, PresentationOutput,
+} from "@/lib/ai-tools";
 import {
-  AiToolType, HistoryEntry, TOOL_META,
-  BudgetInput, BudgetOutput, mockBudget,
-  RunOfShowInput, RunOfShowOutput, mockRunOfShow,
-  SocialInput, SocialOutput, mockSocial,
-  PresentationInput, PresentationOutput, mockPresentation,
+  TOOL_META,
+  mockBudget, mockRunOfShow, mockSocial, mockPresentation,
   loadHistory, saveToHistory, deleteFromHistory,
 } from "@/lib/ai-tools";
-import { BudgetForm, BudgetOutput as BudgetOutputView }               from "@/components/ai/BudgetTool";
-import { RunOfShowForm, RunOfShowOutput as RunOfShowOutputView }       from "@/components/ai/RunOfShowTool";
-import { SocialForm, SocialOutput as SocialOutputView }               from "@/components/ai/SocialTool";
-import { PresentationForm, PresentationOutput as PresOutputView }     from "@/components/ai/PresentationTool";
+
+const BudgetForm        = dynamic(() => import("@/components/ai/BudgetTool").then((m) => ({ default: m.BudgetForm })));
+const BudgetOutputView  = dynamic(() => import("@/components/ai/BudgetTool").then((m) => ({ default: m.BudgetOutput })));
+const RunOfShowForm     = dynamic(() => import("@/components/ai/RunOfShowTool").then((m) => ({ default: m.RunOfShowForm })));
+const RunOfShowOutputView = dynamic(() => import("@/components/ai/RunOfShowTool").then((m) => ({ default: m.RunOfShowOutput })));
+const SocialForm        = dynamic(() => import("@/components/ai/SocialTool").then((m) => ({ default: m.SocialForm })));
+const SocialOutputView  = dynamic(() => import("@/components/ai/SocialTool").then((m) => ({ default: m.SocialOutput })));
+const PresentationForm  = dynamic(() => import("@/components/ai/PresentationTool").then((m) => ({ default: m.PresentationForm })));
+const PresOutputView    = dynamic(() => import("@/components/ai/PresentationTool").then((m) => ({ default: m.PresentationOutput })));
 
 type View = "form" | "generating" | "output";
 
@@ -30,7 +40,7 @@ const GENERATING_STEPS: Record<AiToolType, string[]> = {
   "presentation": ["Structuring slide deck", "Writing slide content", "Adding speaker notes", "Final review"],
 };
 
-export default function ToolkitRunner({ tool }: { tool: AiToolType }) {
+const ToolkitRunner = memo(function ToolkitRunner({ tool }: { tool: AiToolType }) {
   const [view,      setView]     = useState<View>("form");
   const [generStep, setGenerStep] = useState(0);
   const [output,    setOutput]   = useState<unknown>(null);
@@ -256,4 +266,6 @@ export default function ToolkitRunner({ tool }: { tool: AiToolType }) {
       )}
     </div>
   );
-}
+});
+
+export default ToolkitRunner;

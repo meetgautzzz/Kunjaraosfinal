@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { formatINR, STATUS_STYLES, type ProposalData } from "@/lib/proposals";
@@ -20,18 +20,23 @@ export default function ProposalsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = proposals.filter(
-    (p) =>
-      !search ||
-      p.data?.title?.toLowerCase().includes(search.toLowerCase()) ||
-      p.data?.eventType?.toLowerCase().includes(search.toLowerCase()) ||
-      p.data?.location?.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return proposals.filter(
+      (p) =>
+        !q ||
+        p.data?.title?.toLowerCase().includes(q) ||
+        p.data?.eventType?.toLowerCase().includes(q) ||
+        p.data?.location?.toLowerCase().includes(q),
+    );
+  }, [proposals, search]);
 
-  const totalBudget    = proposals.reduce((s, p) => s + Number(p.data?.budget ?? 0), 0);
-  const generatedCount = proposals.filter(
-    (p) => p.data?.status === "GENERATED" || p.data?.status === "SAVED" || p.data?.status === "SENT"
-  ).length;
+  const { totalBudget, generatedCount } = useMemo(() => ({
+    totalBudget:    proposals.reduce((s, p) => s + Number(p.data?.budget ?? 0), 0),
+    generatedCount: proposals.filter(
+      (p) => p.data?.status === "GENERATED" || p.data?.status === "SAVED" || p.data?.status === "SENT"
+    ).length,
+  }), [proposals]);
 
   return (
     <div className="max-w-7xl mx-auto animate-fade-up" style={{ padding: "0 0 48px" }}>

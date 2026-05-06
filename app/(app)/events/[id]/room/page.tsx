@@ -5,9 +5,13 @@ import { useParams } from "next/navigation";
 import type { EventRoom as BaseEventRoom, RoomStatus, RoomComment, SectionRef } from "@/lib/event-rooms";
 import { ROOM_STATUS_LABEL, canTransition } from "@/lib/event-rooms";
 
+import dynamic from "next/dynamic";
 import type { FpElement } from "@/components/toolkit/FloorPlanBuilder";
-import { FloorPlanViewer } from "@/components/toolkit/FloorPlanBuilder";
-import FloorPlanBuilder from "@/components/toolkit/FloorPlanBuilder";
+
+const FloorPlanBuilder = dynamic(
+  () => import("@/components/toolkit/FloorPlanBuilder"),
+  { ssr: false, loading: () => <PanelLoader label="Floor plan" /> }
+);
 
 type EventRoom = BaseEventRoom & {
   share_token?:     string;
@@ -23,11 +27,33 @@ type EventRoom = BaseEventRoom & {
   } | null;
 };
 import type { ProposalData } from "@/lib/proposals";
-import ProposalClientView from "@/components/proposals/ProposalClientView";
-import DiscussionPanel from "@/components/room/DiscussionPanel";
 import type { RunOfShowOutput, RunOfShowInput } from "@/lib/ai-tools";
 import { mockRunOfShow } from "@/lib/ai-tools";
-import { RunOfShowForm, RunOfShowOutput as RunOfShowOutputView } from "@/components/ai/RunOfShowTool";
+
+const ProposalClientView = dynamic(
+  () => import("@/components/proposals/ProposalClientView"),
+  { ssr: false, loading: () => <PanelLoader label="Proposal" /> }
+);
+const DiscussionPanel = dynamic(
+  () => import("@/components/room/DiscussionPanel"),
+  { ssr: false, loading: () => <PanelLoader label="Discussion" /> }
+);
+const RunOfShowForm = dynamic(
+  () => import("@/components/ai/RunOfShowTool").then((m) => ({ default: m.RunOfShowForm })),
+  { ssr: false }
+);
+const RunOfShowOutputView = dynamic(
+  () => import("@/components/ai/RunOfShowTool").then((m) => ({ default: m.RunOfShowOutput })),
+  { ssr: false }
+);
+
+function PanelLoader({ label }: { label: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 200 }}>
+      <p style={{ color: "var(--text-3)", fontSize: 13 }}>Loading {label}…</p>
+    </div>
+  );
+}
 
 // ── Status styles ─────────────────────────────────────────────────────────────
 

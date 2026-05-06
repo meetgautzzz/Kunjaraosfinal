@@ -501,6 +501,61 @@ export default function ProposalClientView({ proposal, highlightSection }: Props
         </div>
       )}
 
+      {/* ── 3D Event Visuals ──────────────────────────────────────────────── */}
+      {(proposal.generatedVisuals?.length ?? 0) > 0 && (
+        <div style={{
+          borderRadius: 14, border: "1px solid var(--border)",
+          background: "var(--bg-card)", overflow: "hidden",
+        }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 10,
+            padding: "14px 20px", borderBottom: "1px solid var(--border)",
+            background: "var(--bg-surface)",
+          }}>
+            <span style={{ fontSize: 15 }}>🎨</span>
+            <h3 style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-2)" }}>
+              3D Event Visuals
+            </h3>
+            <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)" }}>
+              {proposal.generatedVisuals!.length} render{proposal.generatedVisuals!.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div style={{ padding: "16px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+            {proposal.generatedVisuals!.map((v) => (
+              <div key={v.id} style={{
+                borderRadius: 10, overflow: "hidden",
+                border: "1px solid var(--border)", background: "#0d0e11",
+              }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={v.image}
+                  alt={`3D event visual${v.brandName ? ` for ${v.brandName}` : ""}`}
+                  style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+                />
+                {(v.eventType || v.theme) && (
+                  <div style={{ padding: "8px 12px", display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {v.eventType && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20,
+                        background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)",
+                        color: "#a78bfa", textTransform: "capitalize",
+                      }}>{v.eventType}</span>
+                    )}
+                    {v.theme && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20,
+                        background: "var(--bg-surface)", border: "1px solid var(--border)",
+                        color: "var(--text-3)", textTransform: "capitalize",
+                      }}>{v.theme}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Compliance ────────────────────────────────────────────────────── */}
       {hasCompliance && (
         <Section id="compliance" title="Compliance Checklist" icon="⚖" highlight={hl("compliance")}>

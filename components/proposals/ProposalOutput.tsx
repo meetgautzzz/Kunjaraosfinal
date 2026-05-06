@@ -1708,7 +1708,7 @@ function VisualTab({
             }}
           >
             <p className="t-caption">
-              Upload your own image or design — AI generation coming soon.
+              Upload your own image or design — AI generation 
             </p>
           </div>
         )}
@@ -2481,7 +2481,7 @@ function VisualsTab({
                 <img
                   src={v.image}
                   alt={`3D visual for ${v.brandName ?? proposal.title}`}
-                  style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+                  style={{ width: "100%", display: "block" }}
                 />
               </div>
 

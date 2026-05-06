@@ -201,7 +201,7 @@ export default function ProposalClientView({ proposal, highlightSection }: Props
               <img
                 src={proposal.visualDirection.generatedImageUrl}
                 alt="Visual direction"
-                style={{ width: "100%", borderRadius: 10, border: "1px solid var(--border)", objectFit: "cover", maxHeight: 300 }}
+                style={{ width: "100%", borderRadius: 10, border: "1px solid var(--border)", display: "block" }}
               />
             )}
 
@@ -530,7 +530,7 @@ export default function ProposalClientView({ proposal, highlightSection }: Props
                 <img
                   src={v.image}
                   alt={`3D event visual${v.brandName ? ` for ${v.brandName}` : ""}`}
-                  style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+                  style={{ width: "100%", display: "block" }}
                 />
                 {(v.eventType || v.theme) && (
                   <div style={{ padding: "8px 12px", display: "flex", gap: 6, flexWrap: "wrap" }}>

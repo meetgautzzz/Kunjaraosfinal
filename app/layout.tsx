@@ -16,19 +16,22 @@ export default function RootLayout({
   <html lang="en">
 
     <head>
-      <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-40DTYGNHTK"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=G-40DTYGNHTK"
+  ></script>
 
-  gtag('config', 'G-40DTYGNHTK');
-</script>
-          `,
-        }}
-      />
-    </head>
+  <script
+    dangerouslySetInnerHTML={{
+      __html: `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-40DTYGNHTK');
+      `,
+    }}
+  />
+</head>
 
     <body className="bg-bg text-text-primary min-h-screen">
       {children}

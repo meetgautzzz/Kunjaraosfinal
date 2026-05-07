@@ -34,9 +34,9 @@ export default function RootLayout({
 </head>
 
     <body className="bg-bg text-text-primary min-h-screen">
-      {children}
-      <CookieConsent />
-    </body>
+  {children}
+  <CookieConsent />
+</body>
   </html>
 );
 }

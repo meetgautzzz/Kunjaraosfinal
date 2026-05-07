@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import type { Metadata } from "next";
 import "./globals.css";
 import CookieConsent from "@/components/ui/CookieConsent";
@@ -15,23 +16,19 @@ export default function RootLayout({
   return (
   <html lang="en">
 
-    <head>
-  <script
-    async
-    src="https://www.googletagmanager.com/gtag/js?id=G-40DTYGNHTK"
-  ></script>
+    <Script
+  src="https://www.googletagmanager.com/gtag/js?id=G-40DTYGNHTK"
+  strategy="afterInteractive"
+/>
 
-  <script
-    dangerouslySetInnerHTML={{
-      __html: `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-40DTYGNHTK');
-      `,
-    }}
-  />
-</head>
+<Script id="google-analytics" strategy="afterInteractive">
+  {`
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-40DTYGNHTK');
+  `}
+</Script>
 
     <body className="bg-bg text-text-primary min-h-screen">
   {children}

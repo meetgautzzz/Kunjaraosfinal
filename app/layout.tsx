@@ -15,26 +15,26 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-40DTYGNHTK"
-        strategy="afterInteractive"
-      />
-
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-40DTYGNHTK');
-        `}
-      </Script>
-
       <body className="bg-bg text-text-primary min-h-screen">
+
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-40DTYGNHTK"
+          strategy="afterInteractive"
+        />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-40DTYGNHTK');
+          `}
+        </Script>
+
         {children}
         <CookieConsent />
-      </body>
 
+      </body>
     </html>
   );
 }

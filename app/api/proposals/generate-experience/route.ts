@@ -13,6 +13,8 @@ import {
   buildExperienceUserMessage,
   sanitizeExperiencePayload,
 } from "@/lib/experiencePrompt";
+import { getAdminClient } from "@/lib/supabase/admin";
+import { buildEventPlannerContext, buildEnrichedUserMessage } from "@/lib/ai/eventPlanner";
 
 // Full proposal generation (gpt-4o in JSON mode) takes 30-60 s.
 // Default Vercel timeout is 10 s, which produces 502s.
@@ -66,7 +68,7 @@ export async function POST(req: NextRequest) {
     client: clientInfo, eventDate, venueByClient, foodByClient,
   } = bodyResult.data;
 
-  const userMessage = buildExperienceUserMessage({
+  const baseUserMessage = buildExperienceUserMessage({
     selectedIdea, eventType, budget, location, requirements, guestCount,
     clientCompanyName: clientInfo?.companyName,
     eventDate, venueByClient, foodByClient,
@@ -91,6 +93,21 @@ export async function POST(req: NextRequest) {
   const proposalLimit = (usage?.plan === "pro" || usage?.plan === "basic") ? 30 : 2;
   if ((usage?.proposals_used ?? 0) >= proposalLimit) {
     return aiError("LIMIT_REACHED", "Proposal limit reached. Upgrade to Pro (₹3,000/month) for 30 proposals.", 402);
+  }
+
+  // Build enriched user message with India-specific event planning knowledge.
+  // Fails soft — if admin client is unavailable, falls back to base message.
+  let userMessage = baseUserMessage;
+  const admin = getAdminClient();
+  if (admin) {
+    try {
+      const plannerCtx = await buildEventPlannerContext({
+        admin, location, budget, eventType, guestCount, eventDate,
+      });
+      userMessage = buildEnrichedUserMessage({ context: plannerCtx, baseMessage: baseUserMessage });
+    } catch (err) {
+      console.warn("[generate-experience] Knowledge enrichment failed (using base message):", err);
+    }
   }
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

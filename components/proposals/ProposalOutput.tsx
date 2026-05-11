@@ -2082,17 +2082,32 @@ function ConceptTab({ proposal, update }: { proposal: ProposalData; update: (f: 
       {/* Visual Mood Board */}
       <div>
         <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 14 }}>✨ Visual Mood Board</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="aspect-square rounded-xl border border-[var(--border)] overflow-hidden hover:border-indigo-500/50 transition-colors"
-              style={{ background: `linear-gradient(135deg, ${BUDGET_COLORS[i % BUDGET_COLORS.length]}18, ${BUDGET_COLORS[(i + 2) % BUDGET_COLORS.length]}0d)` }}>
-              <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-[var(--text-3)]">
-                <span style={{ fontSize: 24 }}>🎨</span>
-                <span style={{ fontSize: 11 }}>Mood {i + 1}</span>
+        {proposal.mood_board_images && proposal.mood_board_images.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {proposal.mood_board_images.map((url, i) => (
+              <div key={i} className="aspect-square rounded-xl overflow-hidden border border-[var(--border)] hover:border-indigo-500/50 transition-colors shadow-lg">
+                <img
+                  src={url}
+                  alt={`Mood board ${i + 1}`}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="aspect-square rounded-xl border border-[var(--border)] overflow-hidden animate-pulse"
+                style={{ background: `linear-gradient(135deg, ${BUDGET_COLORS[i % BUDGET_COLORS.length]}18, ${BUDGET_COLORS[(i + 2) % BUDGET_COLORS.length]}0d)` }}>
+                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-[var(--text-3)]">
+                  <span style={{ fontSize: 24 }}>🎨</span>
+                  <span style={{ fontSize: 11 }}>Generating…</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Color Palette from visual direction */}

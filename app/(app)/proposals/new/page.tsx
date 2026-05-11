@@ -206,6 +206,20 @@ export default function NewProposalPage() {
         credits.setRemaining((result as any).credits_remaining);
       }
       setStep("output");
+
+      // Fire-and-forget mood board generation — images arrive in the background
+      if (payload.id && payload.concept?.description) {
+        fetch("/api/proposals/generate-mood-board", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({
+            proposalId: payload.id,
+            concept:    payload.concept.description,
+            theme:      payload.concept.theme,
+            colors:     payload.visualDirection?.palette,
+          }),
+        }).catch(console.error);
+      }
     } catch (err: any) {
       if (maybeOpenBuyModal(err)) {
         setStep("ideas");

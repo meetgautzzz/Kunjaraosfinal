@@ -148,6 +148,8 @@ export type ProposalData = {
   regenerationsUsed?:  number;        // 0–5
   activeVersionLabel?: string;        // e.g. "v1", "v2"
   originalBrief?:      OriginalBrief; // captured on first generation, replayable
+  // DALL-E generated mood board images (URLs, fire-and-forget after proposal creation)
+  mood_board_images?: string[];
   // Batch generation — links proposals created together from the same brief
   batchId?:    string;  // shared UUID across all proposals in a batch
   batchIndex?: number;  // 0-based position within the batch (0, 1, 2)

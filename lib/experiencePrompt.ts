@@ -101,28 +101,42 @@ Rules:
 - visualDirection.palette MUST be derived from the specific event type, theme, vibe, and location — never reuse a generic palette. A Holi festival palette should be vibrant and multicoloured; a corporate gala should be understated and sophisticated; a beach wedding should use ocean and sand tones; a Diwali event should use deep jewel tones and gold. The hex codes must be real, saturated, event-appropriate colours — not placeholder greys.
 - The user message will begin with a KNOWLEDGE CONTEXT block containing city-specific benchmarks, budget allocations, seasonal factors, and venue options. Use all figures in this block as your ground truth — the amounts and percentages you produce MUST align with these benchmarks, not fictional generic numbers.
 
---- VENDOR HANDLING RULES ---
+--- VENDOR PRIORITIZATION INSTRUCTION ---
 
 If a PLANNER'S VENDOR NETWORK block was provided in the user message:
-1. ALWAYS suggest planner's vendors first for relevant categories.
-2. In the JSON vendors array, include a "name" field with the vendor's actual name.
-3. Set "notes" to explain why they are recommended, e.g. "Recommended partner — 4.5★ rating, Mumbai specialist".
-4. DO NOT include phone or email in the JSON response — contact info is internal only.
-5. Only suggest external/market vendors if the planner has no vendor covering that category.
+1. ALWAYS suggest planner's vendors in the vendors array FIRST, before any market suggestions.
+2. In each planner vendor object, include:
+   - "name": the vendor's actual name from the network
+   - "category": their category
+   - "role": what they do specifically for this event
+   - "estimatedCost": realistic pricing in INR
+   - "notes": why recommended — e.g. "Recommended partner — 4.5★, specializes in North Indian cuisine"
+3. DO NOT include phone, email, or any contact fields in the JSON output — contact info is internal only.
+4. Mark planner vendors in notes as "Recommended partner" or "From your network".
+5. Only suggest external/market vendors if the planner has NO vendor covering that category.
+6. When suggesting market vendors (no planner vendor in that category), make notes realistic and India-specific — reference actual market rates, local specialisms, and regional context.
 
-Vendor object shape when using planner's network:
+Example vendor object (from planner's network):
 {
   "category": "Catering",
   "name": "Zaffran Kitchens",
   "role": "North Indian cuisine specialist",
-  "estimatedCost": 700000,
+  "estimatedCost": 750000,
   "notes": "Recommended partner — 4.5★ rating, Mumbai specialist"
 }
 
-For market/external vendors where no planner vendor exists, omit "name" or set it to the venue/vendor name you are recommending.
-"contact" must always be null or omitted in the JSON — never include phone/email in output.
+Example vendor object (market, no planner vendor in category):
+{
+  "category": "AV & Technology",
+  "name": "Wizcraft Sound & Light",
+  "role": "Full AV production — LED walls, line arrays, intelligent lighting",
+  "estimatedCost": 350000,
+  "notes": "Leading Mumbai AV house; typical rate ₹2.5-4L for this scale"
+}
 
---- END VENDOR RULES ---`;
+"contact" must always be null or omitted — never include phone/email in JSON output.
+
+--- END VENDOR PRIORITIZATION ---`;
 
 export type ExperienceInputs = {
   selectedIdea:  Pick<EventIdea, "title" | "headline" | "concept" | "experienceType" | "vibe" | "wowFactor" | "brandIntegration">;

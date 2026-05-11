@@ -17,6 +17,12 @@ import FloorPlanBuilder, { CELL as FP_CELL, GW as FP_GW, GH as FP_GH, KINDS as F
 import type { FpElement } from "@/components/toolkit/FloorPlanBuilder";
 import ReviewSidebar from "@/components/proposals/ReviewSidebar";
 import SectionApprovalBadge from "@/components/proposals/SectionApprovalBadge";
+import { PieChart, Pie, Cell, Tooltip as RechartsTooltip } from "recharts";
+
+const BUDGET_COLORS = [
+  "#6366f1", "#8b5cf6", "#a855f7", "#d946ef",
+  "#ec4899", "#f43f5e", "#f97316", "#eab308",
+];
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
          | "experience" | "visual" | "activations" | "compliance" | "floor-plan" | "visuals";
@@ -889,6 +895,51 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
             {hasStage && (
               <div style={{ borderTop: "1px solid var(--border)" }}>
                 <StageTab proposal={proposal} update={update} />
+              </div>
+            )}
+            {proposal.decorPlan && (
+              <div style={{ borderTop: "1px solid var(--border)", padding: "28px 32px", display: "flex", flexDirection: "column", gap: 24 }}>
+                {/* Hero Statement */}
+                {proposal.decorPlan.hero && (
+                  <div style={{ borderRadius: 16, border: "2px solid rgba(99,102,241,0.4)", background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", padding: "28px 28px" }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 10 }}>🎨 Design Statement</p>
+                    <EditableText value={proposal.decorPlan.hero}
+                      onChange={(v) => update("decorPlan", { ...proposal.decorPlan, hero: v })}
+                      style={{ fontSize: 22, fontWeight: 800, color: "var(--text-1)", lineHeight: 1.3 }}
+                      placeholder="Hero design statement..." />
+                  </div>
+                )}
+                {/* Zones grid */}
+                {proposal.decorPlan.zones?.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 14 }}>Themed Zones</p>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {proposal.decorPlan.zones.map((zone, idx) => (
+                        <div key={idx} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-5 hover:border-indigo-500/50 transition-colors">
+                          <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, rgba(99,102,241,0.18), rgba(168,85,247,0.18))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10, fontSize: 18 }}>🎭</div>
+                          <EditableText value={zone.name}
+                            onChange={(v) => { const next = [...proposal.decorPlan!.zones]; next[idx] = { ...next[idx], name: v }; update("decorPlan", { ...proposal.decorPlan, zones: next }); }}
+                            style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", marginBottom: 6, display: "block" }}
+                            placeholder="Zone name..." />
+                          <EditableText value={zone.concept}
+                            onChange={(v) => { const next = [...proposal.decorPlan!.zones]; next[idx] = { ...next[idx], concept: v }; update("decorPlan", { ...proposal.decorPlan, zones: next }); }}
+                            style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55 }}
+                            placeholder="Zone concept..." />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Sustainability note */}
+                {proposal.decorPlan.sustainabilityNotes && (
+                  <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid rgba(52,211,153,0.25)", background: "rgba(52,211,153,0.05)" }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#34d399", marginBottom: 6 }}>♻ Sustainability</p>
+                    <EditableText value={proposal.decorPlan.sustainabilityNotes}
+                      onChange={(v) => update("decorPlan", { ...proposal.decorPlan, sustainabilityNotes: v })}
+                      style={{ fontSize: 13, color: "var(--text-2)" }}
+                      placeholder="Sustainability notes..." />
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -2027,6 +2078,41 @@ function ConceptTab({ proposal, update }: { proposal: ProposalData; update: (f: 
           </button>
         </div>
       )}
+
+      {/* Visual Mood Board */}
+      <div>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 14 }}>✨ Visual Mood Board</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="aspect-square rounded-xl border border-[var(--border)] overflow-hidden hover:border-indigo-500/50 transition-colors"
+              style={{ background: `linear-gradient(135deg, ${BUDGET_COLORS[i % BUDGET_COLORS.length]}18, ${BUDGET_COLORS[(i + 2) % BUDGET_COLORS.length]}0d)` }}>
+              <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-[var(--text-3)]">
+                <span style={{ fontSize: 24 }}>🎨</span>
+                <span style={{ fontSize: 11 }}>Mood {i + 1}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Color Palette from visual direction */}
+      {proposal.visualDirection?.palette?.length && (
+        <div>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 14 }}>🎨 Color Palette</p>
+          <div className="grid grid-cols-3 gap-3">
+            {proposal.visualDirection.palette.map((color, idx) => (
+              <div key={idx} className="rounded-lg overflow-hidden border border-[var(--border)]">
+                <div className="h-20 w-full" style={{ backgroundColor: color.hex }} />
+                <div className="p-3 bg-[var(--bg-surface)]">
+                  <p className="font-semibold text-sm text-[var(--text-1)]">{color.name}</p>
+                  <p className="text-xs text-[var(--text-3)] mt-0.5 font-mono">{color.hex}</p>
+                  {color.usage && <p className="text-xs text-[var(--text-3)] mt-1 leading-relaxed">{color.usage}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2077,6 +2163,28 @@ function BudgetTab({ proposal, update }: { proposal: ProposalData; update: (f: k
         <div style={{ display: "flex", gap: 10, padding: "10px 14px", borderRadius: 10, background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", color: "#fbbf24", fontSize: 12 }}>
           <span>⚠</span>
           <span>Line items sum to <strong>{formatINR(total)}</strong> but proposal budget is <strong>{formatINR(proposal.budget)}</strong>. Δ {formatINR(Math.abs(total - proposal.budget))}</span>
+        </div>
+      )}
+
+      {/* Recharts donut + total card */}
+      {lines.length > 0 && (
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-6 flex flex-col md:flex-row items-center gap-8">
+          <PieChart width={240} height={240}>
+            <Pie data={lines} cx={120} cy={120} innerRadius={72} outerRadius={108} paddingAngle={2} dataKey="amount">
+              {lines.map((_, idx) => (
+                <Cell key={idx} fill={BUDGET_COLORS[idx % BUDGET_COLORS.length]} />
+              ))}
+            </Pie>
+            <RechartsTooltip
+              formatter={(value) => [`₹${Number(value).toLocaleString("en-IN")}`, "Amount"]}
+              contentStyle={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+            />
+          </PieChart>
+          <div className="flex-1 text-center md:text-left">
+            <p className="text-xs uppercase tracking-widest text-[var(--text-3)] mb-1">Total Budget</p>
+            <p className="text-4xl font-bold text-indigo-400 tabular-nums">₹{total.toLocaleString("en-IN")}</p>
+            <p className="text-xs text-[var(--text-3)] mt-2">excl. GST (18%)</p>
+          </div>
         </div>
       )}
 
@@ -2181,76 +2289,89 @@ function TimelineTab({ proposal, update }: { proposal: ProposalData; update: (f:
   }
 
   return (
-    <div style={{ padding: "28px 32px", display: "flex", flexDirection: "column", gap: 12 }}>
-      {phases.map((phase, i) => {
-        const color = PHASE_COLORS[i % PHASE_COLORS.length];
-        const isMilestone = phase.milestone;
-        return (
-          <div key={i}
-            style={{ borderRadius: 14, border: `1px solid ${isMilestone ? `${GOLD}45` : "var(--border)"}`, background: isMilestone ? `${GOLD}06` : "var(--bg-surface)", overflow: "hidden", transition: "box-shadow 0.15s" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 24px rgba(0,0,0,0.22)"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
-          >
-            {/* Header */}
-            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ width: 30, height: 30, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, background: `${color}18`, border: `1px solid ${color}35`, color }}>
-                {i + 1}
+    <div style={{ padding: "28px 32px" }}>
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 24 }}>Project Timeline</p>
+      <div className="relative">
+        {phases.map((phase, i) => {
+          const color = PHASE_COLORS[i % PHASE_COLORS.length];
+          const isMilestone = phase.milestone;
+          return (
+            <div key={i} className="flex gap-5 pb-8 last:pb-0">
+              {/* Dot + connector line */}
+              <div className="flex flex-col items-center" style={{ flexShrink: 0 }}>
+                <div style={{
+                  width: isMilestone ? 18 : 14,
+                  height: isMilestone ? 18 : 14,
+                  borderRadius: "50%",
+                  background: isMilestone ? color : "var(--bg-card)",
+                  border: `2px solid ${color}`,
+                  flexShrink: 0,
+                  marginTop: 3,
+                  boxShadow: isMilestone ? `0 0 10px ${color}50` : "none",
+                }} />
+                {i < phases.length - 1 && (
+                  <div style={{ width: 2, flex: 1, background: `linear-gradient(to bottom, ${color}60, var(--border))`, marginTop: 4 }} />
+                )}
               </div>
-              <div style={{ flex: 1 }}>
-                <EditableText value={phase.phase} onChange={(v) => updatePhase(i, "phase", v)}
-                  style={{ fontSize: 15, fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.01em" }}
-                  placeholder="Phase name..." />
-              </div>
-              <span style={{ padding: "4px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: `${color}15`, border: `1px solid ${color}30`, color, whiteSpace: "nowrap" }}>
-                <EditableText value={phase.daysOut} onChange={(v) => updatePhase(i, "daysOut", v)}
-                  style={{ color: "inherit", fontSize: "inherit", fontWeight: "inherit" }}
-                  placeholder="T-30 days" />
-              </span>
-              {isMilestone && <span style={{ fontSize: 14, color: GOLD }}>★</span>}
-            </div>
 
-            {/* Tasks */}
-            <div style={{ padding: "12px 18px 14px 60px" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {phase.tasks.map((task, j) => (
-                  <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                    <span style={{ color, fontSize: 7, marginTop: 6, flexShrink: 0 }}>◆</span>
-                    <EditableText value={task}
-                      onChange={(v) => { const next = [...phase.tasks]; next[j] = v; updatePhase(i, "tasks", next); }}
-                      style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55, flex: 1 }}
-                      placeholder="Task..." />
-                    <button onClick={() => updatePhase(i, "tasks", phase.tasks.filter((_, k) => k !== j))}
-                      style={{ fontSize: 11, color: "var(--text-3)", background: "none", border: "none", cursor: "pointer", opacity: 0, transition: "opacity 0.15s", flexShrink: 0 }}
-                      onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.opacity = "1"; el.style.color = "#f87171"; }}
-                      onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.opacity = "0"; el.style.color = "var(--text-3)"; }}>
-                      ✕
-                    </button>
+              {/* Card */}
+              <div className="flex-1" style={{ paddingBottom: i < phases.length - 1 ? 0 : 0 }}>
+                <div style={{
+                  borderRadius: 14,
+                  border: `1px solid ${isMilestone ? `${color}50` : "var(--border)"}`,
+                  background: isMilestone ? `${color}08` : "var(--bg-surface)",
+                  overflow: "hidden",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                    <div style={{ flex: 1 }}>
+                      <EditableText value={phase.phase} onChange={(v) => updatePhase(i, "phase", v)}
+                        style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)" }}
+                        placeholder="Phase name..." />
+                    </div>
+                    <span style={{ padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: `${color}15`, border: `1px solid ${color}30`, color, whiteSpace: "nowrap" }}>
+                      <EditableText value={phase.daysOut} onChange={(v) => updatePhase(i, "daysOut", v)}
+                        style={{ color: "inherit", fontSize: "inherit", fontWeight: "inherit" }}
+                        placeholder="T-30 days" />
+                    </span>
+                    {isMilestone && <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 999, background: `${GOLD}15`, color: GOLD, fontWeight: 600 }}>📌 Milestone</span>}
                   </div>
-                ))}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 10 }}>
-                <button onClick={() => updatePhase(i, "tasks", [...phase.tasks, "New task"])}
-                  style={{ fontSize: 12, color, background: "none", border: "none", cursor: "pointer", opacity: 0.75 }}>
-                  + Add task
-                </button>
-                <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-3)", cursor: "pointer" }}>
-                  <input type="checkbox" checked={phase.milestone} onChange={(e) => updatePhase(i, "milestone", e.target.checked)}
-                    style={{ accentColor: GOLD }} />
-                  Milestone
-                </label>
-                <button onClick={() => update("timeline", phases.filter((_, k) => k !== i))}
-                  style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)", background: "none", border: "none", cursor: "pointer" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#f87171"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-3)"; }}>
-                  Remove
-                </button>
+                  <div style={{ padding: "10px 16px 12px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                      {phase.tasks.map((task, j) => (
+                        <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                          <span style={{ color, fontSize: 8, marginTop: 5, flexShrink: 0 }}>✓</span>
+                          <EditableText value={task}
+                            onChange={(v) => { const next = [...phase.tasks]; next[j] = v; updatePhase(i, "tasks", next); }}
+                            style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5, flex: 1 }}
+                            placeholder="Task..." />
+                          <button onClick={() => updatePhase(i, "tasks", phase.tasks.filter((_, k) => k !== j))}
+                            style={{ fontSize: 11, color: "var(--text-3)", background: "none", border: "none", cursor: "pointer", opacity: 0, transition: "opacity 0.15s", flexShrink: 0 }}
+                            onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.opacity = "1"; el.style.color = "#f87171"; }}
+                            onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.opacity = "0"; el.style.color = "var(--text-3)"; }}>✕</button>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 8 }}>
+                      <button onClick={() => updatePhase(i, "tasks", [...phase.tasks, "New task"])}
+                        style={{ fontSize: 12, color, background: "none", border: "none", cursor: "pointer", opacity: 0.75 }}>+ Add task</button>
+                      <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-3)", cursor: "pointer" }}>
+                        <input type="checkbox" checked={phase.milestone} onChange={(e) => updatePhase(i, "milestone", e.target.checked)} style={{ accentColor: GOLD }} />
+                        Milestone
+                      </label>
+                      <button onClick={() => update("timeline", phases.filter((_, k) => k !== i))}
+                        style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)", background: "none", border: "none", cursor: "pointer" }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#f87171"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-3)"; }}>Remove</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
       <button onClick={() => update("timeline", [...phases, { phase: "New Phase", daysOut: "TBD", tasks: ["Task 1"], milestone: false }])}
-        style={{ fontSize: 12, color: GOLD, background: "none", border: "none", cursor: "pointer", opacity: 0.75, alignSelf: "flex-start", marginTop: 4 }}>
+        style={{ fontSize: 12, color: GOLD, background: "none", border: "none", cursor: "pointer", opacity: 0.75, marginTop: 8 }}>
         + Add phase
       </button>
     </div>

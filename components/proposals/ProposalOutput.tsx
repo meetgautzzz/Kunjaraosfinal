@@ -2427,7 +2427,8 @@ function VendorsTab({ proposal, update, hideToggle = false }: {
               <div key={idx} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="font-semibold text-[var(--text-1)]">{v.category}</p>
+                    <p className="font-semibold text-[var(--text-1)]">{v.name || v.category}</p>
+                    {v.name && <p className="text-xs text-indigo-400 mt-0.5">{v.category}</p>}
                     <p className="text-sm text-[var(--text-2)] mt-1">{v.role}</p>
                     {v.notes && (
                       <p className="text-xs text-[var(--text-3)] mt-2 leading-relaxed italic">💡 {v.notes}</p>
@@ -2457,7 +2458,12 @@ function VendorsTab({ proposal, update, hideToggle = false }: {
                   <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-sm font-bold shrink-0">{v.category[0]}</div>
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center justify-between gap-2">
-                      <EditableText value={v.category} onChange={(val) => updateVendor(i,"category",val)} className="text-[var(--text-1)] font-semibold text-sm" placeholder="Category..." />
+                      <div className="flex-1 min-w-0">
+                        {v.name && (
+                          <EditableText value={v.name} onChange={(val) => updateVendor(i,"name",val)} className="text-[var(--text-1)] font-semibold text-sm" placeholder="Vendor name..." />
+                        )}
+                        <EditableText value={v.category} onChange={(val) => updateVendor(i,"category",val)} className={`${v.name ? "text-indigo-400 text-xs" : "text-[var(--text-1)] font-semibold text-sm"}`} placeholder="Category..." />
+                      </div>
                       <EditableNumber value={v.estimatedCost} onChange={(val) => updateVendor(i,"estimatedCost",val)} className="text-emerald-400 text-sm font-semibold shrink-0" prefix="₹" />
                     </div>
                     <EditableText value={v.role} onChange={(val) => updateVendor(i,"role",val)} className="text-[var(--text-2)] text-xs" placeholder="Role..." />

@@ -30,6 +30,7 @@ export type TimelinePhase = {
 
 export type ProposalVendor = {
   category:      string;
+  name?:         string;
   role:          string;
   estimatedCost: number;
   notes:         string;

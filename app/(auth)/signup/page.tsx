@@ -378,6 +378,7 @@ export default function SignupPage() {
                 type="text"
                 autoComplete="name"
                 placeholder="Full name"
+                aria-label="Full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={loading}
@@ -387,6 +388,7 @@ export default function SignupPage() {
                 type="email"
                 autoComplete="email"
                 placeholder="you@company.com"
+                aria-label="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
@@ -396,6 +398,7 @@ export default function SignupPage() {
                 type="password"
                 autoComplete="new-password"
                 placeholder="Password (min 8 characters)"
+                aria-label="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
@@ -405,6 +408,7 @@ export default function SignupPage() {
                 type="password"
                 autoComplete="new-password"
                 placeholder="Confirm password"
+                aria-label="Confirm password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 disabled={loading}

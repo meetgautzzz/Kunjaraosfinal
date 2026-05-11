@@ -136,6 +136,7 @@ function LoginInner() {
             type="email"
             autoComplete="email"
             placeholder="you@company.com"
+            aria-label="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={googleLoading || emailLoading}
@@ -145,6 +146,7 @@ function LoginInner() {
             type="password"
             autoComplete="current-password"
             placeholder="Password"
+            aria-label="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={googleLoading || emailLoading}

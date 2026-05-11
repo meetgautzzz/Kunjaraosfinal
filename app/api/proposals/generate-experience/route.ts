@@ -20,6 +20,34 @@ import { buildEventPlannerContext, buildEnrichedUserMessage } from "@/lib/ai/eve
 // Default Vercel timeout is 10 s, which produces 502s.
 export const maxDuration = 60;
 
+async function getUserVendorsForEvent(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  location: string,
+): Promise<{ name: string; category: string; city: string | null; phone: string | null; email: string | null; rating: number | null }[]> {
+  const { data, error } = await supabase!
+    .from("vendors")
+    .select("id, name, category, city, phone, email, rating, notes")
+    .eq("user_id", userId)
+    .eq("active", true)
+    .order("rating", { ascending: false });
+
+  if (error || !data) return [];
+
+  const city = location.toLowerCase();
+  const scored = (data as any[])
+    .map((v) => ({
+      ...v,
+      _cityMatch: v.city?.toLowerCase().includes(city) || city.includes(v.city?.toLowerCase() ?? "___"),
+    }))
+    .sort((a, b) => {
+      if (a._cityMatch !== b._cityMatch) return a._cityMatch ? -1 : 1;
+      return (b.rating ?? 0) - (a.rating ?? 0);
+    });
+
+  return scored.slice(0, 8);
+}
+
 const SelectedIdeaSchema = z.object({
   title:            z.string().min(1),
   headline:         z.string().min(1),
@@ -95,27 +123,39 @@ export async function POST(req: NextRequest) {
     return aiError("LIMIT_REACHED", "Proposal limit reached. Upgrade to Pro (₹3,000/month) for 30 proposals.", 402);
   }
 
-  // Build enriched user message with India-specific event planning knowledge.
-  // Fails soft — if admin client is unavailable, falls back to base message.
+  // Fetch user's vendor network and knowledge enrichment in parallel.
+  // Both fail soft — fallback to base message if anything goes wrong.
   let userMessage = baseUserMessage;
   const admin = getAdminClient();
-  if (admin) {
-    try {
-      const plannerCtx = await buildEventPlannerContext({
-        admin, location, budget, eventType, guestCount, eventDate,
-      });
-      userMessage = buildEnrichedUserMessage({ context: plannerCtx, baseMessage: baseUserMessage });
-    } catch (err) {
-      console.warn("[generate-experience] Knowledge enrichment failed (using base message):", err);
-    }
+  const [plannerResult, userVendors] = await Promise.allSettled([
+    admin
+      ? buildEventPlannerContext({ admin, location, budget, eventType, guestCount, eventDate })
+      : Promise.reject(new Error("no admin client")),
+    getUserVendorsForEvent(supabase, user.id, location),
+  ]);
+
+  if (plannerResult.status === "fulfilled") {
+    userMessage = buildEnrichedUserMessage({ context: plannerResult.value, baseMessage: baseUserMessage });
+  } else {
+    console.warn("[generate-experience] Knowledge enrichment failed:", plannerResult.reason);
   }
+
+  const vendors = userVendors.status === "fulfilled" ? userVendors.value : [];
+  const vendorContext = vendors.length > 0
+    ? "\n\nUSER'S VENDOR NETWORK (prioritize these over generic suggestions):\n" +
+      vendors
+        .map((v) => `- ${v.name} (${v.category}, ${v.city ?? location}, ⭐${v.rating ?? "unrated"}, ${v.phone ?? v.email ?? "contact available"})`)
+        .join("\n")
+    : "";
+
+  const finalUserMessage = userMessage + vendorContext;
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const fb = await chatWithFallback(openai, {
     temperature: 0.6,
     messages: [
       { role: "system", content: EXPERIENCE_SYSTEM_PROMPT },
-      { role: "user",   content: userMessage },
+      { role: "user",   content: finalUserMessage },
     ],
     response_format: { type: "json_object" },
   }, "generate-experience");

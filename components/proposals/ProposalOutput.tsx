@@ -2262,7 +2262,7 @@ function VendorsTab({ proposal, update }: { proposal: ProposalData; update: (f: 
   return (
     <div className="p-6 space-y-3">
       {vendors.map((v, i) => (
-        <div key={i} className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] p-4 group hover:border-indigo-500/30 transition-colors">
+        <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 group hover:border-indigo-500/30 transition-colors">
           <div className="flex items-start gap-4">
             <div className="w-9 h-9 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 text-sm font-bold shrink-0">{v.category[0]}</div>
             <div className="flex-1 min-w-0 space-y-1">
@@ -2272,6 +2272,20 @@ function VendorsTab({ proposal, update }: { proposal: ProposalData; update: (f: 
               </div>
               <EditableText value={v.role} onChange={(val) => updateVendor(i,"role",val)} className="text-[var(--text-2)] text-xs" placeholder="Role..." />
               <EditableText value={v.notes} onChange={(val) => updateVendor(i,"notes",val)} className="text-[var(--text-3)] text-xs italic" placeholder="Notes..." />
+              {(v.contact?.phone || v.contact?.email) && (
+                <div className="flex items-center gap-3 pt-1">
+                  {v.contact.phone && (
+                    <a href={`tel:${v.contact.phone}`} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+                      📞 {v.contact.phone}
+                    </a>
+                  )}
+                  {v.contact.email && (
+                    <a href={`mailto:${v.contact.email}`} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+                      ✉️ {v.contact.email}
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
             <button onClick={() => update("vendors",vendors.filter((_,j)=>j!==i))} className="text-[var(--text-3)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-xs">✕</button>
           </div>

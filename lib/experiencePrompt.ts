@@ -37,8 +37,8 @@ Produce a JSON response that matches EXACTLY this shape (all fields required exc
     { "phase": "Event Day",            "daysOut": "Day of event",   "tasks": ["..."],                "milestone": true  }
   ],
   "vendors": [
-    { "category": "Venue",           "role": "Host venue & facilities",   "estimatedCost": 250000, "notes": "Specific venue recommendation with rationale" },
-    { "category": "Catering",        "role": "F&B management",            "estimatedCost": 750000, "notes": "..." },
+    { "category": "Venue",           "role": "Host venue & facilities",   "estimatedCost": 250000, "notes": "Specific venue recommendation with rationale", "contact": { "phone": "9XXXXXXXXX", "email": "venue@example.com" } },
+    { "category": "Catering",        "role": "F&B management",            "estimatedCost": 750000, "notes": "...", "contact": null },
     { "category": "AV & Technology", "role": "Sound, lighting, LED",      "estimatedCost": 350000, "notes": "..." },
     { "category": "Decor & Design",  "role": "Theme execution",           "estimatedCost": 300000, "notes": "..." },
     { "category": "Entertainment",   "role": "Performers & DJ",           "estimatedCost": 200000, "notes": "..." },
@@ -99,6 +99,7 @@ Rules:
 - No filler words like "world-class", "state-of-the-art", "premium quality".
 - No markdown inside JSON values.
 - visualDirection.palette MUST be derived from the specific event type, theme, vibe, and location — never reuse a generic palette. A Holi festival palette should be vibrant and multicoloured; a corporate gala should be understated and sophisticated; a beach wedding should use ocean and sand tones; a Diwali event should use deep jewel tones and gold. The hex codes must be real, saturated, event-appropriate colours — not placeholder greys.
+- For vendors listed in USER'S VENDOR NETWORK, copy their phone/email into the vendor's "contact" field. For all other vendors set "contact" to null or omit it.
 - The user message will begin with a KNOWLEDGE CONTEXT block containing city-specific benchmarks, budget allocations, seasonal factors, and venue options. Use all figures in this block as your ground truth — the amounts and percentages you produce MUST align with these benchmarks, not fictional generic numbers.`;
 
 export type ExperienceInputs = {

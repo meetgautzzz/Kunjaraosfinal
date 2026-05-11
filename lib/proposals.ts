@@ -33,6 +33,10 @@ export type ProposalVendor = {
   role:          string;
   estimatedCost: number;
   notes:         string;
+  contact?: {
+    phone?: string;
+    email?: string;
+  };
 };
 
 // ── Experience Generator types ─────────────────────────────────────────────────

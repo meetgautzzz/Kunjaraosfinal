@@ -15,6 +15,8 @@ import {
 import { useBranding } from "@/lib/branding";
 import FloorPlanBuilder, { CELL as FP_CELL, GW as FP_GW, GH as FP_GH, KINDS as FP_KINDS } from "@/components/toolkit/FloorPlanBuilder";
 import type { FpElement } from "@/components/toolkit/FloorPlanBuilder";
+import ReviewSidebar from "@/components/proposals/ReviewSidebar";
+import SectionApprovalBadge from "@/components/proposals/SectionApprovalBadge";
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
          | "experience" | "visual" | "activations" | "compliance" | "floor-plan" | "visuals";
@@ -34,6 +36,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const hasActivations= !!proposal.experienceElements;
 
   const [tab,             setTab]             = useState<Tab>(hasExperience ? "experience" : "concept");
+  const [showSidebar,     setShowSidebar]     = useState(false);
   const [saved,           setSaved]           = useState(false);
   const [saveError,       setSaveError]       = useState("");
   const [editMode,        setEditMode]        = useState(false);
@@ -284,7 +287,8 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
   const TABS = ALL_TABS.filter((t) => t.show);
 
   return (
-    <div className="max-w-7xl mx-auto" style={{ paddingBottom: 48, display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: showSidebar ? "grid" : "block", gridTemplateColumns: showSidebar ? "1fr 320px" : undefined, alignItems: "start", maxWidth: showSidebar ? "none" : "80rem", margin: "0 auto" }}>
+    <div style={{ paddingBottom: 48, display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
 
       {/* ── Top bar ───────────────────────────────────────────────────────── */}
       {proposal.clientResponse && (
@@ -552,6 +556,19 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
               }}
             >
               {lockLoading ? "…" : proposal.isLocked ? "🔒 Locked" : "🔒 Lock"}
+            </button>
+            <button
+              onClick={() => setShowSidebar((v) => !v)}
+              title={showSidebar ? "Hide review sidebar" : "Share proposal with client & track approvals"}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "8px 13px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+                border: showSidebar ? "1px solid rgba(212,168,95,0.5)" : "1px solid rgba(212,168,95,0.3)",
+                background: showSidebar ? "rgba(212,168,95,0.15)" : "rgba(212,168,95,0.07)",
+                color: "#D4A85F", cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
+              }}
+            >
+              {showSidebar ? "✕ Close Review" : "↗ Share & Review"}
             </button>
             <button
               onClick={() => { window.location.href = `/toolkit/event-visual?from=${proposal.id}`; }}
@@ -833,9 +850,11 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`tab-item${tab === t.id ? " active" : ""}`}
+              style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
             >
               <span>{t.icon}</span>
               {t.label}
+              <SectionApprovalBadge sectionApprovals={{}} section={t.id} />
             </button>
           ))}
         </div>
@@ -971,7 +990,14 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
           </div>
         </div>
       )}
-    </div>
+    </div>{/* end inner content column */}
+
+    {showSidebar && (
+      <div style={{ height: "calc(100vh - 72px)", position: "sticky", top: 72, overflow: "hidden" }}>
+        <ReviewSidebar proposalId={proposal.id} activeTab={tab} />
+      </div>
+    )}
+  </div>
   );
 }
 

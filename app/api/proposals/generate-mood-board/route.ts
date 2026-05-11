@@ -84,10 +84,7 @@ function buildPrompts(concept: string, theme?: string, colors?: { name: string }
 
   return [
     `${base}. Concept: ${concept}. Elegant venue decoration with ${colorStr} color palette. Upscale event styling.`,
-    `${base}. Concept: ${concept}. Luxury tableware and fine dining setup, color theme ${colorStr}. Premium banquet design.`,
     `${base}. Theme: ${themeStr}. Dramatic stage and focal point, cinematic lighting. Professional event production.`,
-    `${base}. Concept: ${concept}. Grand entrance and guest arrival experience, ${colorStr} palette. Luxury event ambiance.`,
-    `${base}. Theme: ${themeStr}. Floral arrangements and decor details. Opulent event design with ${colorStr} tones.`,
-    `${base}. Concept: ${concept}. Full event atmosphere and ambiance, aerial perspective. Color scheme: ${colorStr}.`,
+    `${base}. Concept: ${concept}. Full event atmosphere and ambiance. Color scheme: ${colorStr}.`,
   ];
 }

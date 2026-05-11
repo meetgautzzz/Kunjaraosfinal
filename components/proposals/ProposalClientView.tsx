@@ -6,6 +6,7 @@ import { formatINR } from "@/lib/proposals";
 import { STATUS_CONFIG } from "@/lib/compliance";
 import type { ComplianceItem } from "@/lib/compliance";
 import { FloorPlanViewer } from "@/components/toolkit/FloorPlanBuilder";
+import { PieChart, Pie, Cell, Tooltip } from "recharts";
 
 type SectionRef = "concept" | "experience" | "visual" | "activation" | "timeline" | "budget" | "vendors" | "compliance" | "risks";
 
@@ -129,6 +130,26 @@ export default function ProposalClientView({ proposal, highlightSection }: Props
           </div>
         </div>
       </div>
+
+      {/* ── Mood Board ────────────────────────────────────────────────────── */}
+      {(proposal.mood_board_images?.length ?? 0) > 0 && (
+        <div style={{ borderRadius: 14, border: "1px solid var(--border)", background: "var(--bg-card)", overflow: "hidden" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 20px", borderBottom: "1px solid var(--border)", background: "var(--bg-surface)" }}>
+            <span style={{ fontSize: 15 }}>✨</span>
+            <h3 style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-2)" }}>Visual Mood Board</h3>
+          </div>
+          <div style={{ padding: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
+              {proposal.mood_board_images!.map((url, i) => (
+                <div key={i} style={{ borderRadius: 10, overflow: "hidden", border: "1px solid var(--border)" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Mood board ${i + 1}`} style={{ width: "100%", display: "block", aspectRatio: "16/9", objectFit: "cover" }} loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Concept ───────────────────────────────────────────────────────── */}
       {hasConcept && (
@@ -379,7 +400,19 @@ export default function ProposalClientView({ proposal, highlightSection }: Props
       {/* ── Budget ────────────────────────────────────────────────────────── */}
       {hasBudget && (
         <Section id="budget" title="Budget Breakdown" icon="₹" highlight={hl("budget")}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Pie chart */}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <PieChart width={320} height={320}>
+                <Pie data={proposal.budgetBreakdown} cx={160} cy={160} innerRadius={80} outerRadius={130} paddingAngle={2} dataKey="amount">
+                  {proposal.budgetBreakdown.map((_, idx) => (
+                    <Cell key={idx} fill={["#6366f1","#8b5cf6","#a855f7","#d946ef","#ec4899","#f43f5e","#f97316","#eab308"][idx % 8]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString("en-IN")}`, "Amount"]} />
+              </PieChart>
+            </div>
+
             {proposal.budgetBreakdown.map((line, i) => (
               <div key={i} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
@@ -547,6 +580,55 @@ export default function ProposalClientView({ proposal, highlightSection }: Props
                         background: "var(--bg-surface)", border: "1px solid var(--border)",
                         color: "var(--text-3)", textTransform: "capitalize",
                       }}>{v.theme}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── 3D Event Visuals ──────────────────────────────────────────────── */}
+      {(proposal.generatedVisuals?.length ?? 0) > 0 && (
+        <div style={{ borderRadius: 14, border: "1px solid var(--border)", background: "var(--bg-card)", overflow: "hidden" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 20px", borderBottom: "1px solid var(--border)", background: "var(--bg-surface)" }}>
+            <span style={{ fontSize: 15 }}>🎬</span>
+            <h3 style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-2)" }}>
+              3D Event Visualization
+            </h3>
+            <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)" }}>
+              {proposal.generatedVisuals!.length} render{proposal.generatedVisuals!.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 16 }}>
+            {proposal.generatedVisuals!.map((v) => (
+              <div
+                key={v.id}
+                style={{
+                  borderRadius: 12, overflow: "hidden",
+                  border: "1px solid var(--border)", background: "#0d0e11",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={v.image}
+                  alt={`3D event visual${v.brandName ? ` for ${v.brandName}` : ""}`}
+                  style={{ width: "100%", display: "block" }}
+                  loading="lazy"
+                />
+                {(v.eventType || v.theme) && (
+                  <div style={{ padding: "8px 12px", display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {v.eventType && (
+                      <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#a78bfa", textTransform: "capitalize" }}>
+                        {v.eventType}
+                      </span>
+                    )}
+                    {v.theme && (
+                      <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-3)", textTransform: "capitalize" }}>
+                        {v.theme}
+                      </span>
                     )}
                   </div>
                 )}

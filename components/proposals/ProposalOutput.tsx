@@ -2816,13 +2816,14 @@ function VisualsTab({
           </a>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24 }}>
           {visuals.map((v) => (
             <div
               key={v.id}
               style={{
-                borderRadius: 14, border: "1px solid var(--border)",
+                borderRadius: 16, border: "1px solid var(--border)",
                 background: "var(--bg-card)", overflow: "hidden",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
               }}
             >
               {/* Image */}

@@ -2,6 +2,7 @@ import Script from 'next/script';
 import type { Metadata } from "next";
 import "./globals.css";
 import CookieConsent from "@/components/ui/CookieConsent";
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: "Kunjara OS™",
@@ -33,6 +34,7 @@ export default function RootLayout({
 
         {children}
         <CookieConsent />
+        <Analytics />
 
       </body>
     </html>

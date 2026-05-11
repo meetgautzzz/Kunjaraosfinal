@@ -23,11 +23,12 @@ export const maxDuration = 60;
 async function getUserVendorsForEvent(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
+  eventType: string,
   location: string,
-): Promise<{ name: string; category: string; city: string | null; phone: string | null; email: string | null; rating: number | null }[]> {
+): Promise<{ name: string; category: string; city: string | null; phone: string | null; email: string | null; rating: number | null; notes: string | null }[]> {
   const { data, error } = await supabase!
     .from("vendors")
-    .select("id, name, category, city, phone, email, rating, notes")
+    .select("id, name, category, city, phone, email, rating, notes, active")
     .eq("user_id", userId)
     .eq("active", true)
     .order("rating", { ascending: false });
@@ -35,17 +36,11 @@ async function getUserVendorsForEvent(
   if (error || !data) return [];
 
   const city = location.toLowerCase();
-  const scored = (data as any[])
-    .map((v) => ({
-      ...v,
-      _cityMatch: v.city?.toLowerCase().includes(city) || city.includes(v.city?.toLowerCase() ?? "___"),
-    }))
-    .sort((a, b) => {
-      if (a._cityMatch !== b._cityMatch) return a._cityMatch ? -1 : 1;
-      return (b.rating ?? 0) - (a.rating ?? 0);
-    });
+  const filtered = (data as any[]).filter(
+    (v) => !location || v.city?.toLowerCase().includes(city),
+  );
 
-  return scored.slice(0, 8);
+  return filtered.slice(0, 12);
 }
 
 const SelectedIdeaSchema = z.object({
@@ -131,7 +126,7 @@ export async function POST(req: NextRequest) {
     admin
       ? buildEventPlannerContext({ admin, location, budget, eventType, guestCount, eventDate })
       : Promise.reject(new Error("no admin client")),
-    getUserVendorsForEvent(supabase, user.id, location),
+    getUserVendorsForEvent(supabase, user.id, eventType, location),
   ]);
 
   if (plannerResult.status === "fulfilled") {
@@ -142,20 +137,21 @@ export async function POST(req: NextRequest) {
 
   const vendors = userVendors.status === "fulfilled" ? userVendors.value : [];
   const vendorContext = vendors.length > 0
-    ? "\n\nUSER'S VENDOR NETWORK (prioritize these over generic suggestions):\n" +
+    ? "\n\nPLANNER'S VENDOR NETWORK (use these for recommendations):\n" +
       vendors
-        .map((v) => `- ${v.name} (${v.category}, ${v.city ?? location}, ⭐${v.rating ?? "unrated"}, ${v.phone ?? v.email ?? "contact available"})`)
-        .join("\n")
+        .map((v) => `- ${v.name} (${v.category}, ${v.city ?? location}, ⭐${v.rating ?? "unrated"}, availability: flexible, contact: ${v.phone ?? v.email ?? "N/A"})`)
+        .join("\n") +
+      "\n\nPrioritize planner's vendors in all recommendations. Only suggest market vendors if planner has no vendor in that category."
     : "";
 
-  const finalUserMessage = userMessage + vendorContext;
+  const enrichedUserMessage = userMessage + vendorContext;
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const fb = await chatWithFallback(openai, {
     temperature: 0.6,
     messages: [
       { role: "system", content: EXPERIENCE_SYSTEM_PROMPT },
-      { role: "user",   content: finalUserMessage },
+      { role: "user",   content: enrichedUserMessage },
     ],
     response_format: { type: "json_object" },
   }, "generate-experience");

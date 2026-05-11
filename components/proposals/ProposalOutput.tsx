@@ -23,13 +23,14 @@ type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
 
 
 type Props = {
-  proposal: ProposalData;
-  onChange:  (p: ProposalData) => void;
-  onBack:    () => void;
-  onSave:    () => void;
+  proposal:         ProposalData;
+  onChange:         (p: ProposalData) => void;
+  onBack:           () => void;
+  onSave:           () => void;
+  hideVendorToggle?: boolean;
 };
 
-export default function ProposalOutput({ proposal, onChange, onBack, onSave }: Props) {
+export default function ProposalOutput({ proposal, onChange, onBack, onSave, hideVendorToggle = false }: Props) {
   const hasExperience = !!(proposal.eventConcept || proposal.selectedIdea);
   const hasVisual     = !!proposal.visualDirection;
   const hasStage      = !!(proposal.stageDesign || proposal.decorPlan);
@@ -872,7 +873,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave }: P
         {tab === "concept"     && <ConceptTab      proposal={proposal} update={update} />}
         {tab === "budget"      && <BudgetTab       proposal={proposal} update={update} />}
         {tab === "timeline"    && <TimelineTab     proposal={proposal} update={update} />}
-        {tab === "vendors"     && <VendorsTab      proposal={proposal} update={update} />}
+        {tab === "vendors"     && <VendorsTab      proposal={proposal} update={update} hideToggle={hideVendorToggle} />}
         {tab === "risks"       && <RisksTab        proposal={proposal} update={update} />}
         {tab === "experience"  && <ExperienceTab   proposal={proposal} update={update} />}
         {tab === "visual"      && (
@@ -2256,42 +2257,113 @@ function TimelineTab({ proposal, update }: { proposal: ProposalData; update: (f:
   );
 }
 
-function VendorsTab({ proposal, update }: { proposal: ProposalData; update: (f: keyof ProposalData, v: any) => void }) {
+function VendorsTab({ proposal, update, hideToggle = false }: {
+  proposal:    ProposalData;
+  update:      (f: keyof ProposalData, v: any) => void;
+  hideToggle?: boolean;
+}) {
   const vendors = proposal.vendors ?? [];
-  function updateVendor(i: number, field: keyof ProposalVendor, value: any) { const next=[...vendors]; next[i]={...next[i],[field]:value}; update("vendors",next); }
+  const [viewMode, setViewMode] = useState<"client" | "planner">("client");
+  function updateVendor(i: number, field: keyof ProposalVendor, value: any) {
+    const next = [...vendors]; next[i] = { ...next[i], [field]: value }; update("vendors", next);
+  }
   return (
-    <div className="p-6 space-y-3">
-      {vendors.map((v, i) => (
-        <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 group hover:border-indigo-500/30 transition-colors">
-          <div className="flex items-start gap-4">
-            <div className="w-9 h-9 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 text-sm font-bold shrink-0">{v.category[0]}</div>
-            <div className="flex-1 min-w-0 space-y-1">
-              <div className="flex items-center justify-between gap-2">
-                <EditableText value={v.category} onChange={(val) => updateVendor(i,"category",val)} className="text-[var(--text-1)] font-semibold text-sm" placeholder="Category..." />
-                <EditableNumber value={v.estimatedCost} onChange={(val) => updateVendor(i,"estimatedCost",val)} className="text-emerald-400 text-sm font-semibold shrink-0" prefix="₹" />
-              </div>
-              <EditableText value={v.role} onChange={(val) => updateVendor(i,"role",val)} className="text-[var(--text-2)] text-xs" placeholder="Role..." />
-              <EditableText value={v.notes} onChange={(val) => updateVendor(i,"notes",val)} className="text-[var(--text-3)] text-xs italic" placeholder="Notes..." />
-              {(v.contact?.phone || v.contact?.email) && (
-                <div className="flex items-center gap-3 pt-1">
-                  {v.contact.phone && (
-                    <a href={`tel:${v.contact.phone}`} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
-                      📞 {v.contact.phone}
-                    </a>
-                  )}
-                  {v.contact.email && (
-                    <a href={`mailto:${v.contact.email}`} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
-                      ✉️ {v.contact.email}
-                    </a>
+    <div>
+      {/* Header + toggle */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+        <h2 className="text-lg font-semibold text-[var(--text-1)]">📋 Vendors</h2>
+        {!hideToggle && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode("client")}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                viewMode === "client"
+                  ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/50"
+                  : "bg-[var(--bg-surface)] text-[var(--text-3)] border border-[var(--border)] hover:border-indigo-500/50"
+              }`}
+            >
+              👁️ Client View
+            </button>
+            <button
+              onClick={() => setViewMode("planner")}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                viewMode === "planner"
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50"
+                  : "bg-[var(--bg-surface)] text-[var(--text-3)] border border-[var(--border)] hover:border-emerald-500/50"
+              }`}
+            >
+              🔐 Planner View
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="p-6">
+        {/* CLIENT VIEW — no contact info */}
+        {viewMode === "client" && (
+          <div className="space-y-3">
+            {vendors.map((v, idx) => (
+              <div key={idx} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="font-semibold text-[var(--text-1)]">{v.category}</p>
+                    <p className="text-sm text-[var(--text-2)] mt-1">{v.role}</p>
+                    {v.notes && (
+                      <p className="text-xs text-[var(--text-3)] mt-2 leading-relaxed italic">💡 {v.notes}</p>
+                    )}
+                  </div>
+                  {!!v.estimatedCost && (
+                    <div className="text-right ml-4">
+                      <p className="font-bold text-emerald-400">₹{v.estimatedCost.toLocaleString()}</p>
+                      <p className="text-xs text-[var(--text-3)] mt-1">Estimated</p>
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-            <button onClick={() => update("vendors",vendors.filter((_,j)=>j!==i))} className="text-[var(--text-3)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-xs">✕</button>
+              </div>
+            ))}
           </div>
-        </div>
-      ))}
-      <button onClick={() => update("vendors",[...vendors,{category:"New Vendor",role:"",estimatedCost:0,notes:""}])} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">+ Add vendor</button>
+        )}
+
+        {/* PLANNER VIEW — editable + contact links */}
+        {viewMode === "planner" && (
+          <div className="space-y-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
+            <div className="flex gap-2 mb-3 text-xs text-emerald-300">
+              <span>🔐</span><span>Internal only — client cannot see this</span>
+            </div>
+            {vendors.map((v, i) => (
+              <div key={i} className="rounded-lg border border-emerald-500/30 bg-[var(--bg-surface)] p-4 group">
+                <div className="flex items-start gap-4">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-sm font-bold shrink-0">{v.category[0]}</div>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <EditableText value={v.category} onChange={(val) => updateVendor(i,"category",val)} className="text-[var(--text-1)] font-semibold text-sm" placeholder="Category..." />
+                      <EditableNumber value={v.estimatedCost} onChange={(val) => updateVendor(i,"estimatedCost",val)} className="text-emerald-400 text-sm font-semibold shrink-0" prefix="₹" />
+                    </div>
+                    <EditableText value={v.role} onChange={(val) => updateVendor(i,"role",val)} className="text-[var(--text-2)] text-xs" placeholder="Role..." />
+                    <EditableText value={v.notes} onChange={(val) => updateVendor(i,"notes",val)} className="text-[var(--text-3)] text-xs italic" placeholder="Notes..." />
+                    {(v.contact?.phone || v.contact?.email) && (
+                      <div className="flex items-center gap-3 pt-1">
+                        {v.contact?.phone && (
+                          <a href={`tel:${v.contact.phone}`} className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                            📞 {v.contact.phone}
+                          </a>
+                        )}
+                        {v.contact?.email && (
+                          <a href={`mailto:${v.contact.email}`} className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                            ✉️ {v.contact.email}
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={() => update("vendors",vendors.filter((_,j)=>j!==i))} className="text-[var(--text-3)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-xs">✕</button>
+                </div>
+              </div>
+            ))}
+            <button onClick={() => update("vendors",[...vendors,{category:"New Vendor",role:"",estimatedCost:0,notes:""}])} className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors">+ Add vendor</button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

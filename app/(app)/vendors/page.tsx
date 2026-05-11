@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 
 type Vendor = {
   id:          string;
@@ -44,6 +44,8 @@ export default function VendorsPage() {
   const [editingId,    setEditingId]    = useState<string | null>(null);
   const [deleting,     setDeleting]     = useState<string | null>(null);
   const [aiModalOpen,  setAiModalOpen]  = useState(false);
+  const [importOpen,   setImportOpen]   = useState(false);
+  const [importing,    setImporting]    = useState(false);
 
   async function load() {
     setLoading(true);
@@ -56,6 +58,27 @@ export default function VendorsPage() {
   }
 
   useEffect(() => { load(); }, []);
+
+  async function handleImportCSV(file: File) {
+    setImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/vendors/import", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`Import failed: ${data.error}`);
+        return;
+      }
+      alert(`✅ Imported ${data.imported} vendor${data.imported === 1 ? "" : "s"}${data.skipped ? ` (${data.skipped} skipped — missing name)` : ""}!`);
+      setImportOpen(false);
+      load();
+    } catch (err: any) {
+      alert(`Error: ${err?.message ?? "Unknown error"}`);
+    } finally {
+      setImporting(false);
+    }
+  }
 
   const categories = useMemo(() => {
     const seen = new Set<string>();
@@ -124,6 +147,12 @@ export default function VendorsPage() {
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/10 text-sm font-semibold transition-colors"
           >
             <span className="text-base leading-none">⚡</span> AI Suggest
+          </button>
+          <button
+            onClick={() => setImportOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-1)] hover:border-indigo-500/50 text-sm font-medium transition-colors"
+          >
+            📥 Import CSV
           </button>
           <button
             onClick={() => { setEditingId(null); setModalOpen(true); }}
@@ -266,6 +295,13 @@ export default function VendorsPage() {
         </div>
       )}
 
+      <ImportModal
+        open={importOpen}
+        importing={importing}
+        onClose={() => setImportOpen(false)}
+        onImport={handleImportCSV}
+      />
+
       {(modalOpen || editingVendor) && (
         <VendorModal
           initial={editingVendor ?? undefined}
@@ -388,6 +424,124 @@ function VendorModal({
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function downloadTemplate() {
+  const csv = [
+    "name,category,phone,email,city,price_range,rating,notes,events_done",
+    "Zaffran Kitchens,Catering,9876543210,info@zaffran.com,Mumbai,₹700-1000 per plate,5,North Indian specialist,25",
+    "Taj Venue,Venue,9876543211,events@tajvenue.com,Mumbai,Premium,4,5-star hotel venue,100",
+    "DJ Nikhil,Entertainment,9876543212,nikhil@djservices.com,Mumbai,₹40K-60K,5,Bollywood specialist,50",
+  ].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = "vendor_template.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function ImportModal({
+  open,
+  importing,
+  onClose,
+  onImport,
+}: {
+  open:      boolean;
+  importing: boolean;
+  onClose:   () => void;
+  onImport:  (file: File) => void;
+}) {
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file?.name.endsWith(".csv")) {
+      onImport(file);
+    } else {
+      alert("Please drop a .csv file");
+    }
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.currentTarget.files?.[0];
+    if (file) onImport(file);
+    e.currentTarget.value = "";
+  }
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl w-full max-w-md shadow-2xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-[var(--text-1)]">📥 Import Vendors</h3>
+          <button onClick={onClose} className="text-[var(--text-3)] hover:text-[var(--text-1)] text-xl leading-none">×</button>
+        </div>
+
+        {/* Template download */}
+        <div className="mb-5 p-4 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)]">
+          <p className="text-xs text-[var(--text-3)] mb-2">Required CSV columns:</p>
+          <code className="text-xs text-indigo-400 font-mono leading-relaxed block">
+            name, category, phone, email, city,<br />
+            price_range, rating, notes, events_done
+          </code>
+          <button
+            onClick={downloadTemplate}
+            className="mt-3 text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+          >
+            ⬇️ Download Template CSV
+          </button>
+        </div>
+
+        {/* Drop zone */}
+        <div
+          onDrop={handleDrop}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          className={`rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
+            dragging
+              ? "border-indigo-500 bg-indigo-500/10"
+              : "border-[var(--border)] bg-[var(--bg-surface)]"
+          }`}
+        >
+          <p className="text-3xl mb-2">{importing ? "⏳" : "📤"}</p>
+          <p className="text-sm text-[var(--text-1)] font-medium mb-1">
+            {importing ? "Importing…" : "Drag & drop your CSV here"}
+          </p>
+          <p className="text-xs text-[var(--text-3)]">
+            {importing ? "Please wait" : "or click below to select"}
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          {!importing && (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-4 px-4 py-2 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/30 text-sm font-medium transition-colors"
+            >
+              Choose File
+            </button>
+          )}
+        </div>
+
+        <div className="mt-5 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5">
+          <p className="text-xs text-amber-300">
+            💡 <span className="font-semibold">Tip:</span> Build your list in Excel or Google Sheets, export as CSV, then upload here. Only the <code className="font-mono">name</code> column is required.
+          </p>
+        </div>
       </div>
     </div>
   );

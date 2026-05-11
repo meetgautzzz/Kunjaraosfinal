@@ -1382,62 +1382,47 @@ function TabSection({ eyebrow, title }: { eyebrow: string; title: string }) {
 function ExperienceTab({ proposal, update }: { proposal: ProposalData; update: (f: keyof ProposalData, v: any) => void }) {
   const idea = proposal.selectedIdea;
   const ec   = proposal.eventConcept;
+  const GOLD = "#D4A85F";
 
   return (
-    <div style={{ padding: "28px", display: "flex", flexDirection: "column", gap: 32 }}>
+    <div style={{ padding: "28px 32px", display: "flex", flexDirection: "column", gap: 32 }}>
       {/* Selected concept hero */}
       {idea && (
         <div>
           <TabSection eyebrow="Selected Concept" title={idea.title} />
-          <div
-            style={{
-              borderRadius: 14,
-              border: "1px solid rgba(99,102,241,0.25)",
-              background: "rgba(99,102,241,0.05)",
-              overflow: "hidden",
-            }}
-          >
-            {/* Score row */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "20px 24px",
-                borderBottom: "1px solid rgba(99,102,241,0.12)",
-              }}
-            >
-              <p className="t-body" style={{ maxWidth: 560 }}>{idea.concept}</p>
-              <div style={{ textAlign: "right", paddingLeft: 24, flexShrink: 0 }}>
-                <p style={{ fontSize: 42, fontWeight: 800, color: "#a5b4fc", lineHeight: 1, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>
+          <div style={{ borderRadius: 16, border: `1px solid ${GOLD}30`, background: `linear-gradient(135deg, ${GOLD}08, rgba(139,92,246,0.04))`, overflow: "hidden" }}>
+            {/* Concept + score */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "22px 26px", borderBottom: `1px solid ${GOLD}18`, gap: 20 }}>
+              <p className="t-body" style={{ maxWidth: 560, lineHeight: 1.65 }}>{idea.concept}</p>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <p style={{ fontSize: 48, fontWeight: 900, color: GOLD, lineHeight: 1, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.03em" }}>
                   {idea.score.overall.toFixed(1)}
                 </p>
-                <p className="eyebrow" style={{ marginTop: 4 }}>Overall</p>
+                <p className="eyebrow" style={{ marginTop: 4, color: "var(--text-3)" }}>Overall Score</p>
               </div>
             </div>
             {/* Score grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderBottom: "1px solid rgba(99,102,241,0.12)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderBottom: `1px solid ${GOLD}18` }}>
               {[
-                { label: "Uniqueness",  v: idea.score.uniqueness },
-                { label: "Engagement",  v: idea.score.engagement },
-                { label: "Budget Fit",  v: idea.score.budgetFit  },
+                { label: "Uniqueness",  v: idea.score.uniqueness  },
+                { label: "Engagement",  v: idea.score.engagement  },
+                { label: "Budget Fit",  v: idea.score.budgetFit   },
               ].map(({ label, v }, idx) => (
-                <div
-                  key={label}
-                  style={{
-                    padding: "16px 20px",
-                    borderRight: idx < 2 ? "1px solid rgba(99,102,241,0.12)" : "none",
-                  }}
-                >
-                  <p style={{ fontSize: 24, fontWeight: 700, color: "#ededf0", fontVariantNumeric: "tabular-nums", lineHeight: 1, marginBottom: 4 }}>{v}<span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-3)" }}>/10</span></p>
+                <div key={label} style={{ padding: "16px 20px", borderRight: idx < 2 ? `1px solid ${GOLD}18` : "none" }}>
+                  <p style={{ fontSize: 26, fontWeight: 800, color: "var(--text-1)", fontVariantNumeric: "tabular-nums", lineHeight: 1, marginBottom: 4 }}>
+                    {v}<span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-3)" }}>/10</span>
+                  </p>
                   <p className="eyebrow">{label}</p>
                 </div>
               ))}
             </div>
             {/* Wow factor */}
-            <div style={{ padding: "16px 24px" }}>
-              <p className="eyebrow" style={{ marginBottom: 6 }}>Wow Factor</p>
-              <p className="t-body">{idea.wowFactor}</p>
+            <div style={{ padding: "16px 26px", display: "flex", alignItems: "flex-start", gap: 12 }}>
+              <span style={{ fontSize: 16, color: GOLD, flexShrink: 0, marginTop: 1 }}>★</span>
+              <div>
+                <p className="eyebrow" style={{ marginBottom: 5, color: GOLD, opacity: 0.8 }}>Wow Factor</p>
+                <p className="t-body">{idea.wowFactor}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -1447,24 +1432,11 @@ function ExperienceTab({ proposal, update }: { proposal: ProposalData; update: (
       {ec && (
         <div>
           <TabSection eyebrow="Event Narrative" title="Storyline & Theme" />
-          <div
-            style={{
-              borderRadius: 14,
-              border: "1px solid var(--border)",
-              background: "var(--bg-surface)",
-              overflow: "hidden",
-            }}
-          >
+          <div style={{ borderRadius: 16, border: `1px solid ${GOLD}28`, background: "var(--bg-surface)", overflow: "hidden" }}>
             {/* Theme + tagline row */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                borderBottom: "1px solid var(--border)",
-              }}
-            >
-              <div style={{ padding: "18px 22px", borderRight: "1px solid var(--border)" }}>
-                <p className="eyebrow" style={{ marginBottom: 8 }}>Theme</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: `1px solid ${GOLD}18` }}>
+              <div style={{ padding: "20px 24px", borderRight: `1px solid ${GOLD}18` }}>
+                <p className="eyebrow" style={{ marginBottom: 8, color: GOLD, opacity: 0.75 }}>Theme</p>
                 <EditableText
                   value={ec.theme}
                   onChange={(v) => update("eventConcept", { ...ec, theme: v })}
@@ -1472,19 +1444,19 @@ function ExperienceTab({ proposal, update }: { proposal: ProposalData; update: (
                   placeholder="Event theme..."
                 />
               </div>
-              <div style={{ padding: "18px 22px" }}>
-                <p className="eyebrow" style={{ marginBottom: 8 }}>Tagline</p>
+              <div style={{ padding: "20px 24px" }}>
+                <p className="eyebrow" style={{ marginBottom: 8, color: GOLD, opacity: 0.75 }}>Tagline</p>
                 <EditableText
                   value={ec.tagline}
                   onChange={(v) => update("eventConcept", { ...ec, tagline: v })}
-                  style={{ fontSize: 15, fontStyle: "italic", color: "#a5b4fc" }}
+                  style={{ fontSize: 15, fontStyle: "italic", color: "var(--text-2)", lineHeight: 1.6 }}
                   placeholder="Tagline..."
                 />
               </div>
             </div>
             {/* Storyline */}
-            <div style={{ padding: "20px 22px" }}>
-              <p className="eyebrow" style={{ marginBottom: 8 }}>Narrative</p>
+            <div style={{ padding: "22px 24px", background: `linear-gradient(135deg, ${GOLD}05, transparent)` }}>
+              <p className="eyebrow" style={{ marginBottom: 10, color: GOLD, opacity: 0.75 }}>Narrative</p>
               <EditableTextarea
                 value={ec.storyline}
                 onChange={(v) => update("eventConcept", { ...ec, storyline: v })}
@@ -1497,46 +1469,39 @@ function ExperienceTab({ proposal, update }: { proposal: ProposalData; update: (
           {/* Emotional journey */}
           {ec.emotionalJourney?.length > 0 && (
             <div style={{ marginTop: 28 }}>
-              <p className="eyebrow" style={{ marginBottom: 14 }}>Emotional Journey</p>
-              <div style={{ display: "flex", gap: 0, position: "relative" }}>
-                {/* connector line */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 18,
-                    left: 18,
-                    right: 18,
-                    height: 1,
-                    background: "linear-gradient(90deg, rgba(99,102,241,0.3), rgba(139,92,246,0.3))",
-                  }}
-                />
-                <div style={{ display: "grid", gridTemplateColumns: `repeat(${ec.emotionalJourney.length}, 1fr)`, gap: 12, width: "100%", position: "relative" }}>
+              <p className="eyebrow" style={{ marginBottom: 16, color: GOLD, opacity: 0.8 }}>Emotional Journey</p>
+              <div style={{ position: "relative" }}>
+                {/* Gold connector line */}
+                <div style={{
+                  position: "absolute",
+                  top: 20,
+                  left: 20,
+                  right: 20,
+                  height: 1,
+                  background: `linear-gradient(90deg, ${GOLD}40, ${GOLD}20)`,
+                }} />
+                <div style={{ display: "grid", gridTemplateColumns: `repeat(${ec.emotionalJourney.length}, 1fr)`, gap: 10, position: "relative" }}>
                   {ec.emotionalJourney.map((beat, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        borderRadius: 12,
-                        border: "1px solid var(--border)",
-                        background: "var(--bg-card)",
-                        padding: "16px 14px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 28,
-                          height: 28,
-                          borderRadius: "50%",
-                          background: "rgba(99,102,241,0.15)",
-                          border: "1px solid rgba(99,102,241,0.3)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginBottom: 10,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: "#a5b4fc",
-                        }}
-                      >
+                    <div key={i} style={{
+                      borderRadius: 12,
+                      border: `1px solid ${GOLD}20`,
+                      background: `linear-gradient(160deg, ${GOLD}08, var(--bg-card))`,
+                      padding: "16px 14px",
+                    }}>
+                      <div style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: "50%",
+                        background: `${GOLD}18`,
+                        border: `1.5px solid ${GOLD}50`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: 10,
+                        fontSize: 12,
+                        fontWeight: 800,
+                        color: GOLD,
+                      }}>
                         {i + 1}
                       </div>
                       <EditableText
@@ -1792,86 +1757,75 @@ function VisualTab({
 function StageTab({ proposal, update }: { proposal: ProposalData; update: (f: keyof ProposalData, v: any) => void }) {
   const sd = proposal.stageDesign;
   const dp = proposal.decorPlan;
+  const GOLD = "#D4A85F";
+  const ZONE_COLORS = [GOLD, "#a78bfa", "#34d399", "#60a5fa", "#f472b6", "#f59e0b"];
 
   return (
-    <div className="p-6 space-y-6">
+    <div style={{ padding: "28px 32px", display: "flex", flexDirection: "column", gap: 32 }}>
       {sd && (
-        <div>
-          <h4 className="text-[var(--text-1)] font-semibold text-sm mb-3">Stage Design</h4>
-          <div className="space-y-3">
-            <div className="rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] p-4 grid sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-[var(--text-3)] mb-1.5">Layout</p>
-                <EditableText
-                  value={sd.layout}
-                  onChange={(v) => update("stageDesign", { ...sd, layout: v })}
-                  className="text-[var(--text-1)] text-sm"
-                  placeholder="Stage layout..."
-                />
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-3)" }}>Stage Design</p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {([
+              { label: "Layout",           value: sd.layout,          field: "layout",          span: false },
+              { label: "Entry Experience", value: sd.entryExperience, field: "entryExperience",  span: false },
+              { label: "Signature Element",value: sd.signature,       field: "signature",        span: true  },
+            ] as { label: string; value: string; field: string; span: boolean }[]).map(({ label, value, field, span }) => (
+              <div key={field} style={{ padding: "16px 18px", borderRadius: 12, background: "var(--bg-surface)", border: "1px solid var(--border)", gridColumn: span ? "1 / -1" : undefined }}>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 8 }}>{label}</p>
+                <EditableText value={value} onChange={(v) => update("stageDesign", { ...sd, [field]: v })}
+                  className="text-[var(--text-1)] text-sm leading-relaxed" placeholder={`${label}...`} />
               </div>
-              <div>
-                <p className="text-xs text-[var(--text-3)] mb-1.5">Entry Experience</p>
-                <EditableText
-                  value={sd.entryExperience}
-                  onChange={(v) => update("stageDesign", { ...sd, entryExperience: v })}
-                  className="text-[var(--text-1)] text-sm"
-                  placeholder="Entry experience..."
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <p className="text-xs text-[var(--text-3)] mb-1.5">Signature Element</p>
-                <EditableText
-                  value={sd.signature}
-                  onChange={(v) => update("stageDesign", { ...sd, signature: v })}
-                  className="text-[var(--text-1)] text-sm"
-                  placeholder="Signature element..."
-                />
+            ))}
+          </div>
+          {sd.focalPoints?.length > 0 && (
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 10 }}>Focal Points</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {sd.focalPoints.map((fp: string, i: number) => (
+                  <span key={i} style={{ padding: "6px 14px", borderRadius: 999, fontSize: 12, background: `${GOLD}12`, border: `1px solid ${GOLD}30`, color: GOLD }}>
+                    {fp}
+                  </span>
+                ))}
               </div>
             </div>
-            {sd.focalPoints?.length > 0 && (
-              <div>
-                <p className="text-xs text-[var(--text-3)] mb-2">Focal Points</p>
-                <div className="flex flex-wrap gap-2">
-                  {sd.focalPoints.map((fp: string, i: number) => (
-                    <span key={i} className="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs">{fp}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       )}
 
       {dp && (
-        <div>
-          <h4 className="text-[var(--text-1)] font-semibold text-sm mb-3">Décor Plan</h4>
-          <div className="space-y-3">
-            <div className="rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] p-4">
-              <p className="text-xs text-[var(--text-3)] mb-1.5">Hero Décor Element</p>
-              <EditableText
-                value={dp.hero}
-                onChange={(v) => update("decorPlan", { ...dp, hero: v })}
-                className="text-[var(--text-1)] text-sm font-medium"
-                placeholder="Hero element..."
-              />
-            </div>
-            {dp.zones?.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--text-3)" }}>Décor Plan</p>
+
+          {/* Hero element */}
+          <div style={{ padding: "20px 22px", borderRadius: 14, background: `linear-gradient(135deg, ${GOLD}0e, ${GOLD}04)`, border: `1px solid ${GOLD}30` }}>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: GOLD, opacity: 0.8, marginBottom: 10 }}>Hero Element</p>
+            <EditableText value={dp.hero} onChange={(v) => update("decorPlan", { ...dp, hero: v })}
+              style={{ fontSize: 18, fontWeight: 600, color: "var(--text-1)", lineHeight: 1.4 }}
+              placeholder="Hero décor element..." />
+          </div>
+
+          {/* Zones */}
+          {dp.zones?.length > 0 && (
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 12 }}>Décor Zones</p>
               <div className="grid sm:grid-cols-2 gap-3">
                 {dp.zones.map((zone: { name: string; concept: string }, i: number) => (
-                  <div key={i} className="rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] p-3">
-                    <p className="text-xs text-indigo-400 font-semibold mb-1">{zone.name}</p>
-                    <p className="text-[var(--text-2)] text-xs leading-relaxed">{zone.concept}</p>
+                  <div key={i} style={{ padding: "16px 18px", borderRadius: 12, background: "var(--bg-surface)", borderLeft: `3px solid ${ZONE_COLORS[i % ZONE_COLORS.length]}`, border: `1px solid ${ZONE_COLORS[i % ZONE_COLORS.length]}25`, borderLeftWidth: 3 }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: ZONE_COLORS[i % ZONE_COLORS.length], marginBottom: 6, letterSpacing: "0.04em" }}>{zone.name}</p>
+                    <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>{zone.concept}</p>
                   </div>
                 ))}
               </div>
-            )}
-            {dp.sustainabilityNotes && (
-              <div className="rounded-lg bg-emerald-500/5 border border-emerald-500/20 p-3">
-                <p className="text-xs text-emerald-400 mb-1">Sustainability Notes</p>
-                <p className="text-[var(--text-2)] text-xs">{dp.sustainabilityNotes}</p>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {dp.sustainabilityNotes && (
+            <div style={{ padding: "14px 18px", borderRadius: 10, background: "rgba(52,211,153,0.05)", border: "1px solid rgba(52,211,153,0.2)" }}>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#34d399", marginBottom: 6 }}>Sustainability</p>
+              <p style={{ fontSize: 13, color: "var(--text-2)" }}>{dp.sustainabilityNotes}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1963,62 +1917,104 @@ function ActivationsTab({ proposal, update }: { proposal: ProposalData; update: 
 // ── Existing tabs (unchanged) ──────────────────────────────────────────────────
 function ConceptTab({ proposal, update }: { proposal: ProposalData; update: (f: keyof ProposalData, v: any) => void }) {
   const c = proposal.concept;
-  // Experience Generator proposals don't populate `concept` — redirect to Experience tab
+  const GOLD = "#D4A85F";
+
   if (!c) {
     const ec = proposal.eventConcept;
     return (
-      <div className="p-6 space-y-4">
-        <div className="rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/20 p-6 space-y-3">
-          {ec?.tagline && <p className="text-indigo-400 text-lg font-semibold italic text-center">{ec.tagline}</p>}
-          {ec?.storyline && <p className="text-[var(--text-2)] text-sm leading-relaxed">{ec.storyline}</p>}
-          {ec?.theme && (
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10">
-              <span className="text-indigo-400 text-xs font-medium">Theme:</span>
-              <span className="text-[var(--text-1)] text-xs">{ec.theme}</span>
-            </div>
-          )}
-        </div>
-        <p className="text-center text-xs text-[var(--text-3)]">
-          Full concept details are in the <strong className="text-indigo-400">Experience</strong> and <strong className="text-indigo-400">Visual</strong> tabs.
+      <div style={{ padding: "40px 32px", display: "flex", flexDirection: "column", gap: 24, alignItems: "center", textAlign: "center" }}>
+        {ec?.tagline && (
+          <p style={{ fontSize: 26, fontWeight: 300, fontStyle: "italic", color: GOLD, letterSpacing: "-0.01em", lineHeight: 1.3, maxWidth: 560 }}>
+            "{ec.tagline}"
+          </p>
+        )}
+        {ec?.storyline && (
+          <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 600 }}>{ec.storyline}</p>
+        )}
+        {ec?.theme && (
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 16px", borderRadius: 999, border: `1px solid ${GOLD}40`, background: `${GOLD}0d` }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: GOLD }}>Theme</span>
+            <span style={{ fontSize: 13, color: "var(--text-1)" }}>{ec.theme}</span>
+          </div>
+        )}
+        <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 8 }}>
+          Full details are in the <strong style={{ color: GOLD }}>Experience</strong> and <strong style={{ color: GOLD }}>Visual</strong> tabs.
         </p>
       </div>
     );
   }
+
   function updateConcept(field: string, value: any) { update("concept", { ...c, [field]: value }); }
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/20 p-6 text-center space-y-3">
-        <EditableText value={c.tagline} onChange={(v) => updateConcept("tagline", v)} className="text-indigo-400 text-lg font-semibold italic" placeholder="Tagline..." />
-        <EditableTextarea value={c.description} onChange={(v) => updateConcept("description", v)} className="text-[var(--text-2)] text-sm leading-relaxed max-w-2xl mx-auto" placeholder="Event description..." />
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10">
-          <span className="text-indigo-400 text-xs font-medium">Theme:</span>
-          <EditableText value={c.theme} onChange={(v) => updateConcept("theme", v)} className="text-[var(--text-1)] text-xs" placeholder="Theme..." />
+    <div style={{ padding: "28px 32px", display: "flex", flexDirection: "column", gap: 28 }}>
+      {/* Hero banner */}
+      <div style={{
+        borderRadius: 16,
+        background: `linear-gradient(135deg, ${GOLD}0f 0%, rgba(139,92,246,0.06) 100%)`,
+        border: `1px solid ${GOLD}33`,
+        padding: "28px 28px",
+        textAlign: "center",
+      }}>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: GOLD, opacity: 0.7, marginBottom: 12 }}>Event Theme</p>
+        <EditableText value={c.theme} onChange={(v) => updateConcept("theme", v)}
+          style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.025em", color: "var(--text-1)", lineHeight: 1.15, display: "block", marginBottom: 14 }}
+          placeholder="Theme..." />
+        <div style={{ borderTop: `1px solid ${GOLD}20`, paddingTop: 14 }}>
+          <EditableText value={c.tagline} onChange={(v) => updateConcept("tagline", v)}
+            style={{ fontSize: 17, fontStyle: "italic", fontWeight: 300, color: GOLD, letterSpacing: "0.01em", display: "block" }}
+            placeholder="Tagline..." />
         </div>
       </div>
-      <div>
-        <h4 className="text-[var(--text-1)] font-semibold text-sm mb-3">Event Highlights</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {c.highlights.map((h, i) => (
-            <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border)]">
-              <span className="text-indigo-400 font-bold text-xs mt-0.5 shrink-0">0{i + 1}</span>
-              <EditableText value={h} onChange={(v) => { const next = [...c.highlights]; next[i] = v; updateConcept("highlights", next); }} className="text-[var(--text-1)] text-sm flex-1" placeholder="Highlight..." />
-            </div>
-          ))}
-        </div>
-        <button onClick={() => updateConcept("highlights", [...c.highlights, "New highlight"])} className="mt-2 text-xs text-indigo-400 hover:text-indigo-300 transition-colors">+ Add highlight</button>
+
+      {/* Description */}
+      <div style={{ padding: "18px 22px", borderRadius: 12, background: "var(--bg-surface)", border: "1px solid var(--border)" }}>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 10 }}>Concept</p>
+        <EditableTextarea value={c.description} onChange={(v) => updateConcept("description", v)}
+          className="text-[var(--text-2)] text-sm leading-relaxed" placeholder="Event concept description..." />
       </div>
+
+      {/* Highlights */}
+      {c.highlights?.length > 0 && (
+        <div>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 14 }}>Highlights</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {c.highlights.map((h, i) => (
+              <div key={i}
+                style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "14px 16px", borderRadius: 12, background: "var(--bg-surface)", border: "1px solid var(--border)", transition: "border-color 0.15s" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${GOLD}40`; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; }}
+              >
+                <span style={{ minWidth: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, color: GOLD, background: `${GOLD}15`, border: `1px solid ${GOLD}30`, flexShrink: 0 }}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <EditableText value={h}
+                  onChange={(v) => { const next = [...c.highlights]; next[i] = v; updateConcept("highlights", next); }}
+                  className="text-[var(--text-1)] text-sm leading-relaxed flex-1" placeholder="Highlight..." />
+              </div>
+            ))}
+          </div>
+          <button onClick={() => updateConcept("highlights", [...c.highlights, "New highlight"])}
+            style={{ marginTop: 10, fontSize: 12, color: GOLD, background: "none", border: "none", cursor: "pointer", opacity: 0.75 }}>
+            + Add highlight
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 function BudgetTab({ proposal, update }: { proposal: ProposalData; update: (f: keyof ProposalData, v: any) => void }) {
-  const lines = proposal.budgetBreakdown ?? [];
-  const total = lines.reduce((s, l) => s + l.amount, 0);
+  const lines  = proposal.budgetBreakdown ?? [];
+  const total  = lines.reduce((s, l) => s + l.amount, 0);
   const mismatch = lines.length > 0 && Math.abs(total - proposal.budget) > 1;
-  function updateLine(i: number, field: keyof BudgetLine, value: any) { const next = [...lines]; next[i] = { ...next[i], [field]: value }; update("budgetBreakdown", next); }
+  const gst      = Math.round(total * 0.18);
+  const GOLD  = "#D4A85F";
+  const COLORS = [GOLD, "#a78bfa", "#34d399", "#f59e0b", "#60a5fa", "#f472b6", "#a3e635", "#22d3ee"];
 
-  // Drag a slider → redistribute the delta proportionally across other lines,
-  // then re-sync each line's amount from proposal.budget so totals stay clean.
+  function updateLine(i: number, field: keyof BudgetLine, value: any) {
+    const next = [...lines]; next[i] = { ...next[i], [field]: value }; update("budgetBreakdown", next);
+  }
   function setSliderPct(i: number, raw: number) {
     const newPct = Math.max(0, Math.min(100, Math.round(raw)));
     const oldPct = lines[i].percentage;
@@ -2036,93 +2032,200 @@ function BudgetTab({ proposal, update }: { proposal: ProposalData; update: (f: k
     });
     update("budgetBreakdown", next);
   }
-  const COLORS = ["bg-indigo-500","bg-purple-500","bg-emerald-500","bg-amber-500","bg-rose-500","bg-cyan-500","bg-orange-500","bg-teal-500"];
+
+  // SVG donut chart
+  const r = 68; const cx = 100; const cy = 100;
+  const circ = 2 * Math.PI * r;
+  let acc = 0;
+  const segments = lines.map((l, i) => {
+    const pct = total > 0 ? l.amount / total : 0;
+    const seg = { pct, start: acc, color: COLORS[i % COLORS.length] };
+    acc += pct;
+    return seg;
+  });
+
   return (
-    <div className="p-6 space-y-6">
+    <div style={{ padding: "28px 32px", display: "flex", flexDirection: "column", gap: 28 }}>
       {mismatch && (
-        <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-500/8 border border-amber-500/25 text-amber-400 text-xs">
-          <span className="shrink-0 mt-0.5">⚠</span>
-          <span>
-            Line items sum to <strong>{formatINR(total)}</strong> but proposal budget is <strong>{formatINR(proposal.budget)}</strong>.
-            Difference: {formatINR(Math.abs(total - proposal.budget))}.
-          </span>
+        <div style={{ display: "flex", gap: 10, padding: "10px 14px", borderRadius: 10, background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", color: "#fbbf24", fontSize: 12 }}>
+          <span>⚠</span>
+          <span>Line items sum to <strong>{formatINR(total)}</strong> but proposal budget is <strong>{formatINR(proposal.budget)}</strong>. Δ {formatINR(Math.abs(total - proposal.budget))}</span>
         </div>
       )}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs text-[var(--text-3)]"><span>Budget allocation</span><span className={mismatch ? "text-amber-400 font-semibold" : ""}>{formatINR(total)} allocated</span></div>
-        <div className="h-3 rounded-full bg-[var(--bg-surface)] border border-[var(--border)] overflow-hidden flex">
-          {lines.map((l, i) => (<div key={i} className={`${COLORS[i%COLORS.length]} h-full transition-all`} style={{ width: `${l.percentage}%` }} title={`${l.category}: ${l.percentage}%`} />))}
+
+      {/* Chart + legend row */}
+      <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 32, alignItems: "center" }}>
+        {/* Donut */}
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <svg viewBox="0 0 200 200" style={{ width: 176, height: 176 }}>
+            <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={24} />
+            {segments.map((seg, i) => (
+              <circle key={i} cx={cx} cy={cy} r={r} fill="none"
+                stroke={seg.color} strokeWidth={24}
+                strokeDasharray={`${seg.pct * circ} ${circ}`}
+                strokeDashoffset={-(seg.start * circ)}
+                transform={`rotate(-90 ${cx} ${cy})`}
+                style={{ transition: "stroke-dasharray 0.4s ease" }}
+              />
+            ))}
+            <circle cx={cx} cy={cy} r={44} fill="#0c0b12" />
+          </svg>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2 }}>
+            <p style={{ fontSize: 10, color: "var(--text-3)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Total</p>
+            <p style={{ fontSize: 14, fontWeight: 800, color: "var(--text-1)", letterSpacing: "-0.02em" }}>{formatINR(total)}</p>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-3">
-          {lines.map((l, i) => (<div key={i} className="flex items-center gap-1.5"><div className={`w-2 h-2 rounded-full ${COLORS[i%COLORS.length]}`} /><span className="text-[var(--text-3)] text-xs">{l.category}</span></div>))}
+
+        {/* Legend */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, minWidth: 200 }}>
+          {lines.map((l, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS[i % COLORS.length], flexShrink: 0 }} />
+              <span style={{ flex: 1, fontSize: 13, color: "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.category}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatINR(l.amount)}</span>
+              <span style={{ fontSize: 11, color: "var(--text-3)", minWidth: 34, textAlign: "right" }}>{Math.round(l.percentage)}%</span>
+            </div>
+          ))}
         </div>
       </div>
-      <div className="space-y-2">
+
+      {/* GST summary bar */}
+      <div style={{ borderRadius: 14, border: `1px solid ${GOLD}30`, background: `${GOLD}08`, overflow: "hidden" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}>
+          {[
+            { label: "Subtotal", value: formatINR(total), accent: false },
+            { label: "GST (18%)", value: formatINR(gst), accent: true },
+            { label: "Grand Total", value: formatINR(total + gst), accent: false },
+          ].map(({ label, value, accent }, i) => (
+            <div key={label} style={{ padding: "18px 20px", textAlign: "center", borderLeft: i > 0 ? `1px solid ${GOLD}20` : "none" }}>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 6 }}>{label}</p>
+              <p style={{ fontSize: 19, fontWeight: 800, color: accent ? GOLD : "var(--text-1)", fontVariantNumeric: "tabular-nums" }}>{value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Line items */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {lines.map((l, i) => (
-          <div key={i} className="grid grid-cols-12 gap-3 items-center p-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] group hover:border-indigo-500/30 transition-colors">
-            <div className={`w-3 h-3 rounded-full ${COLORS[i%COLORS.length]} col-span-1 shrink-0`} />
-            <div className="col-span-4">
-              <EditableText value={l.category} onChange={(v) => updateLine(i,"category",v)} className="text-[var(--text-1)] text-sm font-medium" placeholder="Category..." />
-              <EditableText value={l.description} onChange={(v) => updateLine(i,"description",v)} className="text-[var(--text-3)] text-xs mt-0.5" placeholder="Description..." />
+          <div key={i}
+            style={{ display: "grid", gridTemplateColumns: "12px 1fr auto 160px 20px", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 12, background: "var(--bg-surface)", border: "1px solid var(--border)", transition: "border-color 0.15s" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${COLORS[i % COLORS.length]}40`; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; }}
+          >
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS[i % COLORS.length] }} />
+            <div>
+              <EditableText value={l.category} onChange={(v) => updateLine(i, "category", v)} className="text-[var(--text-1)] text-sm font-semibold" placeholder="Category..." />
+              <EditableText value={l.description} onChange={(v) => updateLine(i, "description", v)} className="text-[var(--text-3)] text-xs mt-0.5" placeholder="Description..." />
             </div>
-            <div className="col-span-3 text-right"><EditableNumber value={l.amount} onChange={(v) => updateLine(i,"amount",v)} className="text-[var(--text-1)] text-sm font-semibold" prefix="₹" /></div>
-            <div className="col-span-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={Math.round(l.percentage)}
-                  onChange={(e) => setSliderPct(i, Number(e.target.value))}
-                  className="flex-1 h-1.5 accent-indigo-500 cursor-pointer"
-                  title={`${l.category}: ${l.percentage}% · ${formatINR(l.amount)}`}
-                />
-                <span className="text-[var(--text-3)] text-xs w-10 text-right tabular-nums">{Math.round(l.percentage)}%</span>
-              </div>
+            <EditableNumber value={l.amount} onChange={(v) => updateLine(i, "amount", v)} className="text-[var(--text-1)] text-sm font-bold tabular-nums" prefix="₹" />
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <input type="range" min={0} max={100} step={1} value={Math.round(l.percentage)}
+                onChange={(e) => setSliderPct(i, Number(e.target.value))}
+                style={{ flex: 1, height: 3, accentColor: COLORS[i % COLORS.length], cursor: "pointer" }}
+                title={`${l.category}: ${l.percentage}%`}
+              />
+              <span style={{ fontSize: 11, color: "var(--text-3)", minWidth: 30, textAlign: "right" }}>{Math.round(l.percentage)}%</span>
             </div>
-            <button onClick={() => update("budgetBreakdown", lines.filter((_,j)=>j!==i))} className="col-span-1 text-[var(--text-3)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-xs">✕</button>
+            <button onClick={() => update("budgetBreakdown", lines.filter((_, j) => j !== i))}
+              style={{ fontSize: 12, color: "var(--text-3)", background: "none", border: "none", cursor: "pointer", opacity: 0, transition: "opacity 0.15s" }}
+              onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.opacity = "1"; el.style.color = "#f87171"; }}
+              onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.opacity = "0"; el.style.color = "var(--text-3)"; }}>
+              ✕
+            </button>
           </div>
         ))}
       </div>
-      <button onClick={() => update("budgetBreakdown",[...lines,{category:"New Item",amount:0,percentage:0,description:""}])} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">+ Add budget line</button>
+      <button onClick={() => update("budgetBreakdown", [...lines, { category: "New Item", amount: 0, percentage: 0, description: "" }])}
+        style={{ fontSize: 12, color: GOLD, background: "none", border: "none", cursor: "pointer", opacity: 0.75, alignSelf: "flex-start" }}>
+        + Add budget line
+      </button>
     </div>
   );
 }
 
 function TimelineTab({ proposal, update }: { proposal: ProposalData; update: (f: keyof ProposalData, v: any) => void }) {
   const phases = proposal.timeline ?? [];
-  function updatePhase(i: number, field: keyof TimelinePhase, value: any) { const next = [...phases]; next[i] = { ...next[i], [field]: value }; update("timeline", next); }
+  const GOLD   = "#D4A85F";
+  const PHASE_COLORS = [GOLD, "#a78bfa", "#34d399", "#60a5fa", "#f472b6", "#f59e0b", "#22d3ee", "#a3e635"];
+
+  function updatePhase(i: number, field: keyof TimelinePhase, value: any) {
+    const next = [...phases]; next[i] = { ...next[i], [field]: value }; update("timeline", next);
+  }
+
   return (
-    <div className="p-6">
-      <div className="relative">
-        <div className="absolute left-5 top-6 bottom-6 w-px bg-[var(--border)]" />
-        <div className="space-y-0">
-          {phases.map((phase, i) => (
-            <div key={i} className="relative flex gap-5 pb-8 last:pb-0 group">
-              <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 ${phase.milestone?"bg-indigo-500 border-indigo-500 text-white":"bg-[var(--bg-card)] border-[var(--border)] text-[var(--text-3)]"}`}><span className="text-xs font-bold">{i+1}</span></div>
-              <div className="flex-1 min-w-0 pt-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <EditableText value={phase.phase} onChange={(v) => updatePhase(i,"phase",v)} className="text-[var(--text-1)] font-semibold text-sm" placeholder="Phase name..." />
-                  <EditableText value={phase.daysOut} onChange={(v) => updatePhase(i,"daysOut",v)} className="text-indigo-400 text-xs border border-indigo-500/30 px-2 py-0.5 rounded-full bg-indigo-500/10" placeholder="Timing..." />
-                  <label className="flex items-center gap-1 text-[var(--text-3)] text-xs ml-auto opacity-0 group-hover:opacity-100 transition-opacity"><input type="checkbox" checked={phase.milestone} onChange={(e) => updatePhase(i,"milestone",e.target.checked)} className="accent-indigo-500" />Milestone</label>
-                </div>
-                <ul className="space-y-1">
-                  {phase.tasks.map((task, j) => (
-                    <li key={j} className="flex items-start gap-2 group/task">
-                      <span className="text-[var(--text-3)] text-xs mt-0.5">▸</span>
-                      <EditableText value={task} onChange={(v) => { const next=[...phase.tasks]; next[j]=v; updatePhase(i,"tasks",next); }} className="text-[var(--text-2)] text-sm flex-1" placeholder="Task..." />
-                      <button onClick={() => updatePhase(i,"tasks",phase.tasks.filter((_,k)=>k!==j))} className="text-[var(--text-3)] hover:text-red-400 text-xs opacity-0 group-hover/task:opacity-100 transition-opacity">✕</button>
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => updatePhase(i,"tasks",[...phase.tasks,"New task"])} className="mt-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors">+ Add task</button>
+    <div style={{ padding: "28px 32px", display: "flex", flexDirection: "column", gap: 12 }}>
+      {phases.map((phase, i) => {
+        const color = PHASE_COLORS[i % PHASE_COLORS.length];
+        const isMilestone = phase.milestone;
+        return (
+          <div key={i}
+            style={{ borderRadius: 14, border: `1px solid ${isMilestone ? `${GOLD}45` : "var(--border)"}`, background: isMilestone ? `${GOLD}06` : "var(--bg-surface)", overflow: "hidden", transition: "box-shadow 0.15s" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 24px rgba(0,0,0,0.22)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
+          >
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+              <div style={{ width: 30, height: 30, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, background: `${color}18`, border: `1px solid ${color}35`, color }}>
+                {i + 1}
+              </div>
+              <div style={{ flex: 1 }}>
+                <EditableText value={phase.phase} onChange={(v) => updatePhase(i, "phase", v)}
+                  style={{ fontSize: 15, fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.01em" }}
+                  placeholder="Phase name..." />
+              </div>
+              <span style={{ padding: "4px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: `${color}15`, border: `1px solid ${color}30`, color, whiteSpace: "nowrap" }}>
+                <EditableText value={phase.daysOut} onChange={(v) => updatePhase(i, "daysOut", v)}
+                  style={{ color: "inherit", fontSize: "inherit", fontWeight: "inherit" }}
+                  placeholder="T-30 days" />
+              </span>
+              {isMilestone && <span style={{ fontSize: 14, color: GOLD }}>★</span>}
+            </div>
+
+            {/* Tasks */}
+            <div style={{ padding: "12px 18px 14px 60px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {phase.tasks.map((task, j) => (
+                  <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                    <span style={{ color, fontSize: 7, marginTop: 6, flexShrink: 0 }}>◆</span>
+                    <EditableText value={task}
+                      onChange={(v) => { const next = [...phase.tasks]; next[j] = v; updatePhase(i, "tasks", next); }}
+                      style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55, flex: 1 }}
+                      placeholder="Task..." />
+                    <button onClick={() => updatePhase(i, "tasks", phase.tasks.filter((_, k) => k !== j))}
+                      style={{ fontSize: 11, color: "var(--text-3)", background: "none", border: "none", cursor: "pointer", opacity: 0, transition: "opacity 0.15s", flexShrink: 0 }}
+                      onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.opacity = "1"; el.style.color = "#f87171"; }}
+                      onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.opacity = "0"; el.style.color = "var(--text-3)"; }}>
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 10 }}>
+                <button onClick={() => updatePhase(i, "tasks", [...phase.tasks, "New task"])}
+                  style={{ fontSize: 12, color, background: "none", border: "none", cursor: "pointer", opacity: 0.75 }}>
+                  + Add task
+                </button>
+                <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-3)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={phase.milestone} onChange={(e) => updatePhase(i, "milestone", e.target.checked)}
+                    style={{ accentColor: GOLD }} />
+                  Milestone
+                </label>
+                <button onClick={() => update("timeline", phases.filter((_, k) => k !== i))}
+                  style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)", background: "none", border: "none", cursor: "pointer" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#f87171"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-3)"; }}>
+                  Remove
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-      <button onClick={() => update("timeline",[...phases,{phase:"New Phase",daysOut:"TBD",tasks:["Task 1"],milestone:false}])} className="mt-4 text-xs text-indigo-400 hover:text-indigo-300 transition-colors">+ Add phase</button>
+          </div>
+        );
+      })}
+      <button onClick={() => update("timeline", [...phases, { phase: "New Phase", daysOut: "TBD", tasks: ["Task 1"], milestone: false }])}
+        style={{ fontSize: 12, color: GOLD, background: "none", border: "none", cursor: "pointer", opacity: 0.75, alignSelf: "flex-start", marginTop: 4 }}>
+        + Add phase
+      </button>
     </div>
   );
 }

@@ -50,5 +50,12 @@ export async function POST(req: NextRequest) {
     await supabase.auth.signInWithPassword({ email, password });
   }
 
+  // Provision a free-tier usage row so gating checks work immediately.
+  void admin.from("user_usage").insert({
+    user_id:        created.user.id,
+    plan:           "free",
+    proposals_used: 0,
+  });
+
   return NextResponse.json({ ok: true });
 }

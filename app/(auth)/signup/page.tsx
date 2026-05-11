@@ -258,6 +258,7 @@ export default function SignupPage() {
         });
 
         if (verifyRes.ok) {
+          (window as Window & { gtag?: (...a: unknown[]) => void }).gtag?.("event", "payment_completed", { plan: "pro", value: plan.price, currency: "INR" });
           window.location.href = "/dashboard";
         } else {
           setPayError("Payment received but verification failed. Contact support@kunjaraos.com with your payment ID.");
@@ -268,6 +269,24 @@ export default function SignupPage() {
     });
     rzp.open();
     setPayLoading(false);
+  }
+
+  async function handleFreeStart() {
+    setPayPlan("free" as never);
+    setPayLoading(true);
+    setPayError(null);
+    try {
+      const res = await fetch("/api/auth/activate-free", { method: "POST", credentials: "include" });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error ?? "Could not activate free plan. Try again.");
+      }
+      (window as Window & { gtag?: (...a: unknown[]) => void }).gtag?.("event", "sign_up", { method: "email", plan: "free" });
+      window.location.href = "/dashboard";
+    } catch (e: unknown) {
+      setPayError(e instanceof Error ? e.message : "Something went wrong.");
+      setPayLoading(false);
+    }
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -514,7 +533,7 @@ export default function SignupPage() {
                     Choose your plan
                   </h1>
                   <p style={{ marginTop: 6, fontSize: 13, color: "rgba(244,241,234,0.5)" }}>
-                    All plans include the full Kunjara OS™ platform. Cancel anytime.
+                    Start free with 2 proposals, or upgrade to Pro for 30/month.
                   </p>
                 </div>
 
@@ -538,7 +557,7 @@ export default function SignupPage() {
 
                 {/* Plan cards */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  {PLANS.map((plan) => {
+                  {PLANS.filter((p) => p.id !== "basic").map((plan) => {
                     const price   = annual ? plan.annualPrice : plan.price;
                     const isPro   = plan.highlighted;
                     const isBusy  = payLoading && payPlan === (plan.id as never);
@@ -581,7 +600,7 @@ export default function SignupPage() {
                           </div>
                         )}
                         <div style={{ fontSize: 12, color: "#D4A85F", marginBottom: 16 }}>
-                          {plan.proposals} proposals · {plan.credits.toLocaleString()} AI credits/mo
+                          {plan.proposals} proposals/month
                         </div>
                         <div style={{ height: 1, background: "rgba(255,255,255,0.07)", marginBottom: 16 }} />
                         <ul style={{ listStyle: "none", padding: 0, margin: "0 0 20px", display: "flex", flexDirection: "column", gap: 8 }}>
@@ -592,7 +611,7 @@ export default function SignupPage() {
                           ))}
                         </ul>
                         <button
-                          onClick={() => handleSubscribe(plan)}
+                          onClick={() => plan.price === 0 ? handleFreeStart() : handleSubscribe(plan)}
                           disabled={payLoading}
                           style={{
                             width: "100%", padding: "12px 16px", borderRadius: 10, border: "none",
@@ -603,7 +622,7 @@ export default function SignupPage() {
                             transition: "all 0.15s",
                           }}
                         >
-                          {isBusy ? "Opening payment…" : `Subscribe to ${plan.name}`}
+                          {isBusy ? "Processing…" : plan.price === 0 ? "Start for Free →" : `Subscribe to ${plan.name}`}
                         </button>
                       </div>
                     );

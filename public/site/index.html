@@ -581,7 +581,7 @@ const EventsComparisonSection = () => {
     { feat: "Social Media AI",          us: "✓ All Platforms",     whatsapp: "✕ Manual",          zoho: "✕ None",  cvent: "✕ None" },
     { feat: "Hindi + English",          us: "✓ Native",            whatsapp: "✕ None",            zoho: "✕ None",  cvent: "✕ None", note: "soon" },
     { feat: "Razorpay + UPI",           us: "✓ Native",            whatsapp: "✕ Manual",          zoho: "Partial", cvent: "✕ None", note: "soon" },
-    { feat: "Monthly Cost",             us: "₹1,999 – ₹3,999",    whatsapp: "Free (but broken)",  zoho: "₹0–₹5,000", cvent: "₹50,000+" },
+    { feat: "Monthly Cost",             us: "Free – ₹3,000",       whatsapp: "Free (but broken)",  zoho: "₹0–₹5,000", cvent: "₹50,000+" },
   ];
 
   const thS = { textAlign: "left", padding: "13px 18px", fontWeight: 500, fontSize: 11, letterSpacing: "0.09em", borderBottom: "1px solid rgba(255,255,255,0.07)" };
@@ -767,10 +767,10 @@ const FeaturesPricingSection = () => {
   ];
 
   const plans = [
-    { name: "Basic",  monthly: 1999, yearly: 1666, desc: "12 proposals / month", credits: "2,000 AI credits", launch: true,
-      bullets: ["12 client-winning proposals","2,000 AI credits · 🎉 Launch offer","1 user seat","GST-compliant invoicing","PDF export","Email support"], cta: "Get started", popular: false },
-    { name: "Pro",    monthly: 3999, yearly: 3332, desc: "30 proposals / month", credits: "6,000 AI credits", launch: true,
-      bullets: ["30 client-winning proposals","6,000 AI credits · 🎉 2× launch offer","Advanced AI quality","1 user seat","All 4 pillars","Priority support"], cta: "Get started", popular: true },
+    { name: "Free", monthly: 0, yearly: 0, desc: "2 proposals / month", launch: false,
+      bullets: ["2 proposals per month","Interactive client preview","Email support"], cta: "Get started free", popular: false },
+    { name: "Pro",  monthly: 3000, yearly: 2500, desc: "30 proposals / month", launch: true,
+      bullets: ["30 proposals per month","Full PDF export","GST invoicing","Priority support"], cta: "Get started", popular: true },
   ];
 
   return (
@@ -854,13 +854,19 @@ const FeaturesPricingSection = () => {
                   {p.popular && <div style={{ position: "absolute", top: -12, left: 32, padding: "5px 12px", borderRadius: 999, background: ACCENT, color: DARK, fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.12em", fontWeight: 600 }}>MOST POPULAR</div>}
                   {p.launch  && <div style={{ position: "absolute", top: -12, right: 32, padding: "5px 12px", borderRadius: 999, background: "rgba(52,211,153,0.15)", color: "#34D399", border: "1px solid rgba(52,211,153,0.3)", fontFamily: '"JetBrains Mono",monospace', fontSize: 10, letterSpacing: "0.1em" }}>🎉 LAUNCH OFFER</div>}
                   <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, color: "rgba(244,241,234,0.6)", letterSpacing: "0.04em", marginBottom: 18, textTransform: "uppercase" }}>{p.name}</div>
-                  <div style={{ display: "flex", alignItems: "flex-end", gap: 6, marginBottom: 8 }}>
-                    <span style={{ fontFamily: '"Geist",sans-serif', fontSize: 22, color: "rgba(244,241,234,0.7)", marginBottom: 14 }}>₹</span>
-                    <span style={{ fontFamily: '"Instrument Serif",serif', fontSize: 64, lineHeight: 1, color: "#F4F1EA", fontWeight: 400 }}>{price.toLocaleString("en-IN")}</span>
-                    <span style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, color: "rgba(244,241,234,0.5)", marginLeft: 14, marginBottom: 14 }}>/ month</span>
-                  </div>
-                  {annual && <p style={{ fontSize: 13, color: "#34D399", marginBottom: 4, fontFamily: '"Geist",sans-serif' }}>₹{(p.yearly * 12).toLocaleString("en-IN")}/year</p>}
-                  <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, color: ACCENT, marginBottom: 28 }}>{p.desc} · {p.credits}</div>
+                  {p.monthly === 0 ? (
+                    <div style={{ marginBottom: 8 }}>
+                      <span style={{ fontFamily: '"Instrument Serif",serif', fontSize: 64, lineHeight: 1, color: "#F4F1EA", fontWeight: 400 }}>Free</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", alignItems: "flex-end", gap: 6, marginBottom: 8 }}>
+                      <span style={{ fontFamily: '"Geist",sans-serif', fontSize: 22, color: "rgba(244,241,234,0.7)", marginBottom: 14 }}>₹</span>
+                      <span style={{ fontFamily: '"Instrument Serif",serif', fontSize: 64, lineHeight: 1, color: "#F4F1EA", fontWeight: 400 }}>{price.toLocaleString("en-IN")}</span>
+                      <span style={{ fontFamily: '"Geist",sans-serif', fontSize: 14, color: "rgba(244,241,234,0.5)", marginLeft: 14, marginBottom: 14 }}>/ month</span>
+                    </div>
+                  )}
+                  {annual && p.monthly > 0 && <p style={{ fontSize: 13, color: "#34D399", marginBottom: 4, fontFamily: '"Geist",sans-serif' }}>₹{(p.yearly * 12).toLocaleString("en-IN")}/year</p>}
+                  <div style={{ fontFamily: '"Geist",sans-serif', fontSize: 13, color: ACCENT, marginBottom: 28 }}>{p.desc}</div>
                   <div style={{ height: 1, background: "rgba(255,255,255,0.08)", marginBottom: 24 }} />
                   <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
                     {p.bullets.map(b => (

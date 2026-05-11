@@ -76,6 +76,11 @@ export async function POST(req: NextRequest) {
           await admin.auth.admin.updateUserById(user.id, {
             app_metadata: { subscription_active: true, plan: resolvedPlan },
           });
+          // Upgrade user_usage plan so proposal limit reflects new plan.
+          const usagePlan = resolvedPlan === "basic" ? "basic" : "pro";
+          void admin.from("user_usage")
+            .update({ plan: usagePlan, updated_at: new Date().toISOString() })
+            .eq("user_id", user.id);
         }
       }
     }

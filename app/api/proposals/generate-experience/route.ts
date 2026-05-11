@@ -1,10 +1,10 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { parseJson } from "@/lib/validate";
-import { requireAiCredits } from "@/lib/ai/middleware";
-import { aiError, aiSuccess } from "@/lib/ai/responses";
+import { apiLimiter, limit } from "@/lib/ratelimit";
+import { aiError } from "@/lib/ai/responses";
 import { chatWithFallback } from "@/lib/ai/fallback";
 import type { EventIdea, OriginalBrief, ProposalData } from "@/lib/proposals";
 import {
@@ -71,13 +71,26 @@ export async function POST(req: NextRequest) {
     eventDate, venueByClient, foodByClient,
   });
 
-  const pre = await requireAiCredits({
-    req,
-    action: "proposal",
-    promptLength: userMessage.length,
-  });
-  if (!pre.ok) return pre.res;
-  const { ctx } = pre;
+  // Auth + rate limit
+  const supabase = await createClient();
+  if (!supabase) return aiError("SERVICE_UNAVAILABLE", "Service unavailable.", 503);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return aiError("UNAUTHORIZED", "Unauthorized.", 401);
+
+  const rl = await limit(apiLimiter, `user:${user.id}`);
+  if (rl) return rl;
+
+  // Usage limit check
+  const { data: usage } = await supabase
+    .from("user_usage")
+    .select("plan, proposals_used")
+    .eq("user_id", user.id)
+    .single();
+
+  const proposalLimit = (usage?.plan === "pro" || usage?.plan === "basic") ? 30 : 2;
+  if ((usage?.proposals_used ?? 0) >= proposalLimit) {
+    return aiError("LIMIT_REACHED", "Proposal limit reached. Upgrade to Pro (₹3,000/month) for 30 proposals.", 402);
+  }
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const fb = await chatWithFallback(openai, {
@@ -90,7 +103,6 @@ export async function POST(req: NextRequest) {
   }, "generate-experience");
 
   if (!fb.ok) {
-    await ctx.refund("openai_error");
     return aiError(
       "AI_ERROR",
       `All models failed. Last error: ${fb.lastError.message ?? "unknown"} (status ${fb.lastError.status ?? "?"})`,
@@ -103,7 +115,6 @@ export async function POST(req: NextRequest) {
 
   const content = response.choices[0]?.message?.content;
   if (!content) {
-    await ctx.refund("empty_response");
     return aiError("AI_ERROR", "AI returned an empty response.", 502);
   }
 
@@ -112,7 +123,6 @@ export async function POST(req: NextRequest) {
     parsed = JSON.parse(content);
   } catch {
     console.error("[generate-experience] JSON parse failed; content length:", content.length);
-    await ctx.refund("json_parse");
     return aiError("AI_ERROR", "AI returned invalid JSON.", 502);
   }
   parsed = sanitizeExperiencePayload(parsed);
@@ -154,25 +164,21 @@ export async function POST(req: NextRequest) {
     ...(bodyResult.data.batchIndex !== undefined ? { batchIndex: bodyResult.data.batchIndex } : {}),
   };
 
-  // Persist. Best-effort — failure here doesn't deduct credits twice (already
-  // consumed) but does NOT refund either, since the AI work was performed.
-  // The user keeps the in-memory proposal.
-  const supabase = await createClient();
-  if (supabase) {
-    const { error: insertError } = await supabase.from("proposals").insert({
-      id:      proposalId,
-      user_id: ctx.user.id,
-      data:    proposal,
-    });
-    if (insertError) {
-      console.error("[generate-experience] Persist failed (returning in-memory):", insertError);
-    }
+  // Persist. Best-effort — AI work was done; user keeps in-memory proposal if insert fails.
+  const { error: insertError } = await supabase.from("proposals").insert({
+    id:      proposalId,
+    user_id: user.id,
+    data:    proposal,
+  });
+  if (insertError) {
+    console.error("[generate-experience] Persist failed (returning in-memory):", insertError);
   }
 
-  const remaining = await ctx.finish({
-    tokensUsed: response.usage?.total_tokens ?? null,
-    eventId:    proposalId,
-  });
+  // Increment proposal counter
+  await supabase
+    .from("user_usage")
+    .update({ proposals_used: (usage?.proposals_used ?? 0) + 1, updated_at: new Date().toISOString() })
+    .eq("user_id", user.id);
 
-  return aiSuccess({ ...proposal, modelUsed }, ctx.creditsCharged, remaining);
+  return NextResponse.json({ success: true, data: { ...proposal, modelUsed } });
 }

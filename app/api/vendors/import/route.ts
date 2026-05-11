@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import Papa from "papaparse";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 
@@ -15,40 +16,52 @@ export async function POST(req: NextRequest) {
     }
 
     const text = await file.text();
-    const lines = text.split("\n").filter((line) => line.trim());
 
-    if (lines.length < 2) {
+    const { data: rows, errors, meta } = Papa.parse<Record<string, string>>(text, {
+      header:           true,   // first row = column names
+      skipEmptyLines:   true,
+      transformHeader:  (h) => h.trim().toLowerCase(),
+      transform:        (v) => v.trim(),
+    });
+
+    if (errors.length > 0 && rows.length === 0) {
+      return NextResponse.json(
+        { error: `CSV parse error: ${errors[0].message}` },
+        { status: 400 },
+      );
+    }
+
+    if (rows.length === 0) {
       return NextResponse.json(
         { error: "CSV must have a header row plus at least 1 vendor" },
         { status: 400 },
       );
     }
 
-    const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
-
-    const idx = (col: string) => headers.indexOf(col);
-
-    const vendorRows = lines.slice(1).map((line) => {
-      // Simple CSV split — sufficient for the template columns which don't embed commas
-      const values = line.split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
-      const rating = parseInt(values[idx("rating")] || "4", 10);
-      const events_done = parseInt(values[idx("events_done")] || "0", 10);
+    const vendorRows = rows.map((row) => {
+      const rating     = parseInt(row.rating      || "4", 10);
+      const eventsDone = parseInt(row.events_done || "0", 10);
       return {
-        name:        values[idx("name")]        || "",
-        category:    values[idx("category")]    || "Other",
-        phone:       values[idx("phone")]       || "",
-        email:       values[idx("email")]       || "",
-        city:        values[idx("city")]        || "",
-        price_range: values[idx("price_range")] || "",
-        rating:      Number.isFinite(rating)  ? Math.min(5, Math.max(1, rating)) : 4,
-        notes:       values[idx("notes")]       || "",
-        events_done: Number.isFinite(events_done) ? Math.max(0, events_done) : 0,
+        name:        row.name        || "",
+        category:    row.category    || "Other",
+        phone:       row.phone       || "",
+        email:       row.email       || "",
+        city:        row.city        || "",
+        price_range: row.price_range || "",
+        rating:      Number.isFinite(rating)     ? Math.min(5, Math.max(1, rating))  : 4,
+        notes:       row.notes       || "",
+        events_done: Number.isFinite(eventsDone) ? Math.max(0, eventsDone)           : 0,
       };
     });
 
-    const valid = vendorRows.filter((v) => v.name.length > 0);
+    const valid   = vendorRows.filter((v) => v.name.length > 0);
+    const skipped = vendorRows.length - valid.length;
+
     if (valid.length === 0) {
-      return NextResponse.json({ error: "No valid vendors found in CSV (name column required)" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No valid vendors found — ensure the CSV has a 'name' column with at least one value" },
+        { status: 400 },
+      );
     }
 
     const supabase = await createClient();
@@ -78,8 +91,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success:  true,
       imported: data?.length ?? 0,
-      skipped:  vendorRows.length - valid.length,
+      skipped,
       vendors:  data,
+      // Surface non-fatal parse warnings so the UI can show them
+      warnings: errors.length > 0
+        ? errors.slice(0, 5).map((e) => `Row ${e.row}: ${e.message}`)
+        : undefined,
     });
   } catch (err: any) {
     console.error("[vendors/import] Unexpected error:", err);

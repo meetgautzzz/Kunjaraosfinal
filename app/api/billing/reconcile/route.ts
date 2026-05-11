@@ -13,7 +13,7 @@ const LOOK_BACK_HOURS = 24;
 const MAX_PAYMENTS     = 100; // Razorpay max per page
 
 function resolvePlan(raw: string): PlanId {
-  return (["free", "pro"] as const).includes(raw as PlanId)
+  return (["free", "pro"] as const).includes(raw as "free" | "pro")
     ? (raw as PlanId)
     : "free";
 }

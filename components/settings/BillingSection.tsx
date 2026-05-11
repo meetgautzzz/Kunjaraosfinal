@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { PLANS, getPlan, formatPrice, type PlanId, type Plan } from "@/lib/plans";
-import { CREDIT_PACKS } from "@/lib/creditPacks";
 import { createClient } from "@/lib/supabase/client";
 
 type UsageRow = {
-  plan:          PlanId | null;
-  events_used:   number | null;
-  credits_added: number | null;
+  plan:           PlanId | null;
+  proposals_used: number | null;
 };
 
 function loadRazorpayScript(): Promise<boolean> {
@@ -23,6 +21,8 @@ function loadRazorpayScript(): Promise<boolean> {
     document.body.appendChild(s);
   });
 }
+
+const VISIBLE_PLANS = PLANS.filter((p) => p.id !== "basic");
 
 export default function BillingSection() {
   const [usage,        setUsage]        = useState<UsageRow | null>(null);
@@ -44,17 +44,34 @@ export default function BillingSection() {
 
     const { data } = await supabase
       .from("user_usage")
-      .select("plan, events_used, credits_added")
+      .select("plan, proposals_used")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    setUsage(data as UsageRow ?? { plan: null, events_used: 0, credits_added: 0 });
+    setUsage(data as UsageRow ?? { plan: null, proposals_used: 0 });
     setLoading(false);
   }
 
   useEffect(() => { refreshUsage(); }, []);
 
+  async function handleFreeStart() {
+    setCheckoutPlan("free");
+    try {
+      const res  = await fetch("/api/auth/activate-free", { method: "POST", credentials: "include" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error ?? "Could not activate free plan.");
+      showToast("success", "Free plan activated.");
+      await refreshUsage();
+    } catch (e: unknown) {
+      showToast("error", (e as Error).message ?? "Something went wrong.");
+    } finally {
+      setCheckoutPlan(null);
+    }
+  }
+
   async function handleSubscribe(plan: Plan) {
+    if (plan.price === 0) { await handleFreeStart(); return; }
+
     setCheckoutPlan(plan.id);
     const sdkReady = await loadRazorpayScript();
     if (!sdkReady) {
@@ -111,10 +128,7 @@ export default function BillingSection() {
         });
         const result = await verifyRes.json();
         if (result.success) {
-          const msg = result.credited
-            ? `Payment successful — ${plan.name} plan activated with ${result.credits} AI credits.`
-            : `Payment received — ${result.credits} AI credits applying in a few seconds.`;
-          showToast("success", msg);
+          showToast("success", `Payment successful — ${plan.name} plan activated.`);
           await refreshUsage();
         } else {
           showToast("error", result.error ?? "Payment verification failed. Contact support if charged.");
@@ -128,23 +142,14 @@ export default function BillingSection() {
 
   const currentPlanId = usage?.plan ?? null;
   const currentPlan   = currentPlanId ? getPlan(currentPlanId) : null;
-  const creditsAdded  = usage?.credits_added ?? 0;
-  const eventsUsed    = usage?.events_used ?? 0;
-  const creditsLeft   = Math.max(0, creditsAdded - eventsUsed);
+  const proposalsUsed = usage?.proposals_used ?? 0;
+  const proposalLimit = currentPlan?.proposals ?? 2;
 
   return (
     <div className="space-y-8">
       <div style={{ marginBottom: 28 }}>
         <p className="t-title">Billing & Plans</p>
         <p className="t-body" style={{ marginTop: 4 }}>Simple, transparent pricing. Razorpay + UPI supported.</p>
-      </div>
-
-      {/* Launch offer banner */}
-      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 px-5 py-3 flex items-center gap-3">
-        <span className="text-xl shrink-0">🎉</span>
-        <p className="text-amber-300 text-sm font-semibold">
-          Launch Offer — 2× AI Credits on all plans. Limited time only.
-        </p>
       </div>
 
       {/* Current plan */}
@@ -156,9 +161,8 @@ export default function BillingSection() {
       ) : (
         <CurrentPlanBanner
           plan={currentPlan}
-          creditsAdded={creditsAdded}
-          eventsUsed={eventsUsed}
-          creditsLeft={creditsLeft}
+          proposalsUsed={proposalsUsed}
+          proposalLimit={proposalLimit}
         />
       )}
 
@@ -187,7 +191,7 @@ export default function BillingSection() {
 
       {/* Plan cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {PLANS.map((plan) => (
+        {VISIBLE_PLANS.map((plan) => (
           <PlanCard
             key={plan.id}
             plan={plan}
@@ -197,39 +201,6 @@ export default function BillingSection() {
             onSubscribe={() => handleSubscribe(plan)}
           />
         ))}
-      </div>
-
-      {/* Credit top-ups */}
-      <div>
-        <div className="mb-4">
-          <h3 className="text-[var(--text-1)] text-sm font-bold">Need more AI power?</h3>
-          <p className="text-[var(--text-3)] text-xs mt-1">Top up credits any time — no plan change required.</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {CREDIT_PACKS.map((pack) => (
-            <div key={pack.id} className={`rounded-xl border p-4 flex items-center justify-between gap-4 ${
-              pack.id === "medium"
-                ? "border-indigo-500/30 bg-indigo-500/5"
-                : "border-[var(--border)] bg-[var(--bg-surface)]"
-            }`}>
-              <div>
-                <p className="text-[var(--text-1)] font-bold text-base tabular-nums">
-                  {pack.credits.toLocaleString("en-IN")}
-                  <span className="text-[var(--text-3)] text-xs font-normal ml-1">credits</span>
-                </p>
-                <p className="text-[var(--text-3)] text-xs mt-0.5">
-                  ₹{(pack.amountInr / pack.credits).toFixed(1)} per credit
-                </p>
-              </div>
-              <p className="text-[var(--text-1)] font-bold text-sm tabular-nums shrink-0">
-                ₹{pack.amountInr.toLocaleString("en-IN")}
-              </p>
-            </div>
-          ))}
-        </div>
-        <p className="text-[var(--text-3)] text-xs mt-3">
-          Buy credits from the ⚡ top-up button on any page.
-        </p>
       </div>
 
       {/* Payment info */}
@@ -266,13 +237,13 @@ export default function BillingSection() {
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-function CurrentPlanBanner({ plan, creditsAdded, eventsUsed, creditsLeft }: {
+function CurrentPlanBanner({ plan, proposalsUsed, proposalLimit }: {
   plan: Plan | null;
-  creditsAdded: number;
-  eventsUsed: number;
-  creditsLeft: number;
+  proposalsUsed: number;
+  proposalLimit: number;
 }) {
-  const isFree = !plan || creditsAdded === 0;
+  const hasActivePlan = !!plan;
+  const proposalsLeft = Math.max(0, proposalLimit - proposalsUsed);
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] p-5">
@@ -285,27 +256,27 @@ function CurrentPlanBanner({ plan, creditsAdded, eventsUsed, creditsLeft }: {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-[var(--text-1)] font-bold">
-              {isFree ? "No active plan" : `${plan.name} Plan`}
+              {hasActivePlan ? `${plan.name} Plan` : "No active plan"}
             </p>
-            {!isFree && (
+            {hasActivePlan && (
               <span className="text-xs font-medium px-2 py-0.5 rounded-full border bg-emerald-500/15 text-emerald-400 border-emerald-500/20">
                 Active
               </span>
             )}
           </div>
           <p className="text-[var(--text-3)] text-xs mt-0.5">
-            {isFree
-              ? "Choose a plan below to start generating proposals."
-              : `${formatPrice(plan.price)}/month · ${plan.proposals} proposals · ${plan.credits.toLocaleString("en-IN")} AI credits`}
+            {hasActivePlan
+              ? `${plan.price === 0 ? "Free" : formatPrice(plan.price) + "/month"} · ${plan.proposals} proposals/month`
+              : "Choose a plan below to start generating proposals."}
           </p>
         </div>
       </div>
 
-      {!isFree && (
+      {hasActivePlan && (
         <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-[var(--border)]">
-          <Metric label="Credits Left"   value={`${creditsLeft}`} accent={creditsLeft > 0 ? "emerald" : "amber"} />
-          <Metric label="Credits Used"   value={`${eventsUsed}`} />
-          <Metric label="Credits Bought" value={`${creditsAdded}`} />
+          <Metric label="Proposals Left"  value={`${proposalsLeft}`}   accent={proposalsLeft > 0 ? "emerald" : "amber"} />
+          <Metric label="Proposals Used"  value={`${proposalsUsed}`} />
+          <Metric label="Monthly Limit"   value={`${proposalLimit}`} />
         </div>
       )}
     </div>
@@ -334,8 +305,9 @@ function PlanCard({ plan, annual, isCurrent, loading, onSubscribe }: {
   loading: boolean;
   onSubscribe: () => void;
 }) {
-  const price    = annual ? plan.annualPrice : plan.price;
-  const priceLbl = annual ? "/mo, billed yearly" : "/mo";
+  const isFree   = plan.price === 0;
+  const price    = annual && !isFree ? plan.annualPrice : plan.price;
+  const priceLbl = annual && !isFree ? "/mo, billed yearly" : "/mo";
 
   return (
     <div className={`relative rounded-2xl border p-5 flex flex-col gap-4 transition-all ${
@@ -363,18 +335,22 @@ function PlanCard({ plan, annual, isCurrent, loading, onSubscribe }: {
           )}
         </div>
         <div className="mt-2">
-          <div className="flex items-baseline gap-1">
-            <p className="text-[var(--text-1)] text-2xl font-black">{formatPrice(price)}</p>
-            <p className="text-[var(--text-3)] text-xs">{priceLbl}</p>
-          </div>
-          {annual && (
+          {isFree ? (
+            <p className="text-[var(--text-1)] text-2xl font-black">Free</p>
+          ) : (
+            <div className="flex items-baseline gap-1">
+              <p className="text-[var(--text-1)] text-2xl font-black">{formatPrice(price)}</p>
+              <p className="text-[var(--text-3)] text-xs">{priceLbl}</p>
+            </div>
+          )}
+          {annual && !isFree && (
             <p className="text-emerald-400 text-[11px] mt-1">
               {formatPrice(plan.annualPrice * 12)}/year
             </p>
           )}
         </div>
         <p className="text-[var(--text-3)] text-xs mt-2">
-          {plan.proposals} proposals · {plan.credits.toLocaleString("en-IN")} AI credits · {plan.users} user
+          {plan.proposals} proposals/month · {plan.users} user
         </p>
       </div>
 
@@ -392,7 +368,7 @@ function PlanCard({ plan, annual, isCurrent, loading, onSubscribe }: {
               : "border border-[var(--border)] text-[var(--text-1)] hover:bg-[var(--bg-hover)]"
           } disabled:opacity-60 disabled:cursor-not-allowed`}
         >
-          {loading ? <SpinnerIcon /> : plan.highlighted ? "Upgrade to Pro" : "Subscribe"}
+          {loading ? <SpinnerIcon /> : isFree ? "Start for Free" : `Upgrade to ${plan.name}`}
         </button>
       )}
 

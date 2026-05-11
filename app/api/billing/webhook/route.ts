@@ -14,9 +14,9 @@ const WebhookEventSchema = z.object({
 });
 
 function resolvePlan(plan: string): PlanId {
-  return (["basic", "pro"] as const).includes(plan as PlanId)
+  return (["free", "basic", "pro"] as const).includes(plan as PlanId)
     ? (plan as PlanId)
-    : "basic";
+    : "free";
 }
 
 const VALID_PLANS = new Set<PlanId>(["basic", "pro"]);

@@ -101,6 +101,20 @@ export default function OnboardingPage() {
   const [payError, setPayError]       = useState<string | null>(null);
   const [processing, setProcessing]   = useState(false);
 
+  async function handleFreeStart() {
+    setPayLoading(true);
+    setPayError(null);
+    try {
+      const res  = await fetch("/api/auth/activate-free", { method: "POST", credentials: "include" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error ?? "Could not activate free plan.");
+      window.location.href = "/dashboard";
+    } catch (e: unknown) {
+      setPayError((e as Error).message ?? "Something went wrong.");
+      setPayLoading(false);
+    }
+  }
+
   function handleTosScroll() {
     const el = tosRef.current;
     if (!el || tosRead) return;
@@ -355,8 +369,9 @@ export default function OnboardingPage() {
 
                 {/* Plan cards */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  {PLANS.map((plan) => {
-                    const price  = annual ? plan.annualPrice : plan.price;
+                  {PLANS.filter((p) => p.id !== "basic").map((plan) => {
+                    const isFree = plan.price === 0;
+                    const price  = annual && !isFree ? plan.annualPrice : plan.price;
                     const isPro  = plan.highlighted;
                     const isBusy = payLoading && payPlan?.id === plan.id;
                     return (
@@ -385,20 +400,26 @@ export default function OnboardingPage() {
                         <div style={{ fontSize: 12, color: "rgba(244,241,234,0.55)", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 12 }}>
                           {plan.name}
                         </div>
-                        <div style={{ display: "flex", alignItems: "flex-end", gap: 4, marginBottom: 4 }}>
-                          <span style={{ fontSize: 16, color: "rgba(244,241,234,0.6)", marginBottom: 8 }}>₹</span>
-                          <span style={{ fontFamily: "Georgia,serif", fontSize: 44, lineHeight: 1, color: "#F4F1EA" }}>
-                            {price.toLocaleString("en-IN")}
-                          </span>
-                          <span style={{ fontSize: 13, color: "rgba(244,241,234,0.45)", marginBottom: 8, marginLeft: 4 }}>/mo</span>
-                        </div>
-                        {annual && (
+                        {isFree ? (
+                          <div style={{ fontFamily: "Georgia,serif", fontSize: 44, lineHeight: 1, color: "#F4F1EA", marginBottom: 4 }}>
+                            Free
+                          </div>
+                        ) : (
+                          <div style={{ display: "flex", alignItems: "flex-end", gap: 4, marginBottom: 4 }}>
+                            <span style={{ fontSize: 16, color: "rgba(244,241,234,0.6)", marginBottom: 8 }}>₹</span>
+                            <span style={{ fontFamily: "Georgia,serif", fontSize: 44, lineHeight: 1, color: "#F4F1EA" }}>
+                              {price.toLocaleString("en-IN")}
+                            </span>
+                            <span style={{ fontSize: 13, color: "rgba(244,241,234,0.45)", marginBottom: 8, marginLeft: 4 }}>/mo</span>
+                          </div>
+                        )}
+                        {annual && !isFree && (
                           <div style={{ fontSize: 12, color: "#34D399", marginBottom: 10 }}>
                             ₹{(price * 12).toLocaleString("en-IN")}/year
                           </div>
                         )}
                         <div style={{ fontSize: 12, color: "#D4A85F", marginBottom: 16 }}>
-                          {plan.proposals} proposals · {plan.credits.toLocaleString()} AI credits/mo
+                          {plan.proposals} proposals/month
                         </div>
                         <div style={{ height: 1, background: "rgba(255,255,255,0.07)", marginBottom: 16 }} />
                         <ul style={{ listStyle: "none", padding: 0, margin: "0 0 20px", display: "flex", flexDirection: "column", gap: 8 }}>
@@ -409,7 +430,7 @@ export default function OnboardingPage() {
                           ))}
                         </ul>
                         <button
-                          onClick={() => handleSubscribe(plan)}
+                          onClick={() => isFree ? handleFreeStart() : handleSubscribe(plan)}
                           disabled={payLoading}
                           style={{
                             width: "100%", padding: "12px 16px", borderRadius: 10, border: "none",
@@ -421,7 +442,7 @@ export default function OnboardingPage() {
                             transition: "all 0.15s",
                           }}
                         >
-                          {isBusy ? "Opening payment…" : `Subscribe to ${plan.name}`}
+                          {isBusy ? "Opening payment…" : isFree ? "Start for Free →" : `Subscribe to ${plan.name}`}
                         </button>
                       </div>
                     );

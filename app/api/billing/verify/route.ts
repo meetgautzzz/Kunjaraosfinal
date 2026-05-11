@@ -59,9 +59,9 @@ export async function POST(req: NextRequest) {
     const order = await razorpay.orders.fetch(razorpay_order_id);
     const orderNotes = order.notes as Record<string, string> | null;
     const orderPlan = orderNotes?.plan ?? "basic";
-    const resolvedPlan: PlanId = (["basic", "pro", "test"] as const).includes(orderPlan as PlanId)
+    const resolvedPlan: PlanId = (["free", "basic", "pro", "test"] as const).includes(orderPlan as PlanId)
       ? (orderPlan as PlanId)
-      : "basic";
+      : "free";
     const creditsToAdd = getPlan(resolvedPlan).credits;
 
     // Signature is valid — immediately activate the subscription in app_metadata.

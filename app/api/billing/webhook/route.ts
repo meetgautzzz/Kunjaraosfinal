@@ -5,6 +5,7 @@ import { z } from "zod";
 import { applyPaymentCredits } from "@/lib/ai/credits";
 import { getAdminClient } from "@/lib/supabase/admin";
 import { getPlan, type PlanId } from "@/lib/plans";
+import { sendGA4Event } from "@/lib/ga4";
 
 // Minimal top-level shape — Razorpay payload structure varies by event type.
 // We only deep-validate fields we actually use; extra keys are stripped by Zod.
@@ -166,6 +167,13 @@ export async function POST(req: NextRequest) {
       console.error("[webhook] Failed to set subscription_active", { eventDeliveryId, userId, err: metaErr.message });
     }
   }
+
+  void sendGA4Event(userId, "payment_completed", {
+    plan:       resolvedPlan,
+    payment_id: paymentId,
+    value:      typeof order.amount === "number" ? order.amount / 100 : 0,
+    currency:   "INR",
+  });
 
   console.log("[webhook] Credits applied + subscription activated", { eventDeliveryId, userId, resolvedPlan, creditsToAdd, totalCredits: result.totalCredits, paymentId });
   return NextResponse.json({ received: true });

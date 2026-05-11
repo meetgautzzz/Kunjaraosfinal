@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { sendGA4Event } from "@/lib/ga4";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { parseJson } from "@/lib/validate";
@@ -179,6 +180,11 @@ export async function POST(req: NextRequest) {
     .from("user_usage")
     .update({ proposals_used: (usage?.proposals_used ?? 0) + 1, updated_at: new Date().toISOString() })
     .eq("user_id", user.id);
+
+  void sendGA4Event(user.id, "proposal_generated", {
+    event_type: eventType,
+    plan:       usage?.plan ?? "free",
+  });
 
   return NextResponse.json({ success: true, data: { ...proposal, modelUsed } });
 }

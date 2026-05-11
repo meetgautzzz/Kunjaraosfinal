@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { sendGA4Event } from "@/lib/ga4";
 
 const SignupSchema = z.object({
   name:     z.string().min(1).max(200).trim(),
@@ -56,6 +57,8 @@ export async function POST(req: NextRequest) {
     plan:           "free",
     proposals_used: 0,
   });
+
+  void sendGA4Event(created.user.id, "sign_up", { method: "email", plan: "free" });
 
   return NextResponse.json({ ok: true });
 }

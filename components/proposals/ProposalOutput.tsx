@@ -2083,29 +2083,22 @@ function ConceptTab({ proposal, update }: { proposal: ProposalData; update: (f: 
       <div>
         <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 14 }}>✨ Visual Mood Board</p>
         {proposal.mood_board_images && proposal.mood_board_images.length > 0 ? (
-          <div className="grid grid-cols-3 gap-4">
-            {proposal.mood_board_images.slice(0, 3).map((url, i) => (
-              <div key={i} className="aspect-square rounded-xl overflow-hidden border border-[var(--border)] hover:border-indigo-500/50 transition-colors shadow-lg">
-                <img
-                  src={url}
-                  alt={`Mood board ${i + 1}`}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  loading="lazy"
-                />
-              </div>
-            ))}
+          <div className="rounded-xl overflow-hidden border border-[var(--border)] shadow-lg hover:border-indigo-500/50 transition-colors">
+            <img
+              src={proposal.mood_board_images[0]}
+              alt="Visual mood board"
+              className="w-full object-cover"
+              style={{ aspectRatio: "16/9" }}
+              loading="lazy"
+            />
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="aspect-square rounded-xl border border-[var(--border)] overflow-hidden animate-pulse"
-                style={{ background: `linear-gradient(135deg, ${BUDGET_COLORS[i % BUDGET_COLORS.length]}18, ${BUDGET_COLORS[(i + 2) % BUDGET_COLORS.length]}0d)` }}>
-                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-[var(--text-3)]">
-                  <span style={{ fontSize: 24 }}>🎨</span>
-                  <span style={{ fontSize: 11 }}>Generating…</span>
-                </div>
-              </div>
-            ))}
+          <div className="rounded-xl border border-[var(--border)] overflow-hidden animate-pulse"
+            style={{ aspectRatio: "16/9", background: `linear-gradient(135deg, ${BUDGET_COLORS[0]}18, ${BUDGET_COLORS[2]}0d)` }}>
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-[var(--text-3)]">
+              <span style={{ fontSize: 28 }}>🎨</span>
+              <span style={{ fontSize: 12 }}>Generating mood board…</span>
+            </div>
           </div>
         )}
       </div>

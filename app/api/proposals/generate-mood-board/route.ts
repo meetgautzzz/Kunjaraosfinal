@@ -21,23 +21,22 @@ export async function POST(req: NextRequest) {
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-  const prompts = buildPrompts(concept, theme, colors);
+  const prompt = buildTriptychPrompt(concept, theme, colors);
   const imageUrls: string[] = [];
 
-  for (const prompt of prompts) {
-    try {
-      const res = await openai.images.generate({
-        model:   "dall-e-3",
-        prompt,
-        n:       1,
-        size:    "1024x1024",
-        quality: "standard",
-      });
-      const url = res.data?.[0]?.url;
-      if (url) imageUrls.push(url);
-    } catch (err: any) {
-      console.warn("[generate-mood-board] Image skipped:", err.message);
-    }
+  try {
+    const res = await openai.images.generate({
+      model:   "dall-e-3",
+      prompt,
+      n:       1,
+      size:    "1792x1024",  // landscape — best for a 3-panel triptych
+      quality: "standard",
+    });
+    const url = res.data?.[0]?.url;
+    if (url) imageUrls.push(url);
+  } catch (err: any) {
+    console.error("[generate-mood-board] Image generation failed:", err.message);
+    return NextResponse.json({ error: "Failed to generate mood board image" }, { status: 500 });
   }
 
   if (imageUrls.length === 0) {
@@ -77,14 +76,16 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ success: true, images: imageUrls, count: imageUrls.length });
 }
 
-function buildPrompts(concept: string, theme?: string, colors?: { name: string }[]): string[] {
-  const colorStr  = colors?.map((c) => c.name).join(", ") || "sophisticated neutrals";
-  const themeStr  = theme || concept;
-  const base      = `Professional luxury event mood board, high-end event design photography, premium aesthetic, India`;
+function buildTriptychPrompt(concept: string, theme?: string, colors?: { name: string }[]): string {
+  const colorStr = colors?.map((c) => c.name).join(", ") || "sophisticated neutrals";
+  const themeStr = theme || concept;
 
-  return [
-    `${base}. Concept: ${concept}. Elegant venue decoration with ${colorStr} color palette. Upscale event styling.`,
-    `${base}. Theme: ${themeStr}. Dramatic stage and focal point, cinematic lighting. Professional event production.`,
-    `${base}. Concept: ${concept}. Full event atmosphere and ambiance. Color scheme: ${colorStr}.`,
-  ];
+  return (
+    `A luxury event mood board triptych — three side-by-side panels in one wide image, separated by thin gold lines. ` +
+    `No text, no labels, no borders other than the dividers. ` +
+    `Left panel: elegant venue decoration and tablescapes with ${colorStr} color palette for a ${concept} event. ` +
+    `Center panel: dramatic stage focal point and cinematic uplighting for a ${themeStr} theme, India. ` +
+    `Right panel: grand entrance and overall event atmosphere, ${colorStr} tones, luxury Indian event aesthetic. ` +
+    `High-end editorial photography style, cohesive color grading across all three panels, premium event production.`
+  );
 }

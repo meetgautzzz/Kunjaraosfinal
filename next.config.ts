@@ -27,7 +27,7 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
+  { key: "Permissions-Policy", value: "geolocation=(), microphone=(), camera=(), payment=(), usb=(), accelerometer=(), ambient-light-sensor=(), gyroscope=(), magnetometer=(), midi=(), picture-in-picture=(), sync-xhr=(), vr=(), xr-spatial-tracking=()" },
   { key: "X-DNS-Prefetch-Control", value: "on" },
 ];
 

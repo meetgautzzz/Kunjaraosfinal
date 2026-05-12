@@ -162,6 +162,7 @@ export default function ProposalClientView({ proposal, highlightSection }: Props
                     src={proposal.mood_board_images[0]}
                     alt="Visual mood board"
                     style={{ width: "100%", height: "auto", aspectRatio: "16/9", objectFit: "cover", display: "block" }}
+                    loading="eager"
                   />
                 </div>
               </section>
@@ -287,6 +288,7 @@ export default function ProposalClientView({ proposal, highlightSection }: Props
                         src={visual.image}
                         alt={`3D Render ${idx + 1}`}
                         style={{ width: "100%", height: "auto", display: "block" }}
+                        loading="lazy"
                       />
                       {(visual.theme || visual.brandName) && (
                         <div style={{ padding: "8px 12px", background: "var(--bg-surface)", display: "flex", gap: 8 }}>

@@ -11,7 +11,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.razorpay.com https://lumberjack.razorpay.com https://*.sardine.ai https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com https://www.google-analytics.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.razorpay.com https://lumberjack.razorpay.com https://*.sardine.ai https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com https://www.google-analytics.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com/g/collect https://analytics.google.com/g/collect https://stats.g.doubleclick.net",
   "worker-src 'self' blob:",
   "frame-src https://api.razorpay.com https://checkout.razorpay.com",
   "object-src 'none'",

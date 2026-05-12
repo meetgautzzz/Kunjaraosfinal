@@ -15,7 +15,6 @@ import {
 import { useBranding } from "@/lib/branding";
 import FloorPlanBuilder, { CELL as FP_CELL, GW as FP_GW, GH as FP_GH, KINDS as FP_KINDS } from "@/components/toolkit/FloorPlanBuilder";
 import type { FpElement } from "@/components/toolkit/FloorPlanBuilder";
-import ReviewSidebar from "@/components/proposals/ReviewSidebar";
 import SectionApprovalBadge from "@/components/proposals/SectionApprovalBadge";
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip } from "recharts";
 
@@ -25,7 +24,7 @@ const BUDGET_COLORS = [
 ];
 
 type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
-         | "experience" | "visual" | "activations" | "compliance" | "floor-plan" | "visuals";
+         | "experience" | "design" | "activations" | "compliance";
 
 
 type Props = {
@@ -42,9 +41,8 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
   const hasStage      = !!(proposal.stageDesign || proposal.decorPlan);
   const hasActivations= !!proposal.experienceElements;
 
-  const [tab,             setTab]             = useState<Tab>(hasExperience ? "experience" : "concept");
-  const [showSidebar,     setShowSidebar]     = useState(false);
-  const [saved,           setSaved]           = useState(false);
+  const [tab,                  setTab]                  = useState<Tab>(hasExperience ? "experience" : "concept");
+  const [saved,                setSaved]                = useState(false);
   const [saveError,       setSaveError]       = useState("");
   const [editMode,        setEditMode]        = useState(false);
   const [showTplModal,    setShowTplModal]    = useState(false);
@@ -58,8 +56,10 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
   const [versionsOpen,    setVersionsOpen]    = useState(false);
   const [regenerating,    setRegenerating]    = useState(false);
   const [regenError,      setRegenError]      = useState("");
-  const [duplicating,     setDuplicating]     = useState(false);
-  const [lockLoading,     setLockLoading]     = useState(false);
+  const [duplicating,          setDuplicating]          = useState(false);
+  const [lockLoading,          setLockLoading]          = useState(false);
+  const [generatingMoodBoard,  setGeneratingMoodBoard]  = useState(false);
+  const [moodBoardGenerated,   setMoodBoardGenerated]   = useState(false);
 
   const credits = useCredits();
   const { branding } = useBranding();
@@ -226,6 +226,37 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
     }
   }
 
+  async function handleGenerateMoodBoard() {
+    if (generatingMoodBoard) return;
+    setGeneratingMoodBoard(true);
+    setMoodBoardGenerated(false);
+    try {
+      const res = await fetch("/api/proposals/generate-mood-board", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          proposalId: proposal.id,
+          concept:    proposal.concept?.description,
+          theme:      proposal.concept?.theme,
+          colors:     proposal.visualDirection?.palette,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMoodBoardGenerated(true);
+        setTimeout(() => { setMoodBoardGenerated(false); setGeneratingMoodBoard(false); }, 2500);
+        onSave();
+      } else {
+        alert("Failed to generate mood board");
+        setGeneratingMoodBoard(false);
+      }
+    } catch (err) {
+      console.error("Mood board error:", err);
+      alert("Error generating mood board");
+      setGeneratingMoodBoard(false);
+    }
+  }
+
   async function handleGenerateImage() {
     if (generatingImage) return;
     setImageGenError("");
@@ -284,17 +315,15 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
     { id: "timeline",    label: "Timeline",       icon: "⏱", show: !!(proposal.timeline?.length) },
     { id: "vendors",     label: "Vendors",        icon: "🏪", show: hasVendors || !hasExperience },
     { id: "risks",       label: "Risks & Tips",   icon: "⚠", show: hasRisks   || !hasExperience },
-    { id: "experience",  label: "Experience",     icon: "✨", show: hasExperience },
-    { id: "visual",      label: "Visual & Stage Design", icon: "🎨", show: hasVisual || hasStage },
-    { id: "activations", label: "Activations",    icon: "⚡", show: hasActivations },
-    { id: "compliance",  label: "Compliance",     icon: "⚖", show: !!proposal.eventType },
-    { id: "floor-plan",  label: "Floor Plan",     icon: "⬛", show: true },
-    { id: "visuals",     label: "3D Visuals",     icon: "🎨", show: true },
+    { id: "experience",  label: "Experience",       icon: "✨", show: hasExperience },
+    { id: "design",      label: "Design & Layout",  icon: "🎭", show: true },
+    { id: "activations", label: "Activations",      icon: "⚡", show: hasActivations },
+    { id: "compliance",  label: "Compliance",       icon: "⚖", show: !!proposal.eventType },
   ];
   const TABS = ALL_TABS.filter((t) => t.show);
 
   return (
-    <div style={{ display: showSidebar ? "grid" : "block", gridTemplateColumns: showSidebar ? "1fr 320px" : undefined, alignItems: "start", maxWidth: showSidebar ? "none" : "80rem", margin: "0 auto" }}>
+    <div style={{ maxWidth: "80rem", margin: "0 auto" }}>
     <div style={{ paddingBottom: 48, display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
 
       {/* ── Top bar ───────────────────────────────────────────────────────── */}
@@ -565,17 +594,26 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
               {lockLoading ? "…" : proposal.isLocked ? "🔒 Locked" : "🔒 Lock"}
             </button>
             <button
-              onClick={() => setShowSidebar((v) => !v)}
-              title={showSidebar ? "Hide review sidebar" : "Share proposal with client & track approvals"}
+              onClick={handleGenerateMoodBoard}
+              disabled={generatingMoodBoard || !proposal.concept}
+              title={generatingMoodBoard ? "Generating mood board…" : "Generate AI mood board images"}
               style={{
                 display: "inline-flex", alignItems: "center", gap: 6,
                 padding: "8px 13px", borderRadius: 9, fontSize: 13, fontWeight: 600,
-                border: showSidebar ? "1px solid rgba(212,168,95,0.5)" : "1px solid rgba(212,168,95,0.3)",
-                background: showSidebar ? "rgba(212,168,95,0.15)" : "rgba(212,168,95,0.07)",
-                color: "#D4A85F", cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
+                border: moodBoardGenerated ? "1px solid rgba(34,197,94,0.4)" : "1px solid rgba(168,85,247,0.3)",
+                background: moodBoardGenerated ? "rgba(34,197,94,0.12)" : generatingMoodBoard ? "rgba(168,85,247,0.18)" : "rgba(168,85,247,0.08)",
+                color: moodBoardGenerated ? "#4ade80" : "#d8b4fe",
+                cursor: generatingMoodBoard ? "not-allowed" : "pointer",
+                transition: "all 0.15s", opacity: proposal.concept ? 1 : 0.5, whiteSpace: "nowrap",
               }}
             >
-              {showSidebar ? "✕ Close Review" : "↗ Share & Review"}
+              {generatingMoodBoard ? (
+                <><span className="w-3 h-3 rounded-full border-2 border-purple-300/30 border-t-purple-400 animate-spin" />Generating…</>
+              ) : moodBoardGenerated ? (
+                <>✓ Mood Board Ready</>
+              ) : (
+                <>🎨 Mood Board</>
+              )}
             </button>
             <button
               onClick={() => { window.location.href = `/toolkit/event-visual?from=${proposal.id}`; }}
@@ -589,7 +627,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
                 cursor: "pointer", transition: "all 0.15s",
               }}
             >
-              🎨 3D Visual
+              🎬 3D Visual
             </button>
             <div style={{ position: "relative" }}>
               <button
@@ -882,8 +920,9 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
         {tab === "vendors"     && <VendorsTab      proposal={proposal} update={update} hideToggle={hideVendorToggle} />}
         {tab === "risks"       && <RisksTab        proposal={proposal} update={update} />}
         {tab === "experience"  && <ExperienceTab   proposal={proposal} update={update} />}
-        {tab === "visual"      && (
+        {tab === "design" && (
           <>
+            {/* Visual Identity */}
             <VisualTab
               proposal={proposal}
               update={update}
@@ -892,14 +931,14 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
               generatingImage={generatingImage}
               imageGenError={imageGenError}
             />
-            {hasStage && (
+            {/* Stage & Decor */}
+            {(hasStage || proposal.decorPlan) && (
               <div style={{ borderTop: "1px solid var(--border)" }}>
                 <StageTab proposal={proposal} update={update} />
               </div>
             )}
             {proposal.decorPlan && (
               <div style={{ borderTop: "1px solid var(--border)", padding: "28px 32px", display: "flex", flexDirection: "column", gap: 24 }}>
-                {/* Hero Statement */}
                 {proposal.decorPlan.hero && (
                   <div style={{ borderRadius: 16, border: "2px solid rgba(99,102,241,0.4)", background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", padding: "28px 28px" }}>
                     <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 10 }}>🎨 Design Statement</p>
@@ -909,7 +948,6 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
                       placeholder="Hero design statement..." />
                   </div>
                 )}
-                {/* Zones grid */}
                 {proposal.decorPlan.zones?.length > 0 && (
                   <div>
                     <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 14 }}>Themed Zones</p>
@@ -930,7 +968,6 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
                     </div>
                   </div>
                 )}
-                {/* Sustainability note */}
                 {proposal.decorPlan.sustainabilityNotes && (
                   <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid rgba(52,211,153,0.25)", background: "rgba(52,211,153,0.05)" }}>
                     <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#34d399", marginBottom: 6 }}>♻ Sustainability</p>
@@ -942,49 +979,49 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
                 )}
               </div>
             )}
+            {/* 3D Visuals */}
+            <div style={{ borderTop: "1px solid var(--border)" }}>
+              <VisualsTab proposal={proposal} onChange={onChange} />
+            </div>
+            {/* Floor Plan */}
+            <div style={{ borderTop: "1px solid var(--border)" }}>
+              {(editMode && canEdit) ? (
+                <div style={{ height: 560 }}>
+                  <FloorPlanBuilder
+                    initialElements={proposal.floorPlan}
+                    onElementsChange={(els: FpElement[]) => update("floorPlan", els)}
+                  />
+                </div>
+              ) : (
+                <div style={{ padding: "20px" }}>
+                  {proposal.floorPlan?.length ? (
+                    <>
+                      <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 12 }}>
+                        Floor plan · {proposal.floorPlan.length} element{proposal.floorPlan.length !== 1 ? "s" : ""}
+                        {" · "}
+                        <button onClick={() => setEditMode(true)} style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", fontSize: 12 }}>Edit</button>
+                      </p>
+                      <div style={{ height: 420, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)", background: "#0d0e11" }}>
+                        <FloorPlanViewerInline elements={proposal.floorPlan} />
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ padding: "48px 0", textAlign: "center" }}>
+                      <p style={{ fontSize: 14, color: "var(--text-3)", marginBottom: 12 }}>No floor plan yet.</p>
+                      {canEdit && (
+                        <button onClick={() => setEditMode(true)} style={{ fontSize: 13, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
+                          Switch to edit mode to create one
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </>
         )}
         {tab === "activations" && <ActivationsTab  proposal={proposal} update={update} />}
         {tab === "compliance"  && <ComplianceTab   proposal={proposal} update={update} onDirectChange={onChange} />}
-        {tab === "visuals" && (
-          <VisualsTab proposal={proposal} onChange={onChange} />
-        )}
-        {tab === "floor-plan"  && (
-          <div>
-            {(editMode && canEdit) ? (
-              <div style={{ height: 560 }}>
-                <FloorPlanBuilder
-                  initialElements={proposal.floorPlan}
-                  onElementsChange={(els: FpElement[]) => update("floorPlan", els)}
-                />
-              </div>
-            ) : (
-              <div style={{ padding: "20px" }}>
-                {proposal.floorPlan?.length ? (
-                  <>
-                    <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 12 }}>
-                      Floor plan · {proposal.floorPlan.length} element{proposal.floorPlan.length !== 1 ? "s" : ""}
-                      {" · "}
-                      <button onClick={() => setEditMode(true)} style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", fontSize: 12 }}>Edit</button>
-                    </p>
-                    <div style={{ height: 420, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)", background: "#0d0e11" }}>
-                      <FloorPlanViewerInline elements={proposal.floorPlan} />
-                    </div>
-                  </>
-                ) : (
-                  <div style={{ padding: "48px 0", textAlign: "center" }}>
-                    <p style={{ fontSize: 14, color: "var(--text-3)", marginBottom: 12 }}>No floor plan yet.</p>
-                    {canEdit && (
-                      <button onClick={() => setEditMode(true)} style={{ fontSize: 13, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
-                        Switch to edit mode to create one
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* ── Save as Template modal ─────────────────────────────────────────── */}
@@ -1043,12 +1080,6 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
         </div>
       )}
     </div>{/* end inner content column */}
-
-    {showSidebar && (
-      <div style={{ height: "calc(100vh - 72px)", position: "sticky", top: 72, overflow: "hidden" }}>
-        <ReviewSidebar proposalId={proposal.id} activeTab={tab} />
-      </div>
-    )}
   </div>
   );
 }
@@ -1759,31 +1790,33 @@ function VisualTab({
 
       {/* Colour palette */}
       {vd.palette?.length > 0 && (
-        <div>
+        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <TabSection eyebrow="Design System" title="Colour Palette" />
+          <div style={{ padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(52,211,153,0.25)", background: "rgba(52,211,153,0.05)", display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 20 }} className="animate-bounce">✨</span>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 600, color: "#34d399" }}>Visual Identity Generated</p>
+              <p style={{ fontSize: 12, color: "rgba(52,211,153,0.6)", marginTop: 2 }}>Color palette, mood, and design direction ready</p>
+            </div>
+          </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             {vd.palette.map((swatch: ColorSwatch, i: number) => (
               <div
                 key={i}
+                className="animate-in fade-in zoom-in duration-300"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
-                  padding: "14px 18px",
-                  borderRadius: 12,
-                  border: "1px solid var(--border)",
-                  background: "var(--bg-surface)",
+                  display: "flex", alignItems: "center", gap: 14,
+                  padding: "14px 18px", borderRadius: 12,
+                  border: "1px solid var(--border)", background: "var(--bg-surface)",
+                  animationDelay: `${i * 80}ms`,
                 }}
               >
                 <div
                   style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 10,
+                    width: 52, height: 52, borderRadius: 10,
                     border: "1px solid rgba(255,255,255,0.08)",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-                    backgroundColor: swatch.hex,
-                    flexShrink: 0,
+                    backgroundColor: swatch.hex, flexShrink: 0,
                   }}
                 />
                 <div>

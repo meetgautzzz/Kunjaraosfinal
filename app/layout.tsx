@@ -5,6 +5,11 @@ import "./globals.css";
 import CookieConsent from "@/components/ui/CookieConsent";
 import WebVitalsReporter from "@/components/ui/WebVitalsReporter";
 import { Analytics } from '@vercel/analytics/next';
+import {
+  generateOrganizationSchema,
+  generateSoftwareAppSchema,
+  generateFAQSchema,
+} from "@/lib/structured-data";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -95,6 +100,15 @@ export const metadata: Metadata = {
     email: true,
     address: true,
   },
+
+  manifest: "/manifest.json",
+
+  other: {
+    "geo.position": "19.0760,72.8777",
+    "geo.region": "IN-MH",
+    "geo.placename": "Mumbai, India",
+    ICBM: "19.0760, 72.8777",
+  },
 };
 
 export default function RootLayout({
@@ -119,6 +133,10 @@ export default function RootLayout({
             gtag('config', 'G-40DTYGNHTK');
           `}
         </Script>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(generateOrganizationSchema()) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(generateSoftwareAppSchema()) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(generateFAQSchema()) }} />
 
         {children}
         <CookieConsent />

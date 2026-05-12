@@ -37,6 +37,12 @@ const nextConfig: NextConfig = {
       { source: "/waitlist", destination: "/site/waitlist.html" },
     ];
   },
+  async redirects() {
+    return [
+      { source: "/en-in", destination: "/", permanent: false },
+      { source: "/hi-in", destination: "/", permanent: false },
+    ];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

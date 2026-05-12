@@ -5,6 +5,7 @@ import "./globals.css";
 import CookieConsent from "@/components/ui/CookieConsent";
 import WebVitalsReporter from "@/components/ui/WebVitalsReporter";
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import {
   generateOrganizationSchema,
   generateSoftwareAppSchema,
@@ -156,6 +157,7 @@ export default function RootLayout({
         {children}
         <CookieConsent />
         <Analytics />
+        <SpeedInsights />
         <WebVitalsReporter />
 
       </body>

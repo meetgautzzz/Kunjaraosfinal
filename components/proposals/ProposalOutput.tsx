@@ -918,6 +918,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
             proposal={proposal}
             update={update}
             onChange={onChange}
+            onSave={onSave}
             onGenerateImage={handleGenerateImage}
             onUploadImage={handleUploadImage}
             generatingImage={generatingImage}
@@ -2690,13 +2691,14 @@ function buildToolkitLink(proposal: ProposalData): string {
 type DesignSubTab = "visual" | "stage" | "decor" | "3d" | "floor";
 
 function DesignLayoutTab({
-  proposal, update, onChange,
+  proposal, update, onChange, onSave,
   onGenerateImage, onUploadImage, generatingImage, imageGenError,
   editMode, canEdit, onSwitchToEdit,
 }: {
   proposal: ProposalData;
   update: (f: keyof ProposalData, v: any) => void;
   onChange: (p: ProposalData) => void;
+  onSave: () => void;
   onGenerateImage: () => void;
   onUploadImage: (file: File) => void;
   generatingImage: boolean;
@@ -2705,7 +2707,64 @@ function DesignLayoutTab({
   canEdit: boolean;
   onSwitchToEdit: () => void;
 }) {
-  const [sub, setSub] = React.useState<DesignSubTab>("visual");
+  const [sub,                setSub]                = React.useState<DesignSubTab>("visual");
+  const [generatingInline3D, setGeneratingInline3D] = React.useState(false);
+  const [inline3DError,      setInline3DError]      = React.useState("");
+  const [suggestingFloor,    setSuggestingFloor]    = React.useState(false);
+
+  async function handleGenerateInline3D() {
+    if (!proposal.concept?.title) { alert("Define your event concept first."); return; }
+    setGeneratingInline3D(true);
+    setInline3DError("");
+    try {
+      const res = await fetch("/api/proposals/generate-3d-inline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          proposalId:   proposal.id,
+          concept:      proposal.concept.title,
+          theme:        proposal.concept.theme,
+          description:  proposal.concept.description,
+          primaryColor: proposal.visualDirection?.palette?.[0]?.hex,
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error ?? "Generation failed");
+      onChange({
+        ...proposal,
+        generatedVisuals: [data.visual, ...(proposal.generatedVisuals ?? [])],
+      });
+      onSave();
+    } catch (err: any) {
+      setInline3DError(err.message ?? "Failed to generate 3D render");
+    } finally {
+      setGeneratingInline3D(false);
+    }
+  }
+
+  async function handleAISuggestFloorPlan() {
+    setSuggestingFloor(true);
+    try {
+      const res = await fetch("/api/proposals/suggest-floor-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventType:   proposal.eventType,
+          concept:     proposal.concept?.title,
+          theme:       proposal.concept?.theme,
+          description: proposal.concept?.description,
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error ?? "Failed to suggest layout");
+      update("floorPlan", data.elements);
+      onSwitchToEdit();
+    } catch (err: any) {
+      alert(err.message ?? "Error generating layout");
+    } finally {
+      setSuggestingFloor(false);
+    }
+  }
 
   const SUB_TABS: { id: DesignSubTab; label: string }[] = [
     { id: "visual", label: "✨ Visual Identity" },
@@ -2799,118 +2858,190 @@ function DesignLayoutTab({
         </div>
       )}
       {sub === "3d" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "20px" }}>
-          {/* Header */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "20px" }}>
           <div>
             <p style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", marginBottom: 4 }}>🎬 3D Event Visualization</p>
             <p style={{ fontSize: 12, color: "var(--text-3)" }}>Photorealistic renders of your event concept</p>
           </div>
 
-          {/* Proposal context summary */}
-          <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--bg-surface)" }}>
-            <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-3)", marginBottom: 10 }}>📋 Proposal Context</p>
-            <div style={{ display: "grid", gap: 7 }}>
-              {[
-                { label: "Concept", value: proposal.concept?.title },
-                { label: "Theme",   value: proposal.concept?.theme },
-              ].map(({ label, value }) => value ? (
-                <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                  <span style={{ color: "var(--text-3)" }}>{label}</span>
-                  <span style={{ color: "var(--text-1)", fontWeight: 600 }}>{value}</span>
+          {/* Existing renders gallery */}
+          {(proposal.generatedVisuals?.length ?? 0) > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
+              {proposal.generatedVisuals!.map((v) => (
+                <div key={v.id} style={{ borderRadius: 14, overflow: "hidden", border: "1px solid var(--border)", background: "#0d0e11", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={v.image} alt={`3D visual${v.brandName ? ` for ${v.brandName}` : ""}`} style={{ width: "100%", display: "block" }} loading="lazy" />
+                  {(v.eventType || v.theme) && (
+                    <div style={{ padding: "8px 12px", display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {v.eventType && <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#a78bfa", textTransform: "capitalize" }}>{v.eventType}</span>}
+                      {v.theme && <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-3)", textTransform: "capitalize" }}>{v.theme}</span>}
+                      <span style={{ fontSize: 10, color: "var(--text-3)", marginLeft: "auto" }}>{new Date(v.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
+                    </div>
+                  )}
                 </div>
-              ) : null)}
+              ))}
+            </div>
+          )}
+
+          {/* Inline generation panel */}
+          <div style={{ padding: 18, borderRadius: 12, border: "1px solid var(--border)", background: "var(--bg-surface)" }}>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-3)", marginBottom: 12 }}>📋 Render Context</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 10, marginBottom: 16 }}>
+              {proposal.concept?.title && (
+                <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                  <p style={{ fontSize: 10, color: "var(--text-3)", marginBottom: 3 }}>Concept</p>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-1)" }}>{proposal.concept.title}</p>
+                </div>
+              )}
+              {proposal.concept?.theme && (
+                <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                  <p style={{ fontSize: 10, color: "var(--text-3)", marginBottom: 3 }}>Theme</p>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-1)" }}>{proposal.concept.theme}</p>
+                </div>
+              )}
               {proposal.visualDirection?.palette?.[0] && (
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, alignItems: "center" }}>
-                  <span style={{ color: "var(--text-3)" }}>Primary Color</span>
-                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 14, height: 14, borderRadius: 3, backgroundColor: proposal.visualDirection.palette[0].hex, border: "1px solid var(--border)", display: "inline-block" }} />
-                    <span style={{ color: "var(--text-1)", fontWeight: 600 }}>{proposal.visualDirection.palette[0].name}</span>
-                  </span>
+                <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--bg-card)", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 5, backgroundColor: proposal.visualDirection.palette[0].hex, border: "1px solid var(--border)", flexShrink: 0 }} />
+                  <div>
+                    <p style={{ fontSize: 10, color: "var(--text-3)" }}>Color</p>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-1)" }}>{proposal.visualDirection.palette[0].name}</p>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Existing renders OR empty state */}
-          {(proposal.generatedVisuals?.length ?? 0) > 0 ? (
-            <>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
-                {proposal.generatedVisuals!.map((v) => (
-                  <div key={v.id} style={{ borderRadius: 14, overflow: "hidden", border: "1px solid var(--border)", background: "#0d0e11", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={v.image} alt={`3D visual${v.brandName ? ` for ${v.brandName}` : ""}`} style={{ width: "100%", display: "block" }} loading="lazy" />
-                    {(v.eventType || v.theme) && (
-                      <div style={{ padding: "8px 12px", display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {v.eventType && <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#a78bfa", textTransform: "capitalize" }}>{v.eventType}</span>}
-                        {v.theme && <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-3)", textTransform: "capitalize" }}>{v.theme}</span>}
-                        <span style={{ fontSize: 10, color: "var(--text-3)", marginLeft: "auto" }}>{new Date(v.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid rgba(168,85,247,0.25)", background: "rgba(168,85,247,0.05)", textAlign: "center" }}>
-                <p style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 10 }}>Want more render variations?</p>
-                <a href={buildToolkitLink(proposal)} style={{
+            {inline3DError && (
+              <p style={{ fontSize: 12, color: "#fca5a5", marginBottom: 10 }}>⚠ {inline3DError}</p>
+            )}
+
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button
+                onClick={handleGenerateInline3D}
+                disabled={generatingInline3D}
+                style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "9px 16px", borderRadius: 8, textDecoration: "none",
-                  background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.3)",
-                  color: "#d8b4fe", fontSize: 13, fontWeight: 600,
-                }}>
-                  🎨 Generate More Variations
-                </a>
-              </div>
-            </>
-          ) : (
-            <div style={{ padding: "28px 20px", borderRadius: 12, border: "2px dashed rgba(168,85,247,0.25)", background: "rgba(168,85,247,0.03)", textAlign: "center" }}>
-              <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 16 }}>
-                Generate a photorealistic 3D render based on your concept, theme, and visual identity.
-              </p>
-              <a href={buildToolkitLink(proposal)} style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "12px 20px", borderRadius: 9, textDecoration: "none",
-                background: "linear-gradient(135deg, rgba(168,85,247,0.2), rgba(99,102,241,0.2))",
-                border: "1px solid rgba(168,85,247,0.4)",
-                color: "#d8b4fe", fontSize: 14, fontWeight: 600,
-                boxShadow: "0 0 20px rgba(168,85,247,0.1)",
-              }}>
-                🎨 Generate 3D Render
+                  padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  background: generatingInline3D ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.12)",
+                  border: "1px solid rgba(99,102,241,0.3)", color: "#a5b4fc",
+                  cursor: generatingInline3D ? "not-allowed" : "pointer", transition: "all 0.15s",
+                  opacity: generatingInline3D ? 0.65 : 1,
+                }}
+              >
+                {generatingInline3D ? (
+                  <><span className="w-3 h-3 rounded-full border-2 border-indigo-400/30 border-t-indigo-400 animate-spin" />Generating…</>
+                ) : (
+                  <>🎨 Quick Generate</>
+                )}
+              </button>
+              <a
+                href={buildToolkitLink(proposal)}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none",
+                  background: "linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15))",
+                  border: "1px solid rgba(168,85,247,0.35)", color: "#d8b4fe",
+                  cursor: "pointer", transition: "all 0.15s",
+                }}
+              >
+                🔧 Advanced Toolkit ↗
               </a>
-              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 12 }}>
-                Takes 15–30 seconds · Renders save back to this proposal automatically
-              </p>
             </div>
-          )}
+            <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 10 }}>
+              <strong style={{ color: "var(--text-2)" }}>Quick Generate</strong> — Faster inline render (~30s) ·{" "}
+              <strong style={{ color: "var(--text-2)" }}>Advanced Toolkit</strong> — More control & options
+            </p>
+          </div>
         </div>
       )}
       {sub === "floor" && (
-        <div style={{ padding: "20px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "20px" }}>
+          <div>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", marginBottom: 4 }}>📐 Event Floor Plan & Layout</p>
+            <p style={{ fontSize: 12, color: "var(--text-3)" }}>Spatial layout and element arrangement</p>
+          </div>
+
           {(editMode && canEdit) ? (
-            <div style={{ height: 560 }}>
+            <div style={{ height: 560, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}>
               <FloorPlanBuilder
                 initialElements={proposal.floorPlan}
                 onElementsChange={(els: FpElement[]) => update("floorPlan", els)}
               />
             </div>
-          ) : proposal.floorPlan?.length ? (
+          ) : (proposal.floorPlan?.length ?? 0) > 0 ? (
             <>
-              <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 12 }}>
-                Floor plan · {proposal.floorPlan.length} element{proposal.floorPlan.length !== 1 ? "s" : ""}
-                {" · "}
-                <button onClick={onSwitchToEdit} style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", fontSize: 12 }}>Edit</button>
-              </p>
               <div style={{ height: 420, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)", background: "#0d0e11" }}>
-                <FloorPlanViewerInline elements={proposal.floorPlan} />
+                <FloorPlanViewerInline elements={proposal.floorPlan!} />
               </div>
+              {canEdit && (
+                <div style={{ display: "flex", gap: 10, padding: "14px 16px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--bg-surface)", flexWrap: "wrap" }}>
+                  <button
+                    onClick={onSwitchToEdit}
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                      background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.3)",
+                      color: "#a5b4fc", cursor: "pointer", transition: "all 0.15s",
+                    }}
+                  >
+                    ✎ Edit Layout
+                  </button>
+                  <button
+                    onClick={handleAISuggestFloorPlan}
+                    disabled={suggestingFloor}
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                      background: "linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15))",
+                      border: "1px solid rgba(168,85,247,0.35)", color: "#d8b4fe",
+                      cursor: suggestingFloor ? "not-allowed" : "pointer", transition: "all 0.15s",
+                      opacity: suggestingFloor ? 0.65 : 1,
+                    }}
+                  >
+                    {suggestingFloor ? (
+                      <><span className="w-3 h-3 rounded-full border-2 border-purple-400/30 border-t-purple-400 animate-spin" />Generating…</>
+                    ) : (
+                      <>✨ AI-Regenerate Layout</>
+                    )}
+                  </button>
+                </div>
+              )}
             </>
           ) : (
-            <div style={{ padding: "48px 0", textAlign: "center" }}>
-              <p style={{ fontSize: 14, color: "var(--text-3)", marginBottom: 12 }}>No floor plan yet.</p>
-              {canEdit && (
-                <button onClick={onSwitchToEdit} style={{ fontSize: 13, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
-                  Switch to edit mode to create one
+            <div style={{ padding: "28px 20px", borderRadius: 12, border: "2px dashed var(--border)", background: "var(--bg-surface)", textAlign: "center" }}>
+              <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 16 }}>
+                Create a floor plan for {proposal.concept?.title ?? "your event"}
+              </p>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                <button
+                  onClick={onSwitchToEdit}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                    background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.3)",
+                    color: "#a5b4fc", cursor: "pointer", transition: "all 0.15s",
+                  }}
+                >
+                  📐 Start Blank
                 </button>
-              )}
+                <button
+                  onClick={handleAISuggestFloorPlan}
+                  disabled={suggestingFloor}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                    background: "linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15))",
+                    border: "1px solid rgba(168,85,247,0.35)", color: "#d8b4fe",
+                    cursor: suggestingFloor ? "not-allowed" : "pointer", transition: "all 0.15s",
+                    opacity: suggestingFloor ? 0.65 : 1,
+                  }}
+                >
+                  {suggestingFloor ? (
+                    <><span className="w-3 h-3 rounded-full border-2 border-purple-400/30 border-t-purple-400 animate-spin" />Generating…</>
+                  ) : (
+                    <>✨ AI-Suggest Layout</>
+                  )}
+                </button>
+              </div>
             </div>
           )}
         </div>

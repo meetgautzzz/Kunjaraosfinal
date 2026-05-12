@@ -82,101 +82,6 @@ function Nav({ scrolled }: { scrolled: boolean }) {
   );
 }
 
-// ── ProposalMock ─────────────────────────────────────────────────────────────
-function ProposalMock({ tilt = true }: { tilt?: boolean }) {
-  const [hover, setHover] = useState(false);
-  const transform = tilt
-    ? `perspective(1800px) rotateY(${hover ? -4 : -7}deg) rotateX(${hover ? 1 : 3}deg) translateZ(0)`
-    : "none";
-
-  const rows = [
-    { label: "Venue · Grand Hyatt BKC", sub: "Ballroom + Pre-function", price: "₹ 12.2L", color: ACCENT },
-    { label: "F&B · 500 pax · multi-cuisine", sub: "Live counters + dessert lounge", price: "₹ 7.7L", color: "#2F7A78" },
-    { label: "Decor · Modern India theme", sub: "Terracotta · Teal · Champagne", price: "₹ 6.3L", color: "#C9785F" },
-  ];
-
-  return (
-    <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        transform,
-        transition: "transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1)",
-        transformStyle: "preserve-3d",
-        width: "100%",
-        maxWidth: 580,
-        borderRadius: 18,
-        overflow: "hidden",
-        background: "linear-gradient(180deg, #0E0E10 0%, #15151A 100%)",
-        boxShadow: "0 60px 120px -40px rgba(0,0,0,0.8), 0 30px 60px -30px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.05)",
-        color: "#E8E6E1",
-        fontFamily: "var(--font-space-grotesk, system-ui)",
-      }}
-    >
-      {/* Window chrome */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
-        <div style={{ display: "flex", gap: 6 }}>
-          <span style={{ width: 11, height: 11, borderRadius: 999, background: "#FF5F57", display: "block" }} />
-          <span style={{ width: 11, height: 11, borderRadius: 999, background: "#FEBC2E", display: "block" }} />
-          <span style={{ width: 11, height: 11, borderRadius: 999, background: "#28C840", display: "block" }} />
-        </div>
-        <div style={{ marginLeft: 10, fontSize: 11, color: "rgba(232,230,225,0.5)", fontFamily: "var(--font-jetbrains-mono, monospace)", letterSpacing: "0.02em" }}>
-          kunjaraos.com/event-room/aurora-corp-2026
-        </div>
-        <div style={{ marginLeft: "auto" }}>
-          <span style={{ fontSize: 10, padding: "3px 8px", borderRadius: 999, background: "rgba(193,154,91,0.15)", color: ACCENT, border: "1px solid rgba(193,154,91,0.3)", fontFamily: "var(--font-jetbrains-mono, monospace)", letterSpacing: "0.06em" }}>DRAFT</span>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div style={{ padding: "22px 24px 20px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
-          <div>
-            <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "rgba(212,168,95,0.85)", fontFamily: "var(--font-jetbrains-mono, monospace)", marginBottom: 8 }}>PROPOSAL · 0042</div>
-            <div style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: 26, lineHeight: 1.05, fontStyle: "italic", color: "#F4F1EA" }}>
-              Aurora Corp · Annual Gala<br />
-              <span style={{ fontStyle: "normal", fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 17, color: "rgba(244,241,234,0.7)", fontWeight: 400 }}>
-                Mumbai · 500 pax · Mar 2026
-              </span>
-            </div>
-          </div>
-          <div style={{ fontSize: 11, fontFamily: "var(--font-jetbrains-mono, monospace)", color: "rgba(232,230,225,0.5)", textAlign: "right", lineHeight: 1.6 }}>
-            <div>500 pax</div>
-            <div>+18% GST</div>
-            <div style={{ color: "#7AD4A0" }}>● client viewing</div>
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gap: 8, marginBottom: 14 }}>
-          {rows.map((row) => (
-            <div key={row.label} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto auto", alignItems: "center", gap: 12, padding: "10px 12px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 10 }}>
-              <span style={{ width: 5, height: 22, background: row.color, borderRadius: 2, display: "block" }} />
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 500, color: "#F4F1EA" }}>{row.label}</div>
-                <div style={{ fontSize: 11, color: "rgba(232,230,225,0.5)" }}>{row.sub}</div>
-              </div>
-              <div style={{ fontSize: 11, color: "rgba(232,230,225,0.4)", fontFamily: "var(--font-jetbrains-mono, monospace)" }}>▦ moodboard</div>
-              <div style={{ fontSize: 12, fontFamily: "var(--font-jetbrains-mono, monospace)", color: "#F4F1EA" }}>{row.price}</div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 12, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
-          <div style={{ fontSize: 11, color: "rgba(232,230,225,0.5)", fontFamily: "var(--font-jetbrains-mono, monospace)", letterSpacing: "0.08em" }}>GRAND TOTAL · INCL. 18% GST</div>
-          <div style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: 24, fontStyle: "italic", color: ACCENT }}>₹ 30.84 L</div>
-        </div>
-
-        <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 8, background: "linear-gradient(90deg, rgba(212,168,95,0.08), transparent)", border: "1px solid rgba(212,168,95,0.2)" }}>
-          <span style={{ width: 8, height: 8, borderRadius: 999, background: ACCENT, boxShadow: `0 0 10px ${ACCENT}`, display: "block", flexShrink: 0 }} />
-          <span style={{ fontSize: 11, fontFamily: "var(--font-jetbrains-mono, monospace)", color: "rgba(212,168,95,0.9)", letterSpacing: "0.04em" }}>
-            architected in 6m 12s · proposal intelligence: high intent
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── CinematicHero ────────────────────────────────────────────────────────────
 function CinematicHero({ opacity, scale, blur }: { opacity: number; scale: number; blur: number }) {
   return (
@@ -287,8 +192,7 @@ function CinematicHero({ opacity, scale, blur }: { opacity: number; scale: numbe
 function ProductHero() {
   return (
     <div style={{ position: "relative", minHeight: "100vh", padding: "120px 6vw 100px", display: "flex", alignItems: "center", background: "transparent" }}>
-      <div className="lp-product-grid" style={{ width: "100%", maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: 80, alignItems: "center" }}>
-        {/* Left — copy */}
+      <div style={{ width: "100%", maxWidth: 900, margin: "0 auto" }}>
         <div>
           <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 26, display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ width: 28, height: 1, background: ACCENT, display: "block" }} />
@@ -330,11 +234,6 @@ function ProductHero() {
           </div>
         </div>
 
-        {/* Right — proposal mock */}
-        <div style={{ position: "relative" }}>
-          <div aria-hidden style={{ position: "absolute", inset: -40, background: `radial-gradient(ellipse at 70% 40%, ${ACCENT}20 0%, transparent 60%)`, filter: "blur(40px)", pointerEvents: "none" }} />
-          <ProposalMock tilt={true} />
-        </div>
       </div>
     </div>
   );

@@ -553,7 +553,7 @@ function FinalCTA() {
         </div>
 
         <div style={{ marginTop: 40, display: "flex", gap: 32, justifyContent: "center", flexWrap: "wrap" }}>
-          {["Free forever plan", "GST-ready from day one", "Made in Bharat 🇮🇳"].map((f) => (
+          {["GST-ready from day one", "Made in Bharat 🇮🇳"].map((f) => (
             <div key={f} style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, color: "rgba(244,241,234,0.4)", letterSpacing: "0.05em" }}>✓ {f}</div>
           ))}
         </div>

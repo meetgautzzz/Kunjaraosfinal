@@ -364,7 +364,7 @@ export default function OwnerDashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,212,255,0.06)" />
                 <XAxis dataKey="week" tick={{ fontFamily: C.mono, fontSize: 9, fill: C.text3 }} axisLine={false} tickLine={false} />
                 <YAxis tickFormatter={(v) => "₹" + (v / 1000).toFixed(0) + "k"} tick={{ fontFamily: C.mono, fontSize: 9, fill: C.text3 }} axisLine={false} tickLine={false} />
-                <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [inr(v), "MRR"]} />
+                <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [inr(Number(v)), "MRR"]} />
                 <Area type="monotone" dataKey="mrr" stroke={C.glowA} strokeWidth={2} fill="url(#mrrGrad)"
                   style={{ filter: `drop-shadow(0 0 6px ${C.glowA})` }} />
               </AreaChart>

@@ -108,8 +108,8 @@ export default function ContactPage() {
             </h2>
             <div style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 15, lineHeight: 1.8, color: "rgba(244,241,234,0.55)" }}>
               Indigo Events & Promotions<br />
-              Bandra Kurla Complex<br />
-              Mumbai 400 051<br />
+              Andheri East<br />
+              Mumbai 400093<br />
               Maharashtra, India
             </div>
           </div>

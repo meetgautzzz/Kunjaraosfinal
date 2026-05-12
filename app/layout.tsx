@@ -120,10 +120,10 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 
   other: {
-    "geo.position": "19.0760,72.8777",
+    "geo.position": "19.1197,72.8468",
     "geo.region": "IN-MH",
-    "geo.placename": "Mumbai, India",
-    ICBM: "19.0760, 72.8777",
+    "geo.placename": "Andheri East, Mumbai, India",
+    ICBM: "19.1197, 72.8468",
   },
 };
 

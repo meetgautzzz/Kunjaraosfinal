@@ -1,6 +1,6 @@
 import Script from 'next/script';
 import type { Metadata, Viewport } from "next";
-import { Poppins, Space_Grotesk } from "next/font/google";
+import { Poppins, Space_Grotesk, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import CookieConsent from "@/components/ui/CookieConsent";
 import WebVitalsReporter from "@/components/ui/WebVitalsReporter";
@@ -23,6 +23,21 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["400", "500", "700"],
   display: "swap",
   variable: "--font-space-grotesk",
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-instrument-serif",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+  variable: "--font-jetbrains-mono",
 });
 
 export const viewport: Viewport = {
@@ -117,7 +132,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" className={`${poppins.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-bg text-text-primary min-h-screen">
 
         <Script

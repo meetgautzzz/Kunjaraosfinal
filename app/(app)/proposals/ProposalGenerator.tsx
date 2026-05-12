@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import ProposalOutputPanel from "./ProposalOutput";
 import AtlasThinkingAnimation from "@/components/proposals/AtlasThinkingAnimation";
+import UpgradePaywall from "@/components/paywall/UpgradePaywall";
 import { createClient } from "@/lib/supabase/client";
 import { getPlan, type PlanId } from "@/lib/plans";
 import type { ProposalOutput } from "@/lib/generateProposal";
@@ -39,12 +39,12 @@ const defaultForm: FormData = {
 
 
 export default function ProposalGenerator() {
-  const router = useRouter();
   const [form, setForm] = useState<FormData>(defaultForm);
   const [loading, setLoading] = useState(false);
   const [proposal, setProposal] = useState<ProposalOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [usage, setUsage] = useState<UsageState | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
     async function loadUsage() {
@@ -75,6 +75,11 @@ export default function ProposalGenerator() {
   }
 
   async function handleGenerate() {
+    // Client-side early gate: show paywall immediately if already over limit
+    if (usage?.overage) {
+      setShowPaywall(true);
+      return;
+    }
     setLoading(true);
     setProposal(null);
     setError(null);
@@ -94,7 +99,7 @@ export default function ProposalGenerator() {
       }
 
       if (data.limit_reached) {
-        router.push("/pricing");
+        setShowPaywall(true);
         return;
       }
 
@@ -128,6 +133,13 @@ export default function ProposalGenerator() {
   );
 
   return (
+    <>
+    <UpgradePaywall
+      open={showPaywall}
+      onClose={() => setShowPaywall(false)}
+      used={usage?.events_used ?? 0}
+      limit={usage?.limit ?? 2}
+    />
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
       {/* Input Form */}
       <Card>
@@ -232,6 +244,7 @@ export default function ProposalGenerator() {
         )}
       </div>
     </div>
+    </>
   );
 }
 

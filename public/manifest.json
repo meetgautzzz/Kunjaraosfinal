@@ -10,37 +10,10 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-maskable.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "categories": ["productivity", "business"],
-  "screenshots": [
-    {
-      "src": "/screenshot-wide.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshot-narrow.png",
-      "sizes": "270x540",
-      "type": "image/png",
-      "form_factor": "narrow"
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
@@ -48,16 +21,15 @@
       "name": "Create Proposal",
       "short_name": "New Proposal",
       "description": "Create a new event proposal",
-      "url": "/proposals/new",
-      "icons": [{ "src": "/icon-create.png", "sizes": "96x96" }]
+      "url": "/proposals/new"
     },
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "View your proposals",
-      "url": "/dashboard",
-      "icons": [{ "src": "/icon-dashboard.png", "sizes": "96x96" }]
+      "url": "/dashboard"
     }
   ],
+  "categories": ["productivity", "business"],
   "prefer_related_applications": false
 }

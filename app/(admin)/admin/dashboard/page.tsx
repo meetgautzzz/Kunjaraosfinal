@@ -203,11 +203,11 @@ export default function OwnerDashboard() {
 
   useEffect(() => {
     import("@/lib/supabase/client").then(({ createClient }) => {
-      createClient().auth.getUser().then(({ data }) => {
-        if (!data.user) { router.replace("/login"); return; }
+      createClient().auth.getUser().then(({ data, error }) => {
+        if (error || !data?.user) { router.replace("/login"); return; }
         if (data.user.email !== OWNER_EMAIL) { setAuthState("denied"); return; }
         setAuthState("ok");
-      });
+      }).catch(() => router.replace("/login"));
     });
   }, [router]);
 

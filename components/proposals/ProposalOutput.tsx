@@ -2679,6 +2679,12 @@ function FloorPlanViewerInline({ elements }: { elements: FpElement[] }) {
   );
 }
 
+// ── Build Toolkit link with proposal context ──────────────────────────────────
+function buildToolkitLink(proposal: ProposalData): string {
+  const params = new URLSearchParams({ from: proposal.id });
+  return `/toolkit/event-visual?${params.toString()}`;
+}
+
 // ── DesignLayoutTab ───────────────────────────────────────────────────────────
 
 type DesignSubTab = "visual" | "stage" | "decor" | "3d" | "floor";
@@ -2793,7 +2799,89 @@ function DesignLayoutTab({
         </div>
       )}
       {sub === "3d" && (
-        <VisualsTab proposal={proposal} onChange={onChange} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "20px" }}>
+          {/* Header */}
+          <div>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", marginBottom: 4 }}>🎬 3D Event Visualization</p>
+            <p style={{ fontSize: 12, color: "var(--text-3)" }}>Photorealistic renders of your event concept</p>
+          </div>
+
+          {/* Proposal context summary */}
+          <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--bg-surface)" }}>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-3)", marginBottom: 10 }}>📋 Proposal Context</p>
+            <div style={{ display: "grid", gap: 7 }}>
+              {[
+                { label: "Concept", value: proposal.concept?.title },
+                { label: "Theme",   value: proposal.concept?.theme },
+              ].map(({ label, value }) => value ? (
+                <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                  <span style={{ color: "var(--text-3)" }}>{label}</span>
+                  <span style={{ color: "var(--text-1)", fontWeight: 600 }}>{value}</span>
+                </div>
+              ) : null)}
+              {proposal.visualDirection?.palette?.[0] && (
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, alignItems: "center" }}>
+                  <span style={{ color: "var(--text-3)" }}>Primary Color</span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ width: 14, height: 14, borderRadius: 3, backgroundColor: proposal.visualDirection.palette[0].hex, border: "1px solid var(--border)", display: "inline-block" }} />
+                    <span style={{ color: "var(--text-1)", fontWeight: 600 }}>{proposal.visualDirection.palette[0].name}</span>
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Existing renders OR empty state */}
+          {(proposal.generatedVisuals?.length ?? 0) > 0 ? (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
+                {proposal.generatedVisuals!.map((v) => (
+                  <div key={v.id} style={{ borderRadius: 14, overflow: "hidden", border: "1px solid var(--border)", background: "#0d0e11", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={v.image} alt={`3D visual${v.brandName ? ` for ${v.brandName}` : ""}`} style={{ width: "100%", display: "block" }} loading="lazy" />
+                    {(v.eventType || v.theme) && (
+                      <div style={{ padding: "8px 12px", display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {v.eventType && <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#a78bfa", textTransform: "capitalize" }}>{v.eventType}</span>}
+                        {v.theme && <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-3)", textTransform: "capitalize" }}>{v.theme}</span>}
+                        <span style={{ fontSize: 10, color: "var(--text-3)", marginLeft: "auto" }}>{new Date(v.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid rgba(168,85,247,0.25)", background: "rgba(168,85,247,0.05)", textAlign: "center" }}>
+                <p style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 10 }}>Want more render variations?</p>
+                <a href={buildToolkitLink(proposal)} style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "9px 16px", borderRadius: 8, textDecoration: "none",
+                  background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.3)",
+                  color: "#d8b4fe", fontSize: 13, fontWeight: 600,
+                }}>
+                  🎨 Generate More Variations
+                </a>
+              </div>
+            </>
+          ) : (
+            <div style={{ padding: "28px 20px", borderRadius: 12, border: "2px dashed rgba(168,85,247,0.25)", background: "rgba(168,85,247,0.03)", textAlign: "center" }}>
+              <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 16 }}>
+                Generate a photorealistic 3D render based on your concept, theme, and visual identity.
+              </p>
+              <a href={buildToolkitLink(proposal)} style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                padding: "12px 20px", borderRadius: 9, textDecoration: "none",
+                background: "linear-gradient(135deg, rgba(168,85,247,0.2), rgba(99,102,241,0.2))",
+                border: "1px solid rgba(168,85,247,0.4)",
+                color: "#d8b4fe", fontSize: 14, fontWeight: 600,
+                boxShadow: "0 0 20px rgba(168,85,247,0.1)",
+              }}>
+                🎨 Generate 3D Render
+              </a>
+              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 12 }}>
+                Takes 15–30 seconds · Renders save back to this proposal automatically
+              </p>
+            </div>
+          )}
+        </div>
       )}
       {sub === "floor" && (
         <div style={{ padding: "20px" }}>

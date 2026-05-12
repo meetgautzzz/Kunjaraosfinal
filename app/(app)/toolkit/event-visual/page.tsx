@@ -335,7 +335,7 @@ function EventVisualPageInner() {
             </button>
             {fromId && (
               <button
-                onClick={inserted ? () => { window.location.href = `/proposals`; } : handleInsertIntoProposal}
+                onClick={inserted ? () => { window.location.href = `/proposals/${fromId}`; } : handleInsertIntoProposal}
                 disabled={inserting}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
@@ -351,7 +351,7 @@ function EventVisualPageInner() {
                 {inserting ? (
                   <><span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />Saving…</>
                 ) : inserted ? (
-                  "✓ Saved — View Proposal →"
+                  "✓ Saved → View in Proposal"
                 ) : (
                   "Insert into Proposal"
                 )}

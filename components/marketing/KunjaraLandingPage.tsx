@@ -214,16 +214,85 @@ function CinematicHero({ opacity, scale, blur }: { opacity: number; scale: numbe
           ◆ &nbsp;ACT&nbsp;I&nbsp; ◆
         </div>
 
-        <h1 className="lp-fade-up" style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(48px, 7.5vw, 112px)", lineHeight: 1.0, fontWeight: 400, margin: 0, maxWidth: 1100, letterSpacing: "-0.02em", animationDelay: "0.5s" }}>
+        {/* Canonical h1 — one per page, owned here */}
+        <h1
+          className="lp-fade-up"
+          style={{
+            fontFamily: "var(--font-instrument-serif, serif)",
+            fontSize: "clamp(48px, 7.5vw, 112px)",
+            lineHeight: 1.0,
+            fontWeight: 400,
+            margin: 0,
+            maxWidth: 1100,
+            letterSpacing: "-0.02em",
+            animationDelay: "0.5s",
+          }}
+        >
           Every great event<br />
           <span style={{ fontStyle: "italic", color: ACCENT }}>starts with a plan.</span>
         </h1>
 
-        <div className="lp-fade-up" style={{ marginTop: 36, fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: "clamp(16px, 1.4vw, 20px)", color: "rgba(244,241,234,0.75)", letterSpacing: "0.01em", animationDelay: "0.9s" }}>
-          We help you create it in minutes.
+        <p
+          className="lp-fade-up"
+          style={{
+            marginTop: 28,
+            fontFamily: "var(--font-space-grotesk, sans-serif)",
+            fontSize: "clamp(15px, 1.3vw, 19px)",
+            lineHeight: 1.65,
+            color: "rgba(244,241,234,0.7)",
+            letterSpacing: "0.01em",
+            maxWidth: 560,
+            animationDelay: "0.9s",
+          }}
+        >
+          Generate proposals, collaborate in real time, and close events faster with{" "}
+          <em style={{ fontFamily: "var(--font-instrument-serif, serif)", fontStyle: "italic", color: ACCENT, fontWeight: 400 }}>Event Rooms™</em>.
+        </p>
+
+        <div
+          className="lp-fade-up"
+          style={{ marginTop: 44, display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", animationDelay: "1.15s" }}
+        >
+          <Link
+            href="/signup"
+            aria-label="Start planning your event with Kunjara OS"
+            className="lp-cta-primary"
+            style={{
+              padding: "15px 30px",
+              borderRadius: 999,
+              fontFamily: "var(--font-space-grotesk, sans-serif)",
+              fontSize: 15, fontWeight: 600,
+              color: "#0A0A0C",
+              background: `linear-gradient(135deg, ${ACCENT} 0%, #E5C07B 50%, ${ACCENT} 100%)`,
+              boxShadow: `0 14px 40px -10px ${ACCENT}70, inset 0 1px 0 rgba(255,255,255,0.4)`,
+              display: "inline-flex", alignItems: "center", gap: 10,
+              textDecoration: "none",
+            }}
+          >
+            Start Planning
+            <span style={{ fontSize: 17, lineHeight: 1 }}>→</span>
+          </Link>
+          <Link
+            href="/demo"
+            aria-label="View a Kunjara OS demo"
+            style={{
+              padding: "15px 26px",
+              background: "rgba(255,255,255,0.07)",
+              backdropFilter: "blur(12px)",
+              color: "rgba(244,241,234,0.9)",
+              border: "1px solid rgba(244,241,234,0.18)",
+              borderRadius: 999,
+              fontFamily: "var(--font-space-grotesk, sans-serif)",
+              fontSize: 14, fontWeight: 500,
+              textDecoration: "none",
+              display: "inline-flex", alignItems: "center",
+            }}
+          >
+            View Demo
+          </Link>
         </div>
 
-        <div className="lp-fade-up" style={{ position: "absolute", bottom: 50, fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 10, letterSpacing: "0.3em", color: "rgba(244,241,234,0.5)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, animationDelay: "1.4s" }}>
+        <div className="lp-fade-up" style={{ position: "absolute", bottom: 50, fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 10, letterSpacing: "0.3em", color: "rgba(244,241,234,0.4)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, animationDelay: "1.6s" }}>
           <span>SCROLL</span>
           <span className="lp-scroll-line" />
         </div>
@@ -244,10 +313,10 @@ function ProductHero() {
             ACT II · THE SOFTWARE
           </div>
 
-          <h1 style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(44px, 6.2vw, 88px)", lineHeight: 0.98, margin: 0, fontWeight: 400, color: "#F4F1EA", letterSpacing: "-0.025em" }}>
-            Every great event<br />
-            <span style={{ fontStyle: "italic", color: ACCENT }}>starts with a plan.</span>
-          </h1>
+          <h2 style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(44px, 6.2vw, 88px)", lineHeight: 0.98, margin: 0, fontWeight: 400, color: "#F4F1EA", letterSpacing: "-0.025em" }}>
+            Client-ready proposals.<br />
+            <span style={{ fontStyle: "italic", color: ACCENT }}>In minutes.</span>
+          </h2>
 
           <p style={{ marginTop: 36, fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 18, lineHeight: 1.6, color: "rgba(244,241,234,0.7)", maxWidth: 500 }}>
             Generate proposals, collaborate in real time, and close events faster with{" "}

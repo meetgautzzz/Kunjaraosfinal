@@ -184,7 +184,7 @@ function CinematicHero({ opacity, scale, blur }: { opacity: number; scale: numbe
       {/* Background */}
       <div style={{
         position: "absolute", inset: 0,
-        backgroundImage: `url(https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=2400&q=85)`,
+        backgroundImage: `url(https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=2400&q=85)`,
         backgroundSize: "cover", backgroundPosition: "center",
         transform: "scale(1.05)",
         animation: "slowZoom 22s ease-in-out infinite alternate",
@@ -244,66 +244,52 @@ function ProductHero() {
             ACT II · THE SOFTWARE
           </div>
 
-          <h2 style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(44px, 6.2vw, 88px)", lineHeight: 0.98, margin: 0, fontWeight: 400, color: "#F4F1EA", letterSpacing: "-0.025em" }}>
-            Client-ready<br />
-            event proposals<br />
-            in{" "}
-            <span style={{ fontStyle: "italic", color: ACCENT, position: "relative" }}>
-              2 minutes
-              <svg viewBox="0 0 200 12" style={{ position: "absolute", left: 0, bottom: -8, width: "100%", height: 12 }} preserveAspectRatio="none">
-                <path d="M2 8 Q 50 1, 100 6 T 198 5" stroke={ACCENT} strokeWidth="1.5" fill="none" opacity="0.6" />
-              </svg>
-            </span>.
-          </h2>
+          <h1 style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(44px, 6.2vw, 88px)", lineHeight: 0.98, margin: 0, fontWeight: 400, color: "#F4F1EA", letterSpacing: "-0.025em" }}>
+            Every great event<br />
+            <span style={{ fontStyle: "italic", color: ACCENT }}>starts with a plan.</span>
+          </h1>
 
-          <p style={{ marginTop: 36, fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 17, lineHeight: 1.55, color: "rgba(244,241,234,0.7)", maxWidth: 480 }}>
-            Proposal Architect™ gathers your brief, then drafts the entire deck — concept, venues, vendors, GST-correct budget, run-of-show. On your letterhead. In minutes.
+          <p style={{ marginTop: 36, fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 18, lineHeight: 1.6, color: "rgba(244,241,234,0.7)", maxWidth: 500 }}>
+            Generate proposals, collaborate in real time, and close events faster with{" "}
+            <em style={{ fontFamily: "var(--font-instrument-serif, serif)", fontStyle: "italic", color: ACCENT, fontWeight: 400 }}>Event Rooms™</em>.
           </p>
 
-          <div style={{ marginTop: 42, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
-            <Link href="/signup" className="lp-cta-primary" style={{
-              padding: "16px 28px",
-              borderRadius: 999,
-              fontFamily: "var(--font-space-grotesk, sans-serif)",
-              fontSize: 15, fontWeight: 500,
-              cursor: "pointer",
-              color: "#0A0A0C",
-              background: `linear-gradient(135deg, ${ACCENT} 0%, #E5C07B 50%, ${ACCENT} 100%)`,
-              boxShadow: `0 14px 40px -10px ${ACCENT}80, inset 0 1px 0 rgba(255,255,255,0.4)`,
-              display: "inline-flex", alignItems: "center", gap: 10,
-              textDecoration: "none",
-              border: "none",
-            }}>
-              Generate Proposal
+          <div style={{ marginTop: 44, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+            <Link
+              href="/signup"
+              className="lp-cta-primary"
+              aria-label="Start planning with Kunjara OS"
+              style={{
+                padding: "16px 30px",
+                borderRadius: 999,
+                fontFamily: "var(--font-space-grotesk, sans-serif)",
+                fontSize: 15, fontWeight: 600,
+                color: "#0A0A0C",
+                background: `linear-gradient(135deg, ${ACCENT} 0%, #E5C07B 50%, ${ACCENT} 100%)`,
+                boxShadow: `0 14px 40px -10px ${ACCENT}80, inset 0 1px 0 rgba(255,255,255,0.4)`,
+                display: "inline-flex", alignItems: "center", gap: 10,
+                textDecoration: "none",
+              }}
+            >
+              Start Planning
               <span style={{ fontSize: 18, lineHeight: 1 }}>→</span>
             </Link>
-            <Link href="/features" style={{
-              padding: "16px 24px",
-              background: "transparent",
-              color: "#F4F1EA",
-              border: "1px solid rgba(244,241,234,0.2)",
-              borderRadius: 999,
-              fontFamily: "var(--font-space-grotesk, sans-serif)",
-              fontSize: 14, fontWeight: 500,
-              cursor: "pointer",
-              textDecoration: "none",
-            }}>
-              See all features
+            <Link
+              href="/demo"
+              aria-label="View Kunjara OS demo"
+              style={{
+                padding: "16px 26px",
+                background: "transparent",
+                color: "#F4F1EA",
+                border: "1px solid rgba(244,241,234,0.2)",
+                borderRadius: 999,
+                fontFamily: "var(--font-space-grotesk, sans-serif)",
+                fontSize: 14, fontWeight: 500,
+                textDecoration: "none",
+              }}
+            >
+              View Demo
             </Link>
-          </div>
-
-          {/* Trust strip */}
-          <div style={{ marginTop: 60, paddingTop: 30, borderTop: "1px solid rgba(255,255,255,0.08)", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 30 }}>
-            {[
-              { val: "12,400+", label: "proposals drafted" },
-              { val: "₹ 840 Cr", label: "events transacted" },
-              { val: "1m 47s", label: "median draft time" },
-            ].map((s) => (
-              <div key={s.label}>
-                <div style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: 28, fontStyle: "italic", color: ACCENT, lineHeight: 1 }}>{s.val}</div>
-                <div style={{ marginTop: 6, fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 12, color: "rgba(244,241,234,0.5)" }}>{s.label}</div>
-              </div>
-            ))}
           </div>
         </div>
 
@@ -320,20 +306,27 @@ function ProductHero() {
 // ── PillarsStrip ─────────────────────────────────────────────────────────────
 function PillarsStrip() {
   const pillars = [
-    { n: "01", label: "Plan",        desc: "Proposal Architect™ · Budget · GST · Run-of-Show" },
-    { n: "02", label: "Execute",     desc: "Event Day Live · QR check-in · Mobile ops" },
-    { n: "03", label: "Market",      desc: "Social AI · Microsites · Sponsorship" },
-    { n: "04", label: "Communicate", desc: "Email · Surveys · Auto reports" },
+    { n: "01", label: "Plan",        desc: "Proposal Architect™ · Budget · GST · Run-of-Show", icon: "◎" },
+    { n: "02", label: "Execute",     desc: "Event Day Live · QR check-in · Mobile ops",         icon: "◈" },
+    { n: "03", label: "Market",      desc: "Social AI · Microsites · Sponsorship",               icon: "◇" },
+    { n: "04", label: "Communicate", desc: "Email · Surveys · Auto reports",                     icon: "◉" },
   ];
 
   return (
-    <div style={{ background: "#0A0A0C", borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+    <div style={{ background: "#0A0A0C", borderTop: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
       <div style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
         {pillars.map((p, i) => (
-          <div key={p.label} style={{ padding: "32px 28px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none", display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 10, color: "rgba(212,168,95,0.6)", letterSpacing: "0.1em" }}>{p.n}</div>
-            <div style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: 24, fontStyle: "italic", color: "#F4F1EA" }}>{p.label}</div>
-            <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 10, color: "rgba(244,241,234,0.4)", lineHeight: 1.6, letterSpacing: "0.04em" }}>{p.desc}</div>
+          <div key={p.label} style={{ padding: "52px 40px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none", display: "flex", flexDirection: "column", gap: 16, transition: "background 300ms" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(212,168,95,0.03)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, color: "rgba(212,168,95,0.5)", letterSpacing: "0.1em" }}>{p.n}</span>
+              <span style={{ fontSize: 16, color: "rgba(212,168,95,0.4)" }}>{p.icon}</span>
+            </div>
+            <div style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: 36, fontStyle: "italic", color: "#F4F1EA", lineHeight: 1 }}>{p.label}</div>
+            <div style={{ width: 32, height: 1, background: `rgba(212,168,95,0.35)` }} />
+            <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, color: "rgba(244,241,234,0.45)", lineHeight: 1.7, letterSpacing: "0.04em" }}>{p.desc}</div>
           </div>
         ))}
       </div>
@@ -496,23 +489,28 @@ function FinalCTA() {
       <div className="lp-reveal" style={{ position: "relative", maxWidth: 800, margin: "0 auto" }}>
         <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 32 }}>◆ GET STARTED · FREE</div>
         <h2 style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(40px, 6vw, 80px)", lineHeight: 1.05, margin: 0, fontWeight: 400, color: "#F4F1EA", letterSpacing: "-0.025em" }}>
-          Your next proposal<br />is <span style={{ fontStyle: "italic", color: ACCENT }}>already waiting.</span>
+          Your next event<br />is <span style={{ fontStyle: "italic", color: ACCENT }}>already planned.</span>
         </h2>
         <p style={{ marginTop: 28, fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 17, lineHeight: 1.6, color: "rgba(244,241,234,0.6)", maxWidth: 520, margin: "28px auto 0" }}>
-          Join 500+ event professionals across India. Free to start. No credit card required.
+          From brief to client-ready proposal in minutes. GST-compliant. On your letterhead. Free to start.
         </p>
 
         <div style={{ marginTop: 48, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/signup" className="lp-cta-primary" style={{
-            padding: "18px 36px", borderRadius: 999,
-            fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 16, fontWeight: 600,
-            color: "#0A0A0C",
-            background: `linear-gradient(135deg, ${ACCENT} 0%, #E5C07B 50%, ${ACCENT} 100%)`,
-            boxShadow: `0 14px 40px -10px ${ACCENT}80, inset 0 1px 0 rgba(255,255,255,0.4)`,
-            display: "inline-flex", alignItems: "center", gap: 10,
-            textDecoration: "none",
-          }}>
-            Create your first proposal
+          <Link
+            href="/signup"
+            className="lp-cta-primary"
+            aria-label="Start planning your event with Kunjara OS"
+            style={{
+              padding: "18px 36px", borderRadius: 999,
+              fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 16, fontWeight: 600,
+              color: "#0A0A0C",
+              background: `linear-gradient(135deg, ${ACCENT} 0%, #E5C07B 50%, ${ACCENT} 100%)`,
+              boxShadow: `0 14px 40px -10px ${ACCENT}80, inset 0 1px 0 rgba(255,255,255,0.4)`,
+              display: "inline-flex", alignItems: "center", gap: 10,
+              textDecoration: "none",
+            }}
+          >
+            Start Planning
             <span style={{ fontSize: 20, lineHeight: 1 }}>→</span>
           </Link>
         </div>
@@ -524,6 +522,35 @@ function FinalCTA() {
         </div>
       </div>
     </section>
+  );
+}
+
+// ── India Flag SVG ───────────────────────────────────────────────────────────
+function IndiaFlag({ width = 28 }: { width?: number }) {
+  const h = Math.round(width * 0.667);
+  const stripeH = Math.round(h / 3);
+  const cx = Math.round(width / 2);
+  const cy = Math.round(h / 2);
+  const r = Math.round(stripeH * 0.45);
+  const spokeCount = 24;
+  return (
+    <svg width={width} height={h} viewBox={`0 0 ${width} ${h}`} fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 2, flexShrink: 0 }}>
+      <rect width={width} height={stripeH} fill="#FF9933" />
+      <rect y={stripeH} width={width} height={stripeH} fill="#FFFFFF" />
+      <rect y={stripeH * 2} width={width} height={stripeH} fill="#138808" />
+      <circle cx={cx} cy={cy} r={r} stroke="#000080" strokeWidth="0.8" fill="none" />
+      <circle cx={cx} cy={cy} r={1.2} fill="#000080" />
+      {Array.from({ length: spokeCount }).map((_, i) => {
+        const angle = (i / spokeCount) * Math.PI * 2 - Math.PI / 2;
+        return (
+          <line key={i}
+            x1={cx} y1={cy}
+            x2={cx + Math.cos(angle) * r} y2={cy + Math.sin(angle) * r}
+            stroke="#000080" strokeWidth="0.6"
+          />
+        );
+      })}
+    </svg>
   );
 }
 
@@ -539,24 +566,25 @@ function Footer() {
               The AI-powered event operating system for India. Built by event planners, for event planners — with 20+ years of field intelligence.
             </p>
             <div style={{ marginTop: 20, display: "inline-flex", alignItems: "center", gap: 10, fontFamily: "var(--font-instrument-serif, serif)", fontStyle: "italic", fontSize: 15, color: ACCENT }}>
-              🇮🇳 Made in Bharat · By Indigo EP
+              <IndiaFlag width={26} />
+              Made in Bharat · By Indigo EP
             </div>
             <a href="mailto:hello@kunjaraos.com" style={{ display: "block", marginTop: 18, fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 12, color: "rgba(244,241,234,0.4)", textDecoration: "none", letterSpacing: "0.04em" }}>hello@kunjaraos.com</a>
           </div>
 
           {[
             { title: "Platform", links: [["All Features", "/features"], ["AI Proposal Builder", "/features"], ["Pricing", "/pricing"]] },
-            { title: "Company",  links: [["About Us", "#"], ["Contact", "mailto:hello@kunjaraos.com"], ["Support", "#"]] },
-            { title: "Legal",    links: [["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"], ["DPDP Compliance", "#"]] },
+            { title: "Company",  links: [["About Us", "/about"], ["Contact", "/contact"], ["Support", "/support"]] },
+            { title: "Legal",    links: [["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"], ["DPDP Compliance", "/dpdp-compliance"]] },
           ].map((col) => (
             <div key={col.title}>
               <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 10, letterSpacing: "0.2em", color: ACCENT, marginBottom: 20 }}>{col.title.toUpperCase()}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {col.links.map(([label, href]) => (
-                  <a key={label} href={href} style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 14, color: "rgba(244,241,234,0.65)", textDecoration: "none", transition: "color 200ms" }}
+                  <Link key={label} href={href} style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 14, color: "rgba(244,241,234,0.65)", textDecoration: "none", transition: "color 200ms" }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#F4F1EA")}
                     onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(244,241,234,0.65)")}
-                  >{label}</a>
+                  >{label}</Link>
                 ))}
               </div>
             </div>
@@ -565,12 +593,12 @@ function Footer() {
 
         <div style={{ paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, color: "rgba(244,241,234,0.35)", letterSpacing: "0.06em", lineHeight: 1.7 }}>
-            © 2025 Kunjara OS™ by Indigo Events & Promotions. All rights reserved.<br />
+            © 2026 Kunjara OS™ by Indigo Events & Promotions. All rights reserved.<br />
             Mumbai, Maharashtra, India · IT Act 2000 · DPDP Act 2023.
           </div>
           <div style={{ display: "flex", gap: 22 }}>
-            {[["Privacy", "/privacy"], ["Terms", "/terms"], ["Support", "#"]].map(([label, href]) => (
-              <a key={label} href={href} style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 12, color: "rgba(244,241,234,0.4)", textDecoration: "none" }}>{label}</a>
+            {[["Privacy", "/privacy"], ["Terms", "/terms"], ["Support", "/support"]].map(([label, href]) => (
+              <Link key={label} href={href} style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 12, color: "rgba(244,241,234,0.4)", textDecoration: "none" }}>{label}</Link>
             ))}
           </div>
         </div>

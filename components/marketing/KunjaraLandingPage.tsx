@@ -272,24 +272,6 @@ function CinematicHero({ opacity, scale, blur }: { opacity: number; scale: numbe
             Start Planning
             <span style={{ fontSize: 17, lineHeight: 1 }}>→</span>
           </Link>
-          <Link
-            href="/demo"
-            aria-label="View a Kunjara OS demo"
-            style={{
-              padding: "15px 26px",
-              background: "rgba(255,255,255,0.07)",
-              backdropFilter: "blur(12px)",
-              color: "rgba(244,241,234,0.9)",
-              border: "1px solid rgba(244,241,234,0.18)",
-              borderRadius: 999,
-              fontFamily: "var(--font-space-grotesk, sans-serif)",
-              fontSize: 14, fontWeight: 500,
-              textDecoration: "none",
-              display: "inline-flex", alignItems: "center",
-            }}
-          >
-            View Demo
-          </Link>
         </div>
 
         <div className="lp-fade-up" style={{ position: "absolute", bottom: 50, fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 10, letterSpacing: "0.3em", color: "rgba(244,241,234,0.4)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, animationDelay: "1.6s" }}>
@@ -319,8 +301,10 @@ function ProductHero() {
           </h2>
 
           <p style={{ marginTop: 36, fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 18, lineHeight: 1.6, color: "rgba(244,241,234,0.7)", maxWidth: 500 }}>
-            Generate proposals, collaborate in real time, and close events faster with{" "}
-            <em style={{ fontFamily: "var(--font-instrument-serif, serif)", fontStyle: "italic", color: ACCENT, fontWeight: 400 }}>Event Rooms™</em>.
+            Generate client-ready proposals in minutes.
+          </p>
+          <p style={{ marginTop: 16, fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 15, lineHeight: 1.7, color: "rgba(244,241,234,0.5)", maxWidth: 500 }}>
+            AI-powered event proposals. GST-compliant budgets. Professional timelines. Stop spending hours on proposals. Let Kunjara OS do it in minutes.
           </p>
 
           <div style={{ marginTop: 44, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
@@ -342,22 +326,6 @@ function ProductHero() {
             >
               Start Planning
               <span style={{ fontSize: 18, lineHeight: 1 }}>→</span>
-            </Link>
-            <Link
-              href="/demo"
-              aria-label="View Kunjara OS demo"
-              style={{
-                padding: "16px 26px",
-                background: "transparent",
-                color: "#F4F1EA",
-                border: "1px solid rgba(244,241,234,0.2)",
-                borderRadius: 999,
-                fontFamily: "var(--font-space-grotesk, sans-serif)",
-                fontSize: 14, fontWeight: 500,
-                textDecoration: "none",
-              }}
-            >
-              View Demo
             </Link>
           </div>
         </div>
@@ -470,7 +438,7 @@ function EventsSection() {
     <section ref={sectionRef} style={{ position: "relative", padding: "140px 6vw", background: "#F5F1E8", color: "#1A1612" }}>
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
         <div className="lp-reveal" style={{ marginBottom: 70 }}>
-          <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 22 }}>◆ COVERAGE · 05 CATEGORIES</div>
+          <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 22 }}>◆ EVERY EVENT TYPE · ONE PLATFORM</div>
           <h2 style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(44px, 6vw, 84px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em", maxWidth: 900 }}>
             Proposals for <span style={{ fontStyle: "italic", color: "#8B6F3D" }}>every kind</span><br />of celebration.
           </h2>

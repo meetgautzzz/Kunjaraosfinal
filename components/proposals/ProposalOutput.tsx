@@ -23,8 +23,7 @@ const BUDGET_COLORS = [
   "#ec4899", "#f43f5e", "#f97316", "#eab308",
 ];
 
-type Tab = "concept" | "budget" | "timeline" | "vendors" | "risks"
-         | "experience" | "design" | "activations" | "compliance";
+type Tab = "concept" | "design-layout" | "experience" | "budget" | "timeline" | "vendors" | "risks" | "compliance";
 
 
 type Props = {
@@ -310,15 +309,14 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
   const hasRisks   = !!(proposal.riskFlags?.length || proposal.tips?.length);
 
   const ALL_TABS: { id: Tab; label: string; icon: string; show: boolean }[] = [
-    { id: "concept",     label: "Concept",       icon: "✦",  show: true },
-    { id: "budget",      label: "Budget",         icon: "₹",  show: !!(proposal.budgetBreakdown?.length) },
-    { id: "timeline",    label: "Timeline",       icon: "⏱", show: !!(proposal.timeline?.length) },
-    { id: "vendors",     label: "Vendors",        icon: "🏪", show: hasVendors || !hasExperience },
-    { id: "risks",       label: "Risks & Tips",   icon: "⚠", show: hasRisks   || !hasExperience },
-    { id: "experience",  label: "Experience",       icon: "✨", show: hasExperience },
-    { id: "design",      label: "Design & Layout",  icon: "🎭", show: true },
-    { id: "activations", label: "Activations",      icon: "⚡", show: hasActivations },
-    { id: "compliance",  label: "Compliance",       icon: "⚖", show: !!proposal.eventType },
+    { id: "concept",       label: "Concept",           icon: "✦",  show: true },
+    { id: "design-layout", label: "Design & Layout",   icon: "🎭", show: true },
+    { id: "experience",    label: "Experience",        icon: "✨", show: hasExperience },
+    { id: "budget",        label: "Budget",            icon: "₹",  show: !!(proposal.budgetBreakdown?.length) },
+    { id: "timeline",      label: "Timeline",          icon: "⏱", show: !!(proposal.timeline?.length) },
+    { id: "vendors",       label: "Vendors",           icon: "🏪", show: hasVendors || !hasExperience },
+    { id: "risks",         label: "Risks & Tips",      icon: "⚠", show: hasRisks || !hasExperience },
+    { id: "compliance",    label: "Compliance",        icon: "⚖", show: !!proposal.eventType },
   ];
   const TABS = ALL_TABS.filter((t) => t.show);
 
@@ -914,114 +912,27 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
           overflow: "hidden",
         }}
       >
-        {tab === "concept"     && <ConceptTab      proposal={proposal} update={update} />}
-        {tab === "budget"      && <BudgetTab       proposal={proposal} update={update} />}
-        {tab === "timeline"    && <TimelineTab     proposal={proposal} update={update} />}
-        {tab === "vendors"     && <VendorsTab      proposal={proposal} update={update} hideToggle={hideVendorToggle} />}
-        {tab === "risks"       && <RisksTab        proposal={proposal} update={update} />}
-        {tab === "experience"  && <ExperienceTab   proposal={proposal} update={update} />}
-        {tab === "design" && (
-          <>
-            {/* Visual Identity */}
-            <VisualTab
-              proposal={proposal}
-              update={update}
-              onGenerateImage={handleGenerateImage}
-              onUploadImage={handleUploadImage}
-              generatingImage={generatingImage}
-              imageGenError={imageGenError}
-            />
-            {/* Stage & Decor */}
-            {(hasStage || proposal.decorPlan) && (
-              <div style={{ borderTop: "1px solid var(--border)" }}>
-                <StageTab proposal={proposal} update={update} />
-              </div>
-            )}
-            {proposal.decorPlan && (
-              <div style={{ borderTop: "1px solid var(--border)", padding: "28px 32px", display: "flex", flexDirection: "column", gap: 24 }}>
-                {proposal.decorPlan.hero && (
-                  <div style={{ borderRadius: 16, border: "2px solid rgba(99,102,241,0.4)", background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", padding: "28px 28px" }}>
-                    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 10 }}>🎨 Design Statement</p>
-                    <EditableText value={proposal.decorPlan.hero}
-                      onChange={(v) => update("decorPlan", { ...proposal.decorPlan, hero: v })}
-                      style={{ fontSize: 22, fontWeight: 800, color: "var(--text-1)", lineHeight: 1.3 }}
-                      placeholder="Hero design statement..." />
-                  </div>
-                )}
-                {proposal.decorPlan.zones?.length > 0 && (
-                  <div>
-                    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 14 }}>Themed Zones</p>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {proposal.decorPlan.zones.map((zone, idx) => (
-                        <div key={idx} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-5 hover:border-indigo-500/50 transition-colors">
-                          <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, rgba(99,102,241,0.18), rgba(168,85,247,0.18))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10, fontSize: 18 }}>🎭</div>
-                          <EditableText value={zone.name}
-                            onChange={(v) => { const next = [...proposal.decorPlan!.zones]; next[idx] = { ...next[idx], name: v }; update("decorPlan", { ...proposal.decorPlan, zones: next }); }}
-                            style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", marginBottom: 6, display: "block" }}
-                            placeholder="Zone name..." />
-                          <EditableText value={zone.concept}
-                            onChange={(v) => { const next = [...proposal.decorPlan!.zones]; next[idx] = { ...next[idx], concept: v }; update("decorPlan", { ...proposal.decorPlan, zones: next }); }}
-                            style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55 }}
-                            placeholder="Zone concept..." />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {proposal.decorPlan.sustainabilityNotes && (
-                  <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid rgba(52,211,153,0.25)", background: "rgba(52,211,153,0.05)" }}>
-                    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#34d399", marginBottom: 6 }}>♻ Sustainability</p>
-                    <EditableText value={proposal.decorPlan.sustainabilityNotes}
-                      onChange={(v) => update("decorPlan", { ...proposal.decorPlan, sustainabilityNotes: v })}
-                      style={{ fontSize: 13, color: "var(--text-2)" }}
-                      placeholder="Sustainability notes..." />
-                  </div>
-                )}
-              </div>
-            )}
-            {/* 3D Visuals */}
-            <div style={{ borderTop: "1px solid var(--border)" }}>
-              <VisualsTab proposal={proposal} onChange={onChange} />
-            </div>
-            {/* Floor Plan */}
-            <div style={{ borderTop: "1px solid var(--border)" }}>
-              {(editMode && canEdit) ? (
-                <div style={{ height: 560 }}>
-                  <FloorPlanBuilder
-                    initialElements={proposal.floorPlan}
-                    onElementsChange={(els: FpElement[]) => update("floorPlan", els)}
-                  />
-                </div>
-              ) : (
-                <div style={{ padding: "20px" }}>
-                  {proposal.floorPlan?.length ? (
-                    <>
-                      <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 12 }}>
-                        Floor plan · {proposal.floorPlan.length} element{proposal.floorPlan.length !== 1 ? "s" : ""}
-                        {" · "}
-                        <button onClick={() => setEditMode(true)} style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", fontSize: 12 }}>Edit</button>
-                      </p>
-                      <div style={{ height: 420, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)", background: "#0d0e11" }}>
-                        <FloorPlanViewerInline elements={proposal.floorPlan} />
-                      </div>
-                    </>
-                  ) : (
-                    <div style={{ padding: "48px 0", textAlign: "center" }}>
-                      <p style={{ fontSize: 14, color: "var(--text-3)", marginBottom: 12 }}>No floor plan yet.</p>
-                      {canEdit && (
-                        <button onClick={() => setEditMode(true)} style={{ fontSize: 13, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
-                          Switch to edit mode to create one
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </>
+        {tab === "concept"        && <ConceptTab     proposal={proposal} update={update} />}
+        {tab === "design-layout"  && (
+          <DesignLayoutTab
+            proposal={proposal}
+            update={update}
+            onChange={onChange}
+            onGenerateImage={handleGenerateImage}
+            onUploadImage={handleUploadImage}
+            generatingImage={generatingImage}
+            imageGenError={imageGenError}
+            editMode={editMode}
+            canEdit={canEdit}
+            onSwitchToEdit={() => setEditMode(true)}
+          />
         )}
-        {tab === "activations" && <ActivationsTab  proposal={proposal} update={update} />}
-        {tab === "compliance"  && <ComplianceTab   proposal={proposal} update={update} onDirectChange={onChange} />}
+        {tab === "experience"     && <ExperienceTab  proposal={proposal} update={update} />}
+        {tab === "budget"         && <BudgetTab      proposal={proposal} update={update} />}
+        {tab === "timeline"       && <TimelineTab    proposal={proposal} update={update} />}
+        {tab === "vendors"        && <VendorsTab     proposal={proposal} update={update} hideToggle={hideVendorToggle} />}
+        {tab === "risks"          && <RisksTab       proposal={proposal} update={update} />}
+        {tab === "compliance"     && <ComplianceTab  proposal={proposal} update={update} onDirectChange={onChange} />}
       </div>
 
       {/* ── Save as Template modal ─────────────────────────────────────────── */}
@@ -2765,6 +2676,158 @@ function FloorPlanViewerInline({ elements }: { elements: FpElement[] }) {
         );
       })}
     </svg>
+  );
+}
+
+// ── DesignLayoutTab ───────────────────────────────────────────────────────────
+
+type DesignSubTab = "visual" | "stage" | "decor" | "3d" | "floor";
+
+function DesignLayoutTab({
+  proposal, update, onChange,
+  onGenerateImage, onUploadImage, generatingImage, imageGenError,
+  editMode, canEdit, onSwitchToEdit,
+}: {
+  proposal: ProposalData;
+  update: (f: keyof ProposalData, v: any) => void;
+  onChange: (p: ProposalData) => void;
+  onGenerateImage: () => void;
+  onUploadImage: (file: File) => void;
+  generatingImage: boolean;
+  imageGenError: string;
+  editMode: boolean;
+  canEdit: boolean;
+  onSwitchToEdit: () => void;
+}) {
+  const [sub, setSub] = React.useState<DesignSubTab>("visual");
+
+  const SUB_TABS: { id: DesignSubTab; label: string }[] = [
+    { id: "visual", label: "✨ Visual Identity" },
+    { id: "stage",  label: "🎭 Stage Design"   },
+    { id: "decor",  label: "🎨 Decor Zones"    },
+    { id: "3d",     label: "🎬 3D Renders"     },
+    { id: "floor",  label: "📐 Floor Plan"     },
+  ];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      {/* Sub-tab bar */}
+      <div style={{
+        display: "flex", gap: 2, padding: "12px 16px",
+        borderBottom: "1px solid var(--border)", background: "var(--bg-surface)",
+        overflowX: "auto",
+      }}>
+        {SUB_TABS.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => setSub(s.id)}
+            style={{
+              padding: "7px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+              border: sub === s.id ? "1px solid rgba(99,102,241,0.5)" : "1px solid transparent",
+              background: sub === s.id ? "rgba(99,102,241,0.12)" : "transparent",
+              color: sub === s.id ? "#a5b4fc" : "var(--text-3)",
+              cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
+            }}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sub-tab content — VisualTab has its own padding, others use 20px */}
+      {sub === "visual" && (
+        <VisualTab
+          proposal={proposal}
+          update={update}
+          onGenerateImage={onGenerateImage}
+          onUploadImage={onUploadImage}
+          generatingImage={generatingImage}
+          imageGenError={imageGenError}
+        />
+      )}
+      {sub === "stage" && (
+        <StageTab proposal={proposal} update={update} />
+      )}
+      {sub === "decor" && (
+        <div style={{ padding: "24px 28px", display: "flex", flexDirection: "column", gap: 20 }}>
+          {proposal.decorPlan?.hero && (
+            <div style={{ borderRadius: 14, border: "2px solid rgba(99,102,241,0.4)", background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08))", padding: "24px" }}>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 8 }}>🎨 Design Statement</p>
+              <EditableText value={proposal.decorPlan.hero}
+                onChange={(v) => update("decorPlan", { ...proposal.decorPlan, hero: v })}
+                style={{ fontSize: 20, fontWeight: 800, color: "var(--text-1)", lineHeight: 1.3 }}
+                placeholder="Hero design statement..." />
+            </div>
+          )}
+          {(proposal.decorPlan?.zones?.length ?? 0) > 0 ? (
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 12 }}>Themed Zones</p>
+              <div className="grid md:grid-cols-2 gap-4">
+                {proposal.decorPlan!.zones.map((zone, idx) => (
+                  <div key={idx} className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-5 hover:border-indigo-500/50 transition-colors">
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: "linear-gradient(135deg, rgba(99,102,241,0.18), rgba(168,85,247,0.18))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10, fontSize: 16 }}>🎭</div>
+                    <EditableText value={zone.name}
+                      onChange={(v) => { const next = [...proposal.decorPlan!.zones]; next[idx] = { ...next[idx], name: v }; update("decorPlan", { ...proposal.decorPlan, zones: next }); }}
+                      style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", marginBottom: 6, display: "block" }}
+                      placeholder="Zone name..." />
+                    <EditableText value={zone.concept}
+                      onChange={(v) => { const next = [...proposal.decorPlan!.zones]; next[idx] = { ...next[idx], concept: v }; update("decorPlan", { ...proposal.decorPlan, zones: next }); }}
+                      style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55 }}
+                      placeholder="Zone concept..." />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p style={{ fontSize: 13, color: "var(--text-3)", textAlign: "center", padding: "32px 0" }}>No decor zones defined yet</p>
+          )}
+          {proposal.decorPlan?.sustainabilityNotes && (
+            <div style={{ padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(52,211,153,0.25)", background: "rgba(52,211,153,0.05)" }}>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#34d399", marginBottom: 6 }}>♻ Sustainability</p>
+              <EditableText value={proposal.decorPlan.sustainabilityNotes}
+                onChange={(v) => update("decorPlan", { ...proposal.decorPlan, sustainabilityNotes: v })}
+                style={{ fontSize: 13, color: "var(--text-2)" }}
+                placeholder="Sustainability notes..." />
+            </div>
+          )}
+        </div>
+      )}
+      {sub === "3d" && (
+        <VisualsTab proposal={proposal} onChange={onChange} />
+      )}
+      {sub === "floor" && (
+        <div style={{ padding: "20px" }}>
+          {(editMode && canEdit) ? (
+            <div style={{ height: 560 }}>
+              <FloorPlanBuilder
+                initialElements={proposal.floorPlan}
+                onElementsChange={(els: FpElement[]) => update("floorPlan", els)}
+              />
+            </div>
+          ) : proposal.floorPlan?.length ? (
+            <>
+              <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 12 }}>
+                Floor plan · {proposal.floorPlan.length} element{proposal.floorPlan.length !== 1 ? "s" : ""}
+                {" · "}
+                <button onClick={onSwitchToEdit} style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", fontSize: 12 }}>Edit</button>
+              </p>
+              <div style={{ height: 420, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)", background: "#0d0e11" }}>
+                <FloorPlanViewerInline elements={proposal.floorPlan} />
+              </div>
+            </>
+          ) : (
+            <div style={{ padding: "48px 0", textAlign: "center" }}>
+              <p style={{ fontSize: 14, color: "var(--text-3)", marginBottom: 12 }}>No floor plan yet.</p>
+              {canEdit && (
+                <button onClick={onSwitchToEdit} style={{ fontSize: 13, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
+                  Switch to edit mode to create one
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

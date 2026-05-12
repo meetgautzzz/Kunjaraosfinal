@@ -1,5 +1,5 @@
 import Script from 'next/script';
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import CookieConsent from "@/components/ui/CookieConsent";
@@ -20,9 +20,81 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#6366f1",
+};
+
 export const metadata: Metadata = {
-  title: "Kunjara OS™",
-  description: "The Event Operating System",
+  metadataBase: new URL("https://kunjaraos.com"),
+
+  title: "Kunjara OS™ | AI Event Proposal Generator for India",
+  description: "Create professional event proposals in minutes. AI-powered event management OS for Indian planners, venues, and vendors. Trusted by 500+ event professionals.",
+  keywords: ["event proposal generator", "event planning software", "AI event planner", "event management system", "India", "Indian events", "wedding planner software", "corporate event planner"],
+  authors: [{ name: "Kunjara OS", url: "https://kunjaraos.com" }],
+  creator: "Kunjara OS Team",
+  publisher: "Kunjara OS",
+  applicationName: "Kunjara OS",
+
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    alternateLocale: ["hi_IN"],
+    url: "https://kunjaraos.com",
+    siteName: "Kunjara OS",
+    title: "Kunjara OS™ | AI Event Proposal Generator for India",
+    description: "Create professional event proposals in minutes using AI. The operating system for event professionals.",
+    images: [
+      {
+        url: "https://kunjaraos.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Kunjara OS - Event Proposal Generator",
+        type: "image/png",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Kunjara OS™ | AI Event Proposal Generator",
+    description: "Create professional event proposals in minutes",
+    images: ["https://kunjaraos.com/twitter-image.png"],
+    creator: "@kunjaraos",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+
+  alternates: {
+    canonical: "https://kunjaraos.com",
+    languages: {
+      "en-IN": "https://kunjaraos.com",
+      "hi-IN": "https://kunjaraos.com",
+    },
+  },
+
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Kunjara OS",
+  },
+
+  formatDetection: {
+    telephone: true,
+    email: true,
+    address: true,
+  },
 };
 
 export default function RootLayout({

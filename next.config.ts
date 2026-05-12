@@ -33,12 +33,17 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   async rewrites() {
-    return [
-      { source: "/waitlist", destination: "/site/waitlist.html" },
-    ];
+    return {
+      beforeFiles: [],
+      afterFiles:  [],
+      fallback:    [],
+    };
   },
   async redirects() {
     return [
+      // Redirect old /site/* static paths to equivalent Next.js routes
+      { source: "/site/:path*", destination: "/:path*", permanent: true },
+      // Locale aliases
       { source: "/en-in", destination: "/", permanent: false },
       { source: "/hi-in", destination: "/", permanent: false },
     ];

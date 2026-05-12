@@ -55,13 +55,13 @@ function Nav({ scrolled }: { scrolled: boolean }) {
       transition: "background 400ms, backdrop-filter 400ms, border-color 400ms",
     }}>
       <KunjaraLogo size={22} color="#F4F1EA" />
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <Link href="/pricing" style={{
+      <div className="lp-nav-links" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <Link href="/pricing" className="lp-nav-text" style={{
           padding: "8px 16px", borderRadius: 8,
           color: "rgba(244,241,234,0.65)", fontSize: 13, textDecoration: "none",
           transition: "color 200ms",
         }}>Pricing</Link>
-        <Link href="/features" style={{
+        <Link href="/features" className="lp-nav-text" style={{
           padding: "8px 16px", borderRadius: 8,
           color: "rgba(244,241,234,0.65)", fontSize: 13, textDecoration: "none",
         }}>Features</Link>
@@ -191,7 +191,7 @@ function CinematicHero({ opacity, scale, blur }: { opacity: number; scale: numbe
 // ── ProductHero ──────────────────────────────────────────────────────────────
 function ProductHero() {
   return (
-    <div style={{ position: "relative", minHeight: "100vh", padding: "120px 6vw 100px", display: "flex", alignItems: "center", background: "transparent" }}>
+    <div className="lp-product-hero" style={{ position: "relative", minHeight: "100vh", padding: "120px 6vw 100px", display: "flex", alignItems: "center", background: "transparent" }}>
       <div style={{ width: "100%", maxWidth: 900, margin: "0 auto" }}>
         <div>
           <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 26, display: "flex", alignItems: "center", gap: 12 }}>
@@ -250,9 +250,9 @@ function PillarsStrip() {
 
   return (
     <div style={{ background: "#0A0A0C", borderTop: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-      <div style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+      <div className="lp-pillars-grid" style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
         {pillars.map((p, i) => (
-          <div key={p.label} style={{ padding: "52px 40px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none", display: "flex", flexDirection: "column", gap: 16, transition: "background 300ms" }}
+          <div key={p.label} className={`lp-pillar-item lp-pillar-item-${i}`} style={{ padding: "52px 40px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none", display: "flex", flexDirection: "column", gap: 16, transition: "background 300ms" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(212,168,95,0.03)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
@@ -334,9 +334,9 @@ function EventsSection() {
   ];
 
   return (
-    <section ref={sectionRef} style={{ position: "relative", padding: "140px 6vw", background: "#F5F1E8", color: "#1A1612" }}>
+    <section ref={sectionRef} className="lp-events-section" style={{ position: "relative", padding: "140px 6vw", background: "#F5F1E8", color: "#1A1612" }}>
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
-        <div className="lp-reveal" style={{ marginBottom: 70 }}>
+        <div className="lp-reveal lp-events-header" style={{ marginBottom: 70 }}>
           <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.25em", color: "#8B6F3D", marginBottom: 22 }}>◆ EVERY EVENT TYPE · ONE PLATFORM</div>
           <h2 style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(44px, 6vw, 84px)", lineHeight: 1.0, margin: 0, fontWeight: 400, letterSpacing: "-0.025em", maxWidth: 900 }}>
             Proposals for <span style={{ fontStyle: "italic", color: "#8B6F3D" }}>every kind</span><br />of celebration.
@@ -370,13 +370,13 @@ function PhilosophySection() {
   }, []);
 
   return (
-    <section ref={sectionRef} style={{ position: "relative", padding: "180px 6vw", background: "linear-gradient(180deg, #0A0A0C 0%, #15110A 100%)", color: "#F4F1EA", overflow: "hidden" }}>
+    <section ref={sectionRef} className="lp-philosophy-section" style={{ position: "relative", padding: "180px 6vw", background: "linear-gradient(180deg, #0A0A0C 0%, #15110A 100%)", color: "#F4F1EA", overflow: "hidden" }}>
       <div aria-hidden style={{ position: "absolute", left: "-2vw", top: "8%", fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(120px, 22vw, 360px)", fontStyle: "italic", color: "rgba(212,168,95,0.04)", lineHeight: 0.85, pointerEvents: "none", letterSpacing: "-0.04em" }}>
         Lex<br />Mercatoria
       </div>
 
       <div className="lp-philosophy-grid" style={{ maxWidth: 1100, margin: "0 auto", position: "relative", display: "grid", gridTemplateColumns: "auto 1fr", gap: "min(8vw, 100px)", alignItems: "start" }}>
-        <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.25em", color: ACCENT, whiteSpace: "nowrap", paddingTop: 18 }}>
+        <div className="lp-philosophy-label" style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.25em", color: ACCENT, whiteSpace: "nowrap", paddingTop: 18 }}>
           ◆ FOUNDING<br />&nbsp;&nbsp;PRINCIPLE
         </div>
 
@@ -419,7 +419,7 @@ function FinalCTA() {
   }, []);
 
   return (
-    <section ref={sectionRef} style={{ position: "relative", padding: "160px 6vw", background: "#0A0A0C", textAlign: "center", overflow: "hidden" }}>
+    <section ref={sectionRef} className="lp-final-cta" style={{ position: "relative", padding: "160px 6vw", background: "#0A0A0C", textAlign: "center", overflow: "hidden" }}>
       <div aria-hidden style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 50% 60%, ${ACCENT}08 0%, transparent 65%)`, pointerEvents: "none" }} />
 
       <div className="lp-reveal" style={{ position: "relative", maxWidth: 800, margin: "0 auto" }}>
@@ -527,7 +527,7 @@ function Footer() {
           ))}
         </div>
 
-        <div style={{ paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+        <div className="lp-footer-bottom" style={{ paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, color: "rgba(244,241,234,0.35)", letterSpacing: "0.06em", lineHeight: 1.7 }}>
             © 2026 Kunjara OS™ by Indigo Events & Promotions. All rights reserved.<br />
             Mumbai, Maharashtra, India · IT Act 2000 · DPDP Act 2023.
@@ -591,6 +591,29 @@ export default function KunjaraLandingPage() {
 
   return (
     <div style={{ background: "#0A0A0C", overflowX: "hidden" }}>
+      <style>{`
+        @media (max-width: 767px) {
+          .lp-nav-text { display: none !important; }
+          .lp-product-hero { padding: 80px 5vw 60px !important; min-height: unset !important; }
+          .lp-pillars-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .lp-pillar-item { padding: 28px 20px !important; }
+          .lp-pillar-item-0, .lp-pillar-item-1 { border-bottom: 1px solid rgba(255,255,255,0.06); }
+          .lp-pillar-item-0, .lp-pillar-item-2 { border-right: 1px solid rgba(255,255,255,0.06) !important; }
+          .lp-pillar-item-1, .lp-pillar-item-3 { border-right: none !important; }
+          .lp-events-section { padding: 64px 5vw !important; }
+          .lp-events-header { margin-bottom: 36px !important; }
+          .lp-events-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+          .lp-philosophy-section { padding: 80px 5vw !important; }
+          .lp-philosophy-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+          .lp-philosophy-label { display: none !important; }
+          .lp-final-cta { padding: 80px 5vw !important; }
+          .lp-footer-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
+          .lp-footer-bottom { flex-direction: column !important; align-items: flex-start !important; }
+        }
+        @media (max-width: 480px) {
+          .lp-events-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       <Nav scrolled={scrolled} />
       <ScrollStage />
       <PillarsStrip />

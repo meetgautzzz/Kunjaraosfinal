@@ -8,14 +8,6 @@ export const metadata: Metadata = {
 
 const ACCENT = "#D4A85F";
 
-const milestones = [
-  { year: "2004", label: "Indigo EP founded", desc: "Gautam Shah starts Indigo Events & Promotions in Mumbai. First client: a corporate gala for 300 pax at Taj Lands End." },
-  { year: "2012", label: "₹100 Cr events crossed", desc: "Indigo EP scales to 80+ events per year across corporate, weddings, and brand launches. Spreadsheets start breaking." },
-  { year: "2019", label: "The proposal problem", desc: "A lost pitch on a Monday morning — the proposal took 3 days to build. The client had signed with someone else by Tuesday. The idea for Kunjara is born." },
-  { year: "2023", label: "AI prototype", desc: "Internal AI proposal tool built for Indigo EP's own planners. First proposal drafted in under 9 minutes. Team stops using Word." },
-  { year: "2024", label: "Kunjara OS goes live", desc: "Beta opens to 50 planner families across Mumbai, Delhi, Bangalore. 1,200 proposals generated in the first 90 days." },
-  { year: "2025", label: "12,400+ proposals", desc: "₹840 Cr in events transacted through the platform. DPDP-compliant. GST-certified. Available to all Indian planners." },
-];
 
 const values = [
   { title: "The planner comes first", body: "Every feature is designed for the person behind the proposal, not the tech stack underneath it." },
@@ -44,7 +36,7 @@ export default function AboutPage() {
           Built by event professionals,<br /><span style={{ fontStyle: "italic", color: ACCENT }}>for event professionals.</span>
         </h1>
         <p style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 19, lineHeight: 1.6, color: "rgba(244,241,234,0.65)", maxWidth: 660 }}>
-          Kunjara OS is the operating system behind India's fastest-growing event businesses. Not a tool built by software engineers who&apos;ve never run a venue sourcing call — a platform built by people who&apos;ve done 10,000+ events and know exactly where time and money get lost.
+          Kunjara OS is the operating system behind India's fastest-growing event businesses.
         </p>
       </section>
 
@@ -66,39 +58,14 @@ export default function AboutPage() {
           <div>
             <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.2em", color: ACCENT, marginBottom: 24 }}>◆ THE FOUNDER</div>
             <blockquote style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(22px, 2.5vw, 32px)", lineHeight: 1.3, fontWeight: 400, margin: "0 0 32px", color: "#F4F1EA", fontStyle: "italic" }}>
-              &ldquo;I&apos;ve sat across 500+ clients with a proposal that took my team three days to build. Then watched them sign with a competitor who sent something in an hour. That can&apos;t be the model.&rdquo;
+              &ldquo;I&apos;ve sat across clients with a proposal that took my team three days to build. Then watched them sign with a competitor who sent something in an hour. That can&apos;t be the model.&rdquo;
             </blockquote>
             <p style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 16, lineHeight: 1.7, color: "rgba(244,241,234,0.6)", marginBottom: 20 }}>
-              Gautam Shah has been running events in India since 2004 — weddings, corporate galas, brand launches, concerts. Indigo Events & Promotions has executed 10,000+ events across Mumbai, Delhi, Bangalore, and Hyderabad.
+              Gautam Shah has been running events in India since 2004 — weddings, corporate galas, brand launches, concerts. Indigo Events & Promotions has produced events across Mumbai, Delhi, Bangalore, and Hyderabad.
             </p>
             <p style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 16, lineHeight: 1.7, color: "rgba(244,241,234,0.6)" }}>
               Kunjara OS is the software he wished he had in 2004. Every feature maps to a real problem his team solved (or failed to solve) in the field. The pricing is what the Mumbai market actually charges. The GST logic is what real Indian event budgets require.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline */}
-      <section style={{ padding: "80px 6vw 100px", background: "linear-gradient(180deg, #0A0A0C 0%, #10100E 100%)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: 11, letterSpacing: "0.25em", color: ACCENT, marginBottom: 20 }}>◆ OUR STORY</div>
-          <h2 style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "clamp(36px, 5vw, 64px)", lineHeight: 1.05, fontWeight: 400, margin: "0 0 64px", letterSpacing: "-0.02em" }}>
-            Two decades in the field.<br /><span style={{ fontStyle: "italic", color: ACCENT }}>One OS to run it.</span>
-          </h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {milestones.map((m, i) => (
-              <div key={m.year} style={{ display: "grid", gridTemplateColumns: "80px 1px 1fr", gap: "0 32px", paddingBottom: i < milestones.length - 1 ? 48 : 0 }}>
-                <div style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: 22, fontStyle: "italic", color: ACCENT, paddingTop: 2, textAlign: "right" }}>{m.year}</div>
-                <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div style={{ width: 10, height: 10, borderRadius: 999, background: ACCENT, border: "2px solid #0A0A0C", boxShadow: `0 0 12px ${ACCENT}60`, flexShrink: 0, marginTop: 6 }} />
-                  {i < milestones.length - 1 && <div style={{ flex: 1, width: 1, background: "rgba(212,168,95,0.15)", marginTop: 8 }} />}
-                </div>
-                <div style={{ paddingBottom: 8 }}>
-                  <div style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 16, fontWeight: 600, color: "#F4F1EA", marginBottom: 8 }}>{m.label}</div>
-                  <div style={{ fontFamily: "var(--font-space-grotesk, sans-serif)", fontSize: 14, lineHeight: 1.65, color: "rgba(244,241,234,0.55)" }}>{m.desc}</div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

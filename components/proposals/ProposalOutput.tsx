@@ -23,7 +23,7 @@ const BUDGET_COLORS = [
   "#ec4899", "#f43f5e", "#f97316", "#eab308",
 ];
 
-type Tab = "concept" | "design-layout" | "experience" | "budget" | "timeline" | "vendors" | "risks" | "compliance";
+type Tab = "design-layout" | "experience" | "budget" | "timeline" | "vendors" | "risks" | "compliance";
 
 
 type Props = {
@@ -40,7 +40,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
   const hasStage      = !!(proposal.stageDesign || proposal.decorPlan);
   const hasActivations= !!proposal.experienceElements;
 
-  const [tab,                  setTab]                  = useState<Tab>(hasExperience ? "experience" : "concept");
+  const [tab,                  setTab]                  = useState<Tab>(hasExperience ? "experience" : "design-layout");
   const [saved,                setSaved]                = useState(false);
   const [saveError,       setSaveError]       = useState("");
   const [editMode,        setEditMode]        = useState(false);
@@ -309,8 +309,7 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
   const hasRisks   = !!(proposal.riskFlags?.length || proposal.tips?.length);
 
   const ALL_TABS: { id: Tab; label: string; icon: string; show: boolean }[] = [
-    { id: "concept",       label: "Concept",           icon: "✦",  show: true },
-    { id: "design-layout", label: "Design & Layout",   icon: "🎭", show: true },
+    { id: "design-layout", label: "🎭 Design & Layout", icon: "🎭", show: true },
     { id: "experience",    label: "Experience",        icon: "✨", show: hasExperience },
     { id: "budget",        label: "Budget",            icon: "₹",  show: !!(proposal.budgetBreakdown?.length) },
     { id: "timeline",      label: "Timeline",          icon: "⏱", show: !!(proposal.timeline?.length) },
@@ -912,7 +911,6 @@ export default function ProposalOutput({ proposal, onChange, onBack, onSave, hid
           overflow: "hidden",
         }}
       >
-        {tab === "concept"        && <ConceptTab     proposal={proposal} update={update} />}
         {tab === "design-layout"  && (
           <DesignLayoutTab
             proposal={proposal}
@@ -2688,7 +2686,7 @@ function buildToolkitLink(proposal: ProposalData): string {
 
 // ── DesignLayoutTab ───────────────────────────────────────────────────────────
 
-type DesignSubTab = "visual" | "stage" | "decor" | "3d" | "floor";
+type DesignSubTab = "concept" | "visual" | "stage" | "decor" | "3d" | "floor";
 
 function DesignLayoutTab({
   proposal, update, onChange, onSave,
@@ -2707,7 +2705,7 @@ function DesignLayoutTab({
   canEdit: boolean;
   onSwitchToEdit: () => void;
 }) {
-  const [sub,                setSub]                = React.useState<DesignSubTab>("visual");
+  const [sub,                setSub]                = React.useState<DesignSubTab>("concept");
   const [generatingInline3D, setGeneratingInline3D] = React.useState(false);
   const [inline3DError,      setInline3DError]      = React.useState("");
   const [suggestingFloor,    setSuggestingFloor]    = React.useState(false);
@@ -2767,11 +2765,12 @@ function DesignLayoutTab({
   }
 
   const SUB_TABS: { id: DesignSubTab; label: string }[] = [
-    { id: "visual", label: "✨ Visual Identity" },
-    { id: "stage",  label: "🎭 Stage Design"   },
-    { id: "decor",  label: "🎨 Decor Zones"    },
-    { id: "3d",     label: "🎬 3D Renders"     },
-    { id: "floor",  label: "📐 Floor Plan"     },
+    { id: "concept", label: "💡 Concept"        },
+    { id: "visual",  label: "✨ Visual Identity" },
+    { id: "stage",   label: "🎭 Stage Design"   },
+    { id: "decor",   label: "🎨 Decor Zones"    },
+    { id: "3d",      label: "🎬 3D Renders"     },
+    { id: "floor",   label: "📐 Floor Plan"     },
   ];
 
   return (
@@ -2800,6 +2799,9 @@ function DesignLayoutTab({
       </div>
 
       {/* Sub-tab content — VisualTab has its own padding, others use 20px */}
+      {sub === "concept" && (
+        <ConceptTab proposal={proposal} update={update} />
+      )}
       {sub === "visual" && (
         <VisualTab
           proposal={proposal}

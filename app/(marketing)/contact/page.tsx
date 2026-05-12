@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+// CSS hover for channel cards (server component — no JS handlers allowed)
+const hoverStyles = `
+  .contact-channel { transition: border-color 300ms, background 300ms; }
+  .contact-channel:hover { border-color: rgba(212,168,95,0.35) !important; background: rgba(212,168,95,0.04) !important; }
+`;
+
 export const metadata: Metadata = {
   title: "Contact — Kunjara OS™",
   description: "Get in touch with the Kunjara OS team. We're based in Mumbai and built for Indian event professionals.",
@@ -45,6 +51,7 @@ const faqs = [
 export default function ContactPage() {
   return (
     <div style={{ background: "#0A0A0C", color: "#F4F1EA", minHeight: "100vh" }}>
+      <style dangerouslySetInnerHTML={{ __html: hoverStyles }} />
 
       {/* Nav */}
       <nav style={{ position: "sticky", top: 0, zIndex: 50, padding: "16px 6vw", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(10,10,12,0.9)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
@@ -74,9 +81,8 @@ export default function ContactPage() {
             <a
               key={c.title}
               href={c.href}
-              style={{ display: "flex", flexDirection: "column", gap: 16, padding: "36px 32px", borderRadius: 18, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.08)", textDecoration: "none", color: "inherit", transition: "border-color 300ms, background 300ms" }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = `rgba(212,168,95,0.35)`; e.currentTarget.style.background = "rgba(212,168,95,0.04)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.025)"; }}
+              className="contact-channel"
+              style={{ display: "flex", flexDirection: "column", gap: 16, padding: "36px 32px", borderRadius: 18, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.08)", textDecoration: "none", color: "inherit" }}
             >
               <span style={{ fontSize: 28 }} aria-hidden>{c.icon}</span>
               <div>
